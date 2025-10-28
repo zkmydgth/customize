@@ -1,8 +1,1 @@
-#DIRECT
-DOMAIN-SUFFIX,dsmynas.com
-DOMAIN-SUFFIX,downloadtorrentfile.com
-DOMAIN-SUFFIX,47bt.com
-DOMAIN-SUFFIX,47bt.org
-DOMAIN-SUFFIX,ignorelist.com
-DOMAIN-SUFFIX,asusrouter.com
-DOMAIN-SUFFIX,mooko.org
+
