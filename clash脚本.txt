@@ -372,6 +372,22 @@ function overwriteProxyGroups(params) {
             icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/chatgpt.svg",
         },
         {
+            name: "Bilibili港澳台",
+            type: "select",
+            proxies: [
+                "DIRECT",
+                proxyName,
+                ...countryRegions
+                    .filter((region) => availableCountryCodes.has(region.name))
+                    .flatMap((region) => [
+                        `${region.name} - 自动选择`,
+                        `${region.name} - 手动选择`,
+                    ]),
+            ],
+            // "include-all": true,
+            icon: "https://www.bilibili.com/favicon.ico",
+        },
+        {
             name: "流媒体",
             type: "select",
             proxies: [
@@ -398,7 +414,6 @@ function overwriteProxyGroups(params) {
                         `${region.name} - 自动选择`,
                         `${region.name} - 手动选择`,
                     ]),
-                "DIRECT"  // 新增DIRECT选项
             ],
             // "include-all": true,
             icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/apple.svg",
@@ -532,6 +547,7 @@ function overwriteRules(params) {
          * JOOX、Jwplayer、KKBOX、KKTV、Line TV、Naver TV、myTV Super、Netflix、niconico、Now E、Paramount+、PBS、Peacock、Pandora、PBS、Pornhub、SoundCloud、
          * PBS、Spotify、TaiwanGood、Tiktok Intl、Twitch、ViuTV、ShowTime、iQiYi Global、Himalaya Podcast、Overcast、WeTV
          */
+        "RULE-SET,Bilibili,Bilibili港澳台",
         "RULE-SET,Stream_no_ip,流媒体",
         "RULE-SET,Emby_no_ip,Emby",
 
@@ -564,80 +580,11 @@ function overwriteRules(params) {
         // 微软需要代理域名
         "RULE-SET,Microsoft_no_ip,微软服务",
 
-        // OpenAI 规则
-        "DOMAIN,browser-intake-datadoghq.com,AI",
-        "DOMAIN,chat.openai.com.cdn.cloudflare.net,AI",
-        "DOMAIN,openai-api.arkoselabs.com,AI",
-        "DOMAIN,openaicom-api-bdcpf8c6d2e9atf6.z01.azurefd.net,AI",
-        "DOMAIN,openaicomproductionae4b.blob.core.windows.net,AI",
-        "DOMAIN,production-openaicom-storage.azureedge.net,AI",
-        "DOMAIN,static.cloudflareinsights.com,AI",
-        "DOMAIN-SUFFIX,ai.com,AI",
-        "DOMAIN-SUFFIX,algolia.net,AI",
-        "DOMAIN-SUFFIX,api.statsig.com,AI",
-        "DOMAIN-SUFFIX,auth0.com,AI",
-        "DOMAIN-SUFFIX,chatgpt.com,AI",
-        "DOMAIN-SUFFIX,chatgpt.livekit.cloud,AI",
-        "DOMAIN-SUFFIX,client-api.arkoselabs.com,AI",
-        "DOMAIN-SUFFIX,events.statsigapi.net,AI",
-        "DOMAIN-SUFFIX,featuregates.org,AI",
-        "DOMAIN-SUFFIX,host.livekit.cloud,AI",
-        "DOMAIN-SUFFIX,identrust.com,AI",
-        "DOMAIN-SUFFIX,intercom.io,AI",
-        "DOMAIN-SUFFIX,intercomcdn.com,AI",
-        "DOMAIN-SUFFIX,launchdarkly.com,AI",
-        "DOMAIN-SUFFIX,oaistatic.com,AI",
-        "DOMAIN-SUFFIX,oaiusercontent.com,AI",
-        "DOMAIN-SUFFIX,observeit.net,AI",
-        "DOMAIN-SUFFIX,openai.com,AI",
-        "DOMAIN-SUFFIX,openaiapi-site.azureedge.net,AI",
-        "DOMAIN-SUFFIX,openaicom.imgix.net,AI",
-        "DOMAIN-SUFFIX,segment.io,AI",
-        "DOMAIN-SUFFIX,sentry.io,AI",
-        "DOMAIN-SUFFIX,stripe.com,AI",
-        "DOMAIN-SUFFIX,turn.livekit.cloud,AI",
-        "DOMAIN-KEYWORD,openai,AI",
-        // Copilot 规则
-        "DOMAIN,api.msn.com,AI",
-        "DOMAIN,api.statsig.com,AI",
-        "DOMAIN,assets.msn.com,AI",
-        "DOMAIN,copilot.microsoft.com,AI",
-        "DOMAIN,gateway.bingviz.microsoft.net,AI",
-        "DOMAIN,gateway.bingviz.microsoftapp.net,AI",
-        "DOMAIN,in.appcenter.ms,AI",
-        "DOMAIN,location.microsoft.com,AI",
-        "DOMAIN,odc.officeapps.live.com,AI",
-        "DOMAIN,r.bing.com,AI",
-        "DOMAIN,self.events.data.microsoft.com,AI",
-        "DOMAIN,services.bingapis.com,AI",
-        "DOMAIN,sydney.bing.com,AI",
-        "DOMAIN, www.bing.com,AI ",
-        "DOMAIN-SUFFIX,api.microsoftapp.net,AI",
-        "DOMAIN-SUFFIX,bing-shopping.microsoft-falcon.io,AI",
-        "DOMAIN-SUFFIX,challenges.cloudflare.com,AI",
-        "DOMAIN-SUFFIX,edgeservices.bing.com,AI",
-        "DOMAIN-KEYWORD,openaicom-api,AI",
-        // Gemini 规则
-        "DOMAIN,ai.google.dev,AI",
-        "DOMAIN,alkalimakersuite-pa.clients6.google.com,AI",
-        "DOMAIN,makersuite.google.com,AI",
-        "DOMAIN-SUFFIX,bard.google.com,AI",
-        "DOMAIN-SUFFIX,deepmind.com,AI",
-        "DOMAIN-SUFFIX,deepmind.google,AI",
-        "DOMAIN-SUFFIX,gemini.google.com,AI",
-        "DOMAIN-SUFFIX,generativeai.google,AI",
-        "DOMAIN-SUFFIX,proactivebackend-pa.googleapis.com,AI",
-        "DOMAIN-SUFFIX,apis.google.com,AI",
-        "DOMAIN-KEYWORD,colab,AI",
-        "DOMAIN-KEYWORD,developerprofiles,AI",
-        "DOMAIN-KEYWORD,generativelanguage,AI",
-        // Claude 规则
-        "DOMAIN,cdn.usefathom.com,AI",
-        "DOMAIN-SUFFIX,anthropic.com,AI",
-        "DOMAIN-SUFFIX,claude.ai,AI",
-        // Grok 规则
-        "DOMAIN-SUFFIX,x.ai,AI",
-        "DOMAIN-SUFFIX,grok.com,AI",
+        // ai 相关
+        /**
+         * 包含 OpenAI、Google Gemini、Claude、Perplexity 等
+         */
+        "RULE-SET,AI_no_ip,AI",
 
         // 常见海外服务和互联网公司的域名 有部分域名被DNS污染，故使用代理
         "RULE-SET,Global_no_ip," + proxyName,
@@ -754,6 +701,30 @@ function overwriteRules(params) {
             url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/REJECT/ip/Reject_ip.yaml",
             path: "./ruleset/RealSeek/Clash_Rule_DIY/REJECT/ip/Reject_ip.yaml",
         },
+        AdobeActivation1: {
+            type: "http",
+            interval: 1800,
+            behavior: "classical",
+            format: "yaml",
+            url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdobeActivation/AdobeActivation.yaml",
+            path: "./ruleset/blackmatrix7/ios_rule_script/AdobeActivation.yaml",
+        },
+        AdobeActivation2: {
+            type: "http",
+            interval: 1800,
+            behavior: "classical",
+            format: "yaml",
+            url: "https://raw.githubusercontent.com/ignaciocastro/a-dove-is-dumb/main/clash.yaml",
+            path: "./ruleset/ignaciocastro/a-dove-is-dumb/clash.yaml",
+        },
+        GlobalDirect: {
+            type: "http",
+            interval: 1800,
+            behavior: "classical",
+            format: "yaml",
+            url: "https://raw.githubusercontent.com/zkmydgth/customize/refs/heads/main/DIRTCT_clash.yaml",
+            path: "./ruleset/zkmydgth/DIRTCT_clash.yaml",
+        },
 
         // ##################################################################################################################
 
@@ -781,30 +752,7 @@ function overwriteRules(params) {
             url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/REJECT/no_ip/Reject_no_ip_no_drop.yaml",
             path: "./ruleset/RealSeek/Clash_Rule_DIY/REJECT/no_ip/Reject_no_ip_no_drop.yaml",
         },
-        AdobeActivation1: {
-            type: "http",
-            interval: 1800,
-            behavior: "classical",
-            format: "yaml",
-            url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdobeActivation/AdobeActivation.yaml",
-            path: "./ruleset/blackmatrix7/ios_rule_script/AdobeActivation.yaml",
-        },
-        AdobeActivation2: {
-            type: "http",
-            interval: 1800,
-            behavior: "classical",
-            format: "yaml",
-            url: "https://raw.githubusercontent.com/ignaciocastro/a-dove-is-dumb/main/clash.yaml",
-            path: "./ruleset/ignaciocastro/a-dove-is-dumb/clash.yaml",
-        },
-        GlobalDirect: {
-            type: "http",
-            interval: 1800,
-            behavior: "classical",
-            format: "yaml",
-            url: "https://raw.githubusercontent.com/zkmydgth/customize/refs/heads/main/DIRTCT_clash.yaml",
-            path: "./ruleset/zkmydgth/DIRTCT_clash.yaml",
-        },
+
         // ##################################################################################################################
 
         /**
@@ -934,6 +882,13 @@ function overwriteRules(params) {
          */
 
         // ##################################################################################################################
+
+        // Bilibili IP
+        Bilibili: {
+            ...ruleAnchor.classical,
+            url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Bilibili_no_ip.yaml",
+            path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/ip/Bilibili_no_ip.yaml",
+        },
 
         // 流媒体 IP
         Stream_ip: {
