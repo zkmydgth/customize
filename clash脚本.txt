@@ -495,8 +495,8 @@ function overwriteRules(params) {
         "RULE-SET,Reject_domainset,REJECT",
         "RULE-SET,Reject_no_ip_drop,REJECT-DROP",
         "RULE-SET,Reject_no_ip_no_drop,REJECT",
-        "RULE-SET,AdobeActivation,REJECT", // Adobe屏蔽规则集
-        "RULE-SET,DoveDumb,REJECT", // Adobe屏蔽规则集
+        "RULE-SET,AdobeActivation1,REJECT", // Adobe屏蔽规则集
+        "RULE-SET,AdobeActivation2,REJECT", // Adobe屏蔽规则集
     ];
 
     const nonipRules = [
@@ -781,7 +781,7 @@ function overwriteRules(params) {
             url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/REJECT/no_ip/Reject_no_ip_no_drop.yaml",
             path: "./ruleset/RealSeek/Clash_Rule_DIY/REJECT/no_ip/Reject_no_ip_no_drop.yaml",
         },
-        AdobeActivation: {
+        AdobeActivation1: {
             type: "http",
             interval: 1800,
             behavior: "classical",
@@ -789,7 +789,7 @@ function overwriteRules(params) {
             url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdobeActivation/AdobeActivation.yaml",
             path: "./ruleset/blackmatrix7/ios_rule_script/AdobeActivation.yaml",
         },
-        DoveDumb: {
+        AdobeActivation2: {
             type: "http",
             interval: 1800,
             behavior: "classical",
