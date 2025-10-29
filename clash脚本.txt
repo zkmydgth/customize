@@ -900,8 +900,8 @@ function overwriteRules(params) {
         // telegram ip
         Telegram_ip: {
             ...ruleAnchor.classical,
-            url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/ip/Telegram_ip.yaml",
-            path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/ip/Telegram_ip.yaml",
+            url: "https://raw.githubusercontent.com/zkmydgth/customize/refs/heads/main/Ai.yaml",
+            path: "./ruleset/zkmydgth/Ai.yaml",
         },
 
         // ##################################################################################################################
