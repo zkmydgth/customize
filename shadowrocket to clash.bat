@@ -3,12 +3,17 @@ setlocal enabledelayedexpansion
 
 REM 设置颜色
 color 0A
+
+REM 【修改点】添加循环起点标签
+:start
+
 echo.
 echo ===============================================
 echo    shadowrocket to clash格式转换工具
 echo ===============================================
 echo.
 
+echo.
 REM 获取用户输入的文件名（可不带扩展名）
 set /p "input_file=请输入要转换的文档文件名（不输入扩展名则默认使用.list）: "
 
@@ -36,7 +41,8 @@ if "!found_file!"=="" (
     echo   %input_file%.TXT
     echo   %input_file%.rule
     pause
-    exit /b 1
+    REM 【修改点】文件不存在时，跳回起点重新输入，而不是退出
+    goto start
 )
 
 set "input_file=!found_file!"
@@ -75,26 +81,9 @@ for /f "usebackq tokens=1* delims=," %%a in ("!input_file!") do (
     REM 跳过空行和注释行（以#开头的行）
     if not "!rule_type!"=="" (
         if not "!rule_type:~0,1!"=="#" (
-            REM 检查是否为支持的规则类型
-            if "!rule_type!"=="DOMAIN" (
-                echo   - DOMAIN,!rule_value! >> "!output_file!"
-                set /a rule_count+=1
-            ) else if "!rule_type!"=="DOMAIN-SUFFIX" (
-                echo   - DOMAIN-SUFFIX,!rule_value! >> "!output_file!"
-                set /a rule_count+=1
-            ) else if "!rule_type!"=="DOMAIN-KEYWORD" (
-                echo   - DOMAIN-KEYWORD,!rule_value! >> "!output_file!"
-                set /a rule_count+=1
-            ) else if "!rule_type!"=="IP-CIDR" (
-                echo   - IP-CIDR,!rule_value! >> "!output_file!"
-                set /a rule_count+=1
-            ) else if "!rule_type!"=="USER-AGENT" (
-                echo   - USER-AGENT,!rule_value! >> "!output_file!"
-                set /a rule_count+=1
-            ) else if "!rule_type!"=="PROCESS-NAME" (
-                echo   - PROCESS-NAME,!rule_value! >> "!output_file!"
-                set /a rule_count+=1
-            )
+            REM 写入规则（修复重复，只保留一次）
+            echo   - !rule_type!,!rule_value! >> "!output_file!"
+            set /a rule_count+=1
         )
     )
 )
@@ -116,4 +105,13 @@ for /f "tokens=1* delims=:" %%i in ('findstr /n "^" "!output_file!"') do (
 echo -------------------------
 echo.
 
-pause
+REM 【修改点】询问用户是否继续转换另一个文件
+set /p "continue=是否继续转换另一个文件？(y/n): "
+if /i "!continue!"=="y" (
+    echo.
+    goto start
+) else (
+    echo 程序退出。
+    pause
+    exit /b 0
+)
