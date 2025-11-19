@@ -7,4 +7,4 @@ payload:
   - DOMAIN-SUFFIX,ignorelist.com
   - DOMAIN-SUFFIX,asusrouter.com
   - DOMAIN-SUFFIX,mooko.org
-  - DOMAIN-SUFFIX,okemby.org
+#  - DOMAIN-SUFFIX,okemby.org
