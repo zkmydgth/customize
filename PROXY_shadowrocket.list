@@ -1,5 +1,3 @@
 # PROXY
 DOMAIN-SUFFIX,okemby.org
 DOMAIN-SUFFIX,oceancloud.asia
-DOMAIN-SUFFIX,dpdns.org
-IP-CIDR,146.56.105.219/32,no-resolve
