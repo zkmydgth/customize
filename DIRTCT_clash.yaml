@@ -17,5 +17,6 @@ payload:
   - DOMAIN-SUFFIX,qingwapt.com
   - DOMAIN-SUFFIX,qingwapt.org
   - DOMAIN-SUFFIX,hhanclub.net
+  - DOMAIN-SUFFIX,audiences.me
   - DOMAIN-SUFFIX,dpdns.org
   - IP-CIDR,146.56.105.219/32,no-resolve
