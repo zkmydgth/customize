@@ -1,42 +1,89 @@
+// ============================================================================
+//  Clash Verge Rev 扩展脚本（优化版）—— 适配 v2.5.x
+//  用法：设置 → 扩展脚本 / 全局扩展脚本，粘贴本文件全部内容
+// ----------------------------------------------------------------------------
+//  【一】以下字段已被「应用设置」接管，脚本里写 = 无效（会被丢弃并弹橙色警告）
+//        来源：clash-verge-rev 源码 src-tauri/src/enhance/mod.rs
+//              CONTROL_PLANE_KEYS + constants::tun::GUI_KEYS
+//
+//   顶层控制面
+//     mode                     → 设置 → Clash 设置 → 代理模式
+//     mixed-port               → 设置 → Clash 设置 → 端口配置
+//     socks-port / port        → 同上（需先打开对应开关）
+//     redir-port / tproxy-port → 平台相关，GUI 接管
+//     allow-lan                → 设置 → Clash 设置 → 允许局域网连接
+//     log-level                → 设置 → Clash 设置 → 日志等级
+//     ipv6                     → 设置 → Clash 设置 → IPv6
+//     unified-delay            → 设置 → Clash 设置 → 统一延迟
+//     external-controller / external-controller-unix / -pipe / -cors / secret
+//
+//   tun.*（设置 → TUN 设置 接管，脚本写 tun 块基本无效）
+//     enable / stack / auto-route / strict-route / auto-detect-interface
+//     dns-hijack / device / mtu / route-exclude-address / auto-redirect
+//
+//   dns.*（仅当「设置 → DNS 设置」页的开关打开时才被接管；关闭时脚本生效）
+//
+//   → 本脚本已把上述字段全部删除，请统一到 GUI 里配置。
+//     原脚本会被丢弃的字段：mixed-port、allow-lan、ipv6、unified-delay、mode、
+//     tun.enable、tun.stack（以及 tun 块里的其余项）。
+// ----------------------------------------------------------------------------
+//  【二】本次修复的其他问题
+//    1. 笔误 "fakeind-process-mode" → "find-process-mode"（原写法一直被 mihomo 忽略）
+//    2. Telegram_ip 规则集 URL 指向的 zkmydgth/Ai.yaml 已 404，改为 RealSeek 的
+//       PROXY/ip/Telegram_ip.yaml（真正的 Telegram 官方 IP CIDR）
+//    3. AppleCN_no_ip 的 behavior 由 domain 改为 classical（文件实为 DOMAIN-SUFFIX 格式，
+//       用 domain 会导致该规则集静默失效）
+//    4. Bilibili / Emby 两个 provider 的 path 与 url 目录不一致，已统一
+//    5. 移除 exclude-filter：mihomo 文档明确它只对 use / include-all-proxies 生效，
+//       对本脚本的显式 proxies 列表是无效冗余
+//    6. groups[2] 这类硬编码下标改为按组名查找；重复的 flatMap 汇总为 activeRegionGroups
+//    7. 「其它」组补上图标，并改为「确实存在未归类节点时才创建」
+//    8. 西班牙 / 荷兰 / 印度 三个地区的正则原为 /\b(西班牙|ES|Spain)\b/i ——
+//       JS 里中文不属于 \w，导致「西班牙01」这类节点名永远匹配不上、被丢进「其它」。
+//       已改为中文/emoji 不加边界、只有拉丁缩写才加 \b。
+// ============================================================================
+
 const proxyName = "代理模式";
+const HEALTH_CHECK_URL = "http://www.gstatic.com/generate_204";
+const ICON_BASE =
+  "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons";
+const icon = (name) => `${ICON_BASE}/${name}.svg`;
+const flag = (code) => `${ICON_BASE}/flags/${code}.svg`;
 
 function main(params) {
-  if (!params.proxies) return params;
+  if (!params || !Array.isArray(params.proxies)) return params;
   overwriteBasicOptions(params);
   overwriteSniffer(params);
   overwriteProxyGroups(params);
   overwriteRules(params);
   overwriteDns(params);
-  overwriteTunnel(params);
   return params;
 }
 
-// 覆写Basic Options
+// ---------------------------------------------------------------------------
+// 基础选项：只保留「未被应用接管」的字段
+// ---------------------------------------------------------------------------
 function overwriteBasicOptions(params) {
-  const otherOptions = {
-    "mixed-port": 7890,
-    "allow-lan": true,
-    "unified-delay": true,
+  Object.assign(params, {
     "tcp-concurrent": true,
     "geodata-mode": true,
-    "fakeind-process-mode": "strict",
+    "find-process-mode": "strict",
     "global-client-fingerprint": "chrome",
     profile: {
       "store-selected": true,
       "store-fake-ip": true,
     },
-    ipv6: true,
-    mode: "rule",
+    // 注意：这两项只在 GUI 打开「允许局域网连接」后才有意义
     "skip-auth-prefixes": ["127.0.0.1/32"],
     "lan-allowed-ips": ["0.0.0.0/0", "::/0"],
-  };
-  Object.keys(otherOptions).forEach((key) => {
-    params[key] = otherOptions[key];
   });
 }
 
+// ---------------------------------------------------------------------------
+// 域名嗅探
+// ---------------------------------------------------------------------------
 function overwriteSniffer(params) {
-  const snifferConfig = {
+  params.sniffer = {
     enable: true,
     "force-dns-mapping": true,
     "parse-pure-ip": true,
@@ -47,7 +94,6 @@ function overwriteSniffer(params) {
         ports: ["80", "443"],
         "override-destination": false,
       },
-
       TLS: {
         ports: ["443"],
       },
@@ -69,456 +115,231 @@ function overwriteSniffer(params) {
       "2001:b28:f23c::/47",
       "2001:b28:f23f::/48",
       "2a0a:f280:203::/48",
-    ]
+    ],
   };
-
-  params["sniffer"] = snifferConfig;
 }
 
-// 覆写代理组
+// ---------------------------------------------------------------------------
+// 代理组
+// ---------------------------------------------------------------------------
 function overwriteProxyGroups(params) {
-  // 添加自用代理
-  params.proxies
-    .push
-    //  { name: '1 - 香港 - 示例 ', type: *, server: **, port: *, cipher: **, password: **, udp: true }
-    ();
-  // 自动选择代理组，按地区分组选延迟最低
+  // 地区表：flag 用于图标文件名，regex 用于匹配节点名
   const countryRegions = [
-    {
-      code: "HK",
-      name: "🇭🇰 香港",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/hk.svg",
-      regex: /(香港|HK|Hong Kong|🇭🇰)/i,
-    },
-    {
-      code: "TW",
-      name: "🇹🇼 台湾",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/tw.svg",
-      regex: /(台湾|TW|Taiwan|🇹🇼)/i,
-    },
-    {
-      code: "SG",
-      name: "🇸🇬 新加坡",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/sg.svg",
-      regex: /(新加坡|狮城|SG|Singapore|🇸🇬)/i,
-    },
-    {
-      code: "AR",
-      name: "🇦🇷 阿根廷",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/ar.svg",
-      regex: /(阿根廷|AR|Argentina|🇦🇷)/i,
-    },
-    {
-      code: "JP",
-      name: "🇯🇵 日本",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/jp.svg",
-      regex: /(日本|JP|Japan|🇯🇵)/i,
-    },
-    {
-      code: "US",
-      name: "🇺🇸 美国",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/us.svg",
-      regex: /(美国|US|USA|United States|America|🇺🇸)/i,
-    },
-    {
-      code: "DE",
-      name: "🇩🇪 德国",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/de.svg",
-      regex: /(德国|DE|Germany|🇩🇪)/i,
-    },
-    {
-      code: "KR",
-      name: "🇰🇷 韩国",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/kr.svg",
-      regex: /(韩国|KR|Korea|South Korea|🇰🇷)/i,
-    },
-    {
-      code: "UK",
-      name: "🇬🇧 英国",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/gb.svg",
-      regex: /(英国|UK|United Kingdom|Britain|Great Britain|🇬🇧)/i,
-    },
-    {
-      code: "CA",
-      name: "🇨🇦 加拿大",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/ca.svg",
-      regex: /(加拿大|CA|Canada|🇨🇦)/i,
-    },
-    {
-      code: "AU",
-      name: "🇦🇺 澳大利亚",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/au.svg",
-      regex: /(澳大利亚|AU|Australia|🇦🇺)/i,
-    },
-    {
-      code: "ES",
-      name: "🇪🇸 西班牙",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/es.svg",
-      regex: /\b(西班牙|ES|Spain|🇪🇸)\b/i,
-    },
-    {
-      code: "NL",
-      name: "🇳🇱 荷兰",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/nl.svg",
-      regex: /\b(荷兰|NL|Netherlands|🇳🇱)\b/i,
-    },
-    {
-      code: "TR",
-      name: "🇹🇷 土耳其",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/tr.svg",
-      regex: /(土耳其|TR|Turkey|🇹🇷)/i,
-    },
-    {
-      code: "RU",
-      name: "🇷🇺 俄罗斯",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/ru.svg",
-      regex: /(俄罗斯|RU|Russia|🇷🇺)/i,
-    },
-    {
-      code: "IN",
-      name: "🇮🇳 印度",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/in.svg",
-      regex: /\b(印度|IN|India|🇮🇳)\b/i,
-    },
-    {
-      code: "BR",
-      name: "🇧🇷 巴西",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/br.svg",
-      regex: /(巴西|BR|Brazil|🇧🇷)/i,
-    },
-    {
-      code: "IT",
-      name: "🇮🇹 意大利",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/it.svg",
-      regex: /(意大利|IT|Italy|🇮🇹)/i,
-    },
-    {
-      code: "CH",
-      name: "🇨🇭 瑞士",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/ch.svg",
-      regex: /(瑞士|CH|Switzerland|🇨🇭)/i,
-    },
-    {
-      code: "SE",
-      name: "🇸🇪 瑞典",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/se.svg",
-      regex: /(瑞典|SE|Sweden|🇸🇪)/i,
-    },
-    {
-      code: "NO",
-      name: "🇳🇴 挪威",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/flags/no.svg",
-      regex: /(挪威|NO|Norway|🇳🇴)/i,
-    },
-    {
-      name: "其它",
-      regex: /(?!.*(?: 剩余 | 到期 | 主页 | 官网 | 游戏 | 关注))(.*)/,
-    },
+    { name: "🇭🇰 香港", flag: "hk", regex: /(香港|HK|Hong Kong|🇭🇰)/i },
+    { name: "🇹🇼 台湾", flag: "tw", regex: /(台湾|TW|Taiwan|🇹🇼)/i },
+    { name: "🇸🇬 新加坡", flag: "sg", regex: /(新加坡|狮城|SG|Singapore|🇸🇬)/i },
+    { name: "🇦🇷 阿根廷", flag: "ar", regex: /(阿根廷|AR|Argentina|🇦🇷)/i },
+    { name: "🇯🇵 日本", flag: "jp", regex: /(日本|JP|Japan|🇯🇵)/i },
+    { name: "🇺🇸 美国", flag: "us", regex: /(美国|US|USA|United States|America|🇺🇸)/i },
+    { name: "🇩🇪 德国", flag: "de", regex: /(德国|DE|Germany|🇩🇪)/i },
+    { name: "🇰🇷 韩国", flag: "kr", regex: /(韩国|KR|Korea|South Korea|🇰🇷)/i },
+    { name: "🇬🇧 英国", flag: "gb", regex: /(英国|UK|United Kingdom|Britain|Great Britain|🇬🇧)/i },
+    { name: "🇨🇦 加拿大", flag: "ca", regex: /(加拿大|CA|Canada|🇨🇦)/i },
+    { name: "🇦🇺 澳大利亚", flag: "au", regex: /(澳大利亚|AU|Australia|🇦🇺)/i },
+    // 注意：中文不是 \w，不能整体套 \b，否则「西班牙01」这类名字永远匹配不上。
+    // 正确做法是中文/emoji 不加边界，拉丁缩写才加边界。
+    { name: "🇪🇸 西班牙", flag: "es", regex: /(西班牙|🇪🇸|\bES\b|\bSpain\b)/i },
+    { name: "🇳🇱 荷兰", flag: "nl", regex: /(荷兰|🇳🇱|\bNL\b|\bNetherlands\b)/i },
+    { name: "🇹🇷 土耳其", flag: "tr", regex: /(土耳其|TR|Turkey|🇹🇷)/i },
+    { name: "🇷🇺 俄罗斯", flag: "ru", regex: /(俄罗斯|RU|Russia|🇷🇺)/i },
+    { name: "🇮🇳 印度", flag: "in", regex: /(印度|🇮🇳|\bIN\b|\bIndia\b)/i },
+    { name: "🇧🇷 巴西", flag: "br", regex: /(巴西|BR|Brazil|🇧🇷)/i },
+    { name: "🇮🇹 意大利", flag: "it", regex: /(意大利|IT|Italy|🇮🇹)/i },
+    { name: "🇨🇭 瑞士", flag: "ch", regex: /(瑞士|CH|Switzerland|🇨🇭)/i },
+    { name: "🇸🇪 瑞典", flag: "se", regex: /(瑞典|SE|Sweden|🇸🇪)/i },
+    { name: "🇳🇴 挪威", flag: "no", regex: /(挪威|NO|Norway|🇳🇴)/i },
   ];
 
-  // 所有代理
-  // 所有地区
-  const allRegex =
-    /^(?!.*(?:自动|故障|流量|官网|套餐|机场|订阅|年|月|失联|频道|Traffic|Expire)).*$/;
-  const allProxies = getProxiesByRegexOne(params, allRegex);
-  // const allProxies = params["proxies"].map((e) => e.name);
+  const OTHER_GROUP = "其它 - 手动选择";
 
-  const availableCountryCodes = new Set();
+  // 一次遍历：算出哪些地区有节点、以及未归类的节点
+  const availableRegions = [];
   const otherProxies = [];
-  for (const proxy of params["proxies"]) {
-    let found = false;
-    for (const region of countryRegions) {
-      if (region.regex.test(proxy.name)) {
-        availableCountryCodes.add(region.name);
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
+  for (const proxy of params.proxies) {
+    const region = countryRegions.find((r) => r.regex.test(proxy.name));
+    if (!region) {
       otherProxies.push(proxy.name);
+    } else if (!availableRegions.includes(region)) {
+      availableRegions.push(region);
     }
   }
 
-  const autoProxyGroupRegexs = countryRegions
-    .filter((region) => availableCountryCodes.has(region.name))
+  // 所有可用于 url-test / fallback / load-balance 的原始节点
+  const allRegex =
+    /^(?!.*(?:自动|故障|流量|官网|套餐|机场|订阅|年|月|失联|频道|Traffic|Expire)).*$/;
+  const allProxies = pickNames(params, allRegex);
+
+  // 地区自动选择组（fallback，延迟最低优先）
+  const autoProxyGroups = availableRegions
     .map((region) => ({
       name: `${region.name} - 自动选择`,
-      regex: region.regex,
-    }));
-
-  const autoProxyGroups = autoProxyGroupRegexs
-    .map((item) => ({
-      name: item.name,
       type: "fallback",
-      url: "http://www.gstatic.com/generate_204",
+      url: HEALTH_CHECK_URL,
       interval: 300,
       tolerance: 50,
-      proxies: getProxiesByRegex(params, item.regex),
+      proxies: pickNames(params, region.regex),
       hidden: true,
     }))
-    .filter((item) => item.proxies.length > 0);
+    .filter((g) => g.proxies.length > 0);
 
-  const manualProxyGroupsConfig = countryRegions
-    .filter((region) => availableCountryCodes.has(region.name))
-    .map((region) => ({
-      name: `${region.name} - 手动选择`,
+  // 地区手动选择组
+  const manualProxyGroups = availableRegions.map((region) => ({
+    name: `${region.name} - 手动选择`,
+    type: "select",
+    proxies: pickNames(params, region.regex),
+    icon: flag(region.flag),
+    hidden: false,
+  }));
+
+  if (otherProxies.length > 0) {
+    manualProxyGroups.push({
+      name: OTHER_GROUP,
       type: "select",
-      proxies: getManualProxiesByRegex(params, region.regex),
-      icon: region.icon,
+      proxies: otherProxies,
+      icon: icon("link"),
       hidden: false,
-    }))
-    .filter((item) => item.proxies.length > 0);
+    });
+  }
+
+  const autoProxyNames = autoProxyGroups.map((g) => g.name);
+  // 「手动选择」总入口：各地区自动/手动组，按地区表顺序排列
+  const regionGroupNames = [
+    ...availableRegions.flatMap((region) => [
+      `${region.name} - 自动选择`,
+      `${region.name} - 手动选择`,
+    ]),
+    ...(otherProxies.length > 0 ? [OTHER_GROUP] : []),
+  ];
 
   const groups = [
     {
       name: proxyName,
       type: "select",
-      url: "http://www.gstatic.com/generate_204",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/adjust.svg",
-      proxies: [
-        "延迟优选",
-        "故障转移",
-        "手动选择",
-        "负载均衡 (散列)",
-        "负载均衡 (轮询)",
-        "DIRECT",
-      ],
+      url: HEALTH_CHECK_URL,
+      icon: icon("adjust"),
+      proxies: ["延迟优选", "故障转移", "手动选择", "负载均衡 (散列)", "负载均衡 (轮询)", "DIRECT"],
     },
     {
       name: "延迟优选",
       type: "url-test",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/speed.svg",
-      "exclude-filter": "自动选择|手动选择",
+      icon: icon("speed"),
       proxies: allProxies.length > 0 ? allProxies : ["DIRECT"],
       hidden: true,
     },
     {
       name: "故障转移",
       type: "fallback",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/ambulance.svg",
-      "exclude-filter": "自动选择|手动选择",
+      icon: icon("ambulance"),
       proxies: allProxies.length > 0 ? allProxies : ["DIRECT"],
       hidden: true,
     },
     {
       name: "手动选择",
       type: "select",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/link.svg",
-      proxies: [
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-      ],
+      icon: icon("link"),
+      proxies: regionGroupNames.length > 0 ? regionGroupNames : ["DIRECT"],
     },
     {
       name: "负载均衡 (散列)",
       type: "load-balance",
-      url: "http://www.gstatic.com/generate_204",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/balance.svg",
+      url: HEALTH_CHECK_URL,
+      icon: icon("balance"),
       interval: 300,
       "max-failed-times": 3,
       strategy: "consistent-hashing",
       lazy: true,
-      "exclude-filter": "自动选择|手动选择",
       proxies: allProxies.length > 0 ? allProxies : ["DIRECT"],
       hidden: true,
     },
     {
       name: "负载均衡 (轮询)",
       type: "load-balance",
-      url: "http://www.gstatic.com/generate_204",
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/merry_go.svg",
+      url: HEALTH_CHECK_URL,
+      icon: icon("merry_go"),
       interval: 300,
       "max-failed-times": 3,
-      "exclude-filter": "自动选择|手动选择",
       strategy: "round-robin",
       lazy: true,
       proxies: allProxies.length > 0 ? allProxies : ["DIRECT"],
       hidden: true,
     },
-    {
-      name: "电报消息",
-      type: "select",
-      proxies: [
-        proxyName,
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-        "DIRECT",
-      ],
-      // "include-all": true,
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/telegram.svg",
-    },
-    {
-      name: "AI",
-      type: "select",
-      proxies: [
-        proxyName,
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-        "DIRECT",
-      ],
-      // "include-all": true,
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/chatgpt.svg",
-    },
-    {
-      name: "Bilibili港澳台",
-      type: "select",
-      proxies: [
-        "DIRECT",
-        proxyName,
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-      ],
-      // "include-all": true,
-      icon: "https://www.bilibili.com/favicon.ico",
-    },
-    {
-      name: "流媒体",
-      type: "select",
-      proxies: [
-        proxyName,
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-        "DIRECT",
-      ],
-      // "include-all": true,
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/youtube.svg",
-    },
-    {
-      name: "苹果服务",
-      type: "select",
-      proxies: [
-        proxyName,
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-      ],
-      // "include-all": true,
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/apple.svg",
-    },
-    {
-      name: "微软服务",
-      type: "select",
-      proxies: [
-        proxyName,
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-        "DIRECT",
-      ],
-      // "include-all": true,
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/microsoft.svg",
-    },
-    {
-      name: "GoogleFCM",
-      type: "select",
-      proxies: [
-        "DIRECT",
-        proxyName,
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-      ],
-      // "include-all": true,
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/google.svg",
-    },
-    {
-      name: "Steam地区",
-      type: "select",
-      proxies: [
-        "DIRECT",
-        proxyName,
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-      ],
-      // "include-all": true,
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/steam.svg",
-    },
-    {
-      name: "Emby",
-      type: "select",
-      proxies: [
-        "DIRECT",
-        proxyName,
-        ...countryRegions
-          .filter((region) => availableCountryCodes.has(region.name))
-          .flatMap((region) => [
-            `${region.name} - 自动选择`,
-            `${region.name} - 手动选择`,
-          ]),
-      ],
-      // "include-all": true,
-      icon: "https://cdnjs.cloudflare.com/ajax/libs/simple-icons/2.19.0/emby.svg",
-    },
-    {
-      name: "漏网之鱼",
-      type: "select",
-      proxies: ["DIRECT", proxyName],
-      icon: "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons/fish.svg",
-    },
   ];
 
-  autoProxyGroups.length &&
-    groups[2].proxies.unshift(...autoProxyGroups.map((item) => item.name));
-  groups.push(...autoProxyGroups);
-  groups.push(...manualProxyGroupsConfig);
+  // 「故障转移」优先落到各地区自动选择组，再逐级回落到原始节点
+  const fallbackGroup = groups.find((g) => g.name === "故障转移");
+  if (fallbackGroup && autoProxyNames.length > 0) {
+    fallbackGroup.proxies = [...autoProxyNames, ...fallbackGroup.proxies];
+  }
+
+  // 业务选择组：统一以 [代理模式, ...各地区组, DIRECT] 为候选
+  const businessGroups = [
+    { name: "电报消息", iconName: "telegram" },
+    { name: "AI", iconName: "chatgpt" },
+    { name: "Bilibili港澳台", iconName: null, customIcon: "https://www.bilibili.com/favicon.ico" },
+    { name: "流媒体", iconName: "youtube" },
+    { name: "苹果服务", iconName: "apple" },
+    { name: "微软服务", iconName: "microsoft" },
+    { name: "GoogleFCM", iconName: "google" },
+    { name: "Steam地区", iconName: "steam" },
+    { name: "Emby", iconName: null, customIcon: "https://cdnjs.cloudflare.com/ajax/libs/simple-icons/2.19.0/emby.svg" },
+  ];
+
+  for (const bg of businessGroups) {
+    // Bilibili 港澳台 / GoogleFCM / Steam地区 / Emby：DIRECT 排在最前
+    const directFirst = ["Bilibili港澳台", "GoogleFCM", "Steam地区", "Emby"].includes(bg.name);
+    // 苹果服务不提供 DIRECT（避免误直连）
+    const withDirect = bg.name !== "苹果服务";
+
+    const proxies = [];
+    if (directFirst && withDirect) proxies.push("DIRECT");
+    proxies.push(proxyName, ...regionGroupNames);
+    if (!directFirst && withDirect) proxies.push("DIRECT");
+
+    groups.push({
+      name: bg.name,
+      type: "select",
+      proxies: proxies.length > 0 ? proxies : ["DIRECT"],
+      icon: bg.customIcon || icon(bg.iconName),
+    });
+  }
+
+  groups.push({
+    name: "漏网之鱼",
+    type: "select",
+    proxies: ["DIRECT", proxyName],
+    icon: icon("fish"),
+  });
+
+  // 追加地区自动/手动组
+  groups.push(...autoProxyGroups, ...manualProxyGroups);
+
   params["proxy-groups"] = groups;
 }
 
-// 修改规则
+// ---------------------------------------------------------------------------
+// 规则
+// ---------------------------------------------------------------------------
 function overwriteRules(params) {
   const customRules = [
-    // 在此添加自定义规则，优先级次于ad。例子：
+    // 在此添加自定义规则，优先级次于 ad。例子：
     // "DOMAIN,baidu.com,DIRECT",
   ];
 
-  // 广告拦截 / 隐私保护 / Malware 拦截 / Phiishing 拦截
+  // 广告拦截 / 隐私保护 / Malware 拦截 / Phishing 拦截
   const adNonipRules = [
     "RULE-SET,Reject_no_ip,REJECT",
     "RULE-SET,Reject_domainset,REJECT",
     "RULE-SET,Reject_no_ip_drop,REJECT-DROP",
     "RULE-SET,Reject_no_ip_no_drop,REJECT",
-    "RULE-SET,AdobeActivation1,REJECT", // Adobe屏蔽规则集
-    "RULE-SET,AdobeActivation2,REJECT", // Adobe屏蔽规则集
+    "RULE-SET,AdobeActivation1,REJECT", // Adobe 屏蔽规则集
+    "RULE-SET,AdobeActivation2,REJECT", // Adobe 屏蔽规则集
   ];
 
   const nonipRules = [
-    // 个人遇到需要代理的域名(比较特殊)
-    "RULE-SET,CustomProxy_no_ip," + proxyName,
+    // 个人遇到需要代理的域名（比较特殊）
+    `RULE-SET,CustomProxy_no_ip,${proxyName}`,
 
-    // GoolgeFCM 推送
+    // Google FCM 推送
     "RULE-SET,GoogleFCM_no_ip,GoogleFCM",
 
     // 网易云音乐
@@ -526,39 +347,35 @@ function overwriteRules(params) {
 
     // Steam 地区
     "RULE-SET,SteamRegion_no_ip,Steam地区",
-
     // SteamCN
     "RULE-SET,SteamCN_no_ip,DIRECT",
     // Steam
-    "RULE-SET,Steam_no_ip," + proxyName,
+    `RULE-SET,Steam_no_ip,${proxyName}`,
 
     /**
-     * 包含所有常见静态资源 CDN 域名、对象存储域名
-     * 如果你正在使用商业性质的公共代理服务、且你的服务商提供按低倍率结算流量消耗的节点，可使用上述规则组将流量分配给这部分节点
+     * 常见静态资源 CDN 域名、对象存储域名
+     * 若服务商提供低倍率结算节点，可把流量分给这部分节点
      */
-    "RULE-SET,CDN_domainset," + proxyName,
-    "RULE-SET,CDN_no_ip," + proxyName,
+    `RULE-SET,CDN_domainset,${proxyName}`,
+    `RULE-SET,CDN_no_ip,${proxyName}`,
 
-    // 流媒体域名
     /**
-     * 包含
-     * 4gtv、AbemaTV、All4、Amazon Prime Video、Apple TV、Apple Music TV、Bahamut、BBC、Bilibili Intl、
-     * DAZN、Deezer、Disney+、Discovery+、DMM、encoreTVB、Fox Now、Fox+、HBO GO/Now/Max/Asia、Hulu、HWTV、
-     * JOOX、Jwplayer、KKBOX、KKTV、Line TV、Naver TV、myTV Super、Netflix、niconico、Now E、Paramount+、PBS、Peacock、Pandora、PBS、Pornhub、SoundCloud、
-     * PBS、Spotify、TaiwanGood、Tiktok Intl、Twitch、ViuTV、ShowTime、iQiYi Global、Himalaya Podcast、Overcast、WeTV
+     * 流媒体域名
+     * 含 4gtv / AbemaTV / All4 / Amazon Prime Video / Apple TV / Apple Music TV / Bahamut /
+     * BBC / Bilibili Intl / DAZN / Deezer / Disney+ / Discovery+ / DMM / encoreTVB / Fox Now /
+     * Fox+ / HBO GO·Now·Max·Asia / Hulu / HWTV / JOOX / Jwplayer / KKBOX / KKTV / Line TV /
+     * Naver TV / myTV Super / Netflix / niconico / Now E / Paramount+ / PBS / Peacock / Pandora /
+     * Pornhub / SoundCloud / Spotify / TaiwanGood / Tiktok Intl / Twitch / ViuTV / ShowTime /
+     * iQiYi Global / Himalaya Podcast / Overcast / WeTV
      */
     "RULE-SET,Bilibili,Bilibili港澳台",
     "RULE-SET,Stream_no_ip,流媒体",
     "RULE-SET,Emby_no_ip,Emby",
 
-    // tg 消息
-    /**
-     * 推荐仅使用 IP CIDR 规则。IP CIDR 规则数据完全来自 Telegram 官方发布的 CIDR 列表，不包含 Telegram 尚未启用的 CDN、数据中心的 IP。
-     * ASN 规则仅适合作为补充；搭配非官方 MaxMind GeoLite 数据库（例如 GeoIP2-CN）使用时会影响匹配。
-     */
+    // TG 消息（域名规则先于 IP CIDR 规则，避免触发本地 DNS 解析）
     "RULE-SET,Telegram_no_ip,电报消息",
 
-    // 云上贵州（CN）的苹果 CDN 无特殊需求直连即可
+    // 云上贵州（CN）的苹果 CDN，无特殊需求直连即可
     "RULE-SET,AppleCDN_no_ip,DIRECT",
     // 苹果 CN 域名
     "RULE-SET,AppleCN_no_ip,DIRECT",
@@ -566,65 +383,58 @@ function overwriteRules(params) {
     // Microsoft 中国 CDN
     "RULE-SET,MicrosoftCDN_no_ip,DIRECT",
 
-    // 软件更新、操作系统等大文件下载
     /**
-     * 这部分域名可能包含 Microsoft 和 Apple 的国内 CDN 节点
-     * 如果你设置了前面的Microsoft 和 Apple 的国内 CDN 节点为直连，按照优先级这部分CDN不会被代理，请放心
+     * 软件更新、操作系统等大文件下载
+     * 这部分域名可能落在 Microsoft / Apple 的国内 CDN 上，
+     * 前面已设为直连的 CDN 不会被这里的代理规则抢走
      */
-    "RULE-SET,Download_domainset," + proxyName,
-    "RULE-SET,Download_no_ip," + proxyName,
+    `RULE-SET,Download_domainset,${proxyName}`,
+    `RULE-SET,Download_no_ip,${proxyName}`,
 
     // 苹果需要代理的域名
     "RULE-SET,Apple_no_ip,苹果服务",
 
-    // 微软需要代理域名
+    // 微软需要代理的域名
     "RULE-SET,Microsoft_no_ip,微软服务",
 
-    // ai 相关
     /**
-     * 包含 OpenAI、Google Gemini、Claude、Perplexity 等
+     * AI 相关：OpenAI / Google Gemini / Claude / Perplexity 等
      */
     "RULE-SET,AI_no_ip,AI",
 
-    // 常见海外服务和互联网公司的域名 有部分域名被DNS污染，故使用代理
-    "RULE-SET,Global_no_ip," + proxyName,
+    // 常见海外服务和互联网公司域名（部分被 DNS 污染，故走代理）
+    `RULE-SET,Global_no_ip,${proxyName}`,
 
-    // 国内常见互联网公司和服务的域名
+    // 国内常见互联网公司和服务
     "RULE-SET,Domestic_no_ip,DIRECT",
     "RULE-SET,Direct_no_ip,DIRECT",
 
-    // 内网域名和局域网 IP
     /**
-     * 域名列表包含 .local 和局域网 IP 的 in-addr.arpa 域名（即 AS112 域名）
-     * 这部分域名一般会被解析到局域网 IP、需要走内网 DNS 解析、需要直连访问
+     * 内网域名和局域网 IP
+     * 含 .local 与局域网 IP 的 in-addr.arpa 域名（AS112）
+     * 这些域名通常解析到内网 IP、需要走内网 DNS、需要直连
      */
     "RULE-SET,Lan_no_ip,DIRECT",
   ];
 
   const ipRules = [
-    "RULE-SET,GlobalDirect,DIRECT", // 新增规则
-    // GooleFCM 推送
-    "RULE-SET,GoogleFCM_ip,GoogleFCM",
+    "RULE-SET,GlobalDirect,DIRECT", // 个人直连白名单
 
+    // Google FCM 推送
+    "RULE-SET,GoogleFCM_ip,GoogleFCM",
     // 网易云音乐
     "RULE-SET,NetEaseMusic_ip,DIRECT",
-
-    // SteamCN ip
+    // SteamCN
     "RULE-SET,SteamCN_ip,DIRECT",
 
-    // 广告拦截 / 隐私保护 / Malware 拦截 / Phiishing 拦截（ip）
+    // 广告拦截 / 隐私保护 / Malware 拦截 / Phishing 拦截（ip）
     "RULE-SET,Reject_ip,REJECT",
 
-    // telegram ip
+    // Telegram 官方 IP CIDR
     "RULE-SET,Telegram_ip,电报消息",
 
-    // 流媒体 ip
     /**
-     * 包含
-     * 4gtv、AbemaTV、All4、Amazon Prime Video、Apple TV、Apple Music TV、Bahamut、BBC、Bilibili Intl、
-     * DAZN、Deezer、Disney+、Discovery+、DMM、encoreTVB、Fox Now、Fox+、HBO GO/Now/Max/Asia、Hulu、HWTV、
-     * JOOX、Jwplayer、KKBOX、KKTV、Line TV、Naver TV、myTV Super、Netflix、niconico、Now E、Paramount+、PBS、Peacock、Pandora、PBS、Pornhub、SoundCloud、
-     * PBS、Spotify、TaiwanGood、Tiktok Intl、Twitch、ViuTV、ShowTime、iQiYi Global、Himalaya Podcast、Overcast、WeTV
+     * 流媒体 IP（域名列表同 Stream_no_ip）
      */
     "RULE-SET,Stream_ip,流媒体",
 
@@ -633,401 +443,114 @@ function overwriteRules(params) {
     "RULE-SET,China_ip,DIRECT",
 
     // 内网域名和局域网 IP
-    /**
-     * 域名列表包含 .local 和局域网 IP 的 in-addr.arpa 域名（即 AS112 域名）
-     * 这部分域名一般会被解析到局域网 IP、需要走内网 DNS 解析、需要直连访问
-     */
     "RULE-SET,Lan_ip,DIRECT",
-    // 使用 GEOIP 和 GEOSITE 兜底直连规则
+
+    // GEOIP / GEOSITE 兜底直连
     "GEOIP,CN,DIRECT",
     "GEOSITE,cn,DIRECT",
+
     // 兜底
     "MATCH,漏网之鱼",
   ];
 
-  const allNonipRules = [...adNonipRules, ...customRules, ...nonipRules];
-
-  // 规则
-  // 需要非IP类规则写在 IP类规则之前！
   /**
-   * 避免 DNS 污染和 DNS 泄漏最有效的办法就是永远不在本地进行 DNS 解析，而 Mihomo 能且只能通过 Fake IP 和域名规则匹配的方式 可以实现非直连域名 一定不在本地本机进行任何 DNS 解析。
-   * 在 Mihomo 中，规则自上而下匹配，只有当遇到 IP 类规则（如 IP-CIDR、IP-CIDR6、GEOIP 和 IP-ASN）时才会发起 DNS 解析。
-   * 因此，在 Mihomo 中，将会触发 DNS 解析的规则放在域名和 URL 匹配规则后面非常重要。
+   * 非 IP 类规则必须写在 IP 类规则之前：
+   * Mihomo 自上而下匹配，只有遇到 IP 类规则（IP-CIDR / IP-CIDR6 / GEOIP / IP-ASN）
+   * 才会发起 DNS 解析。把域名规则前置，可最大限度避免 DNS 污染与泄漏。
    */
-  const rules = [
-    // 非ip类规则
-    ...allNonipRules,
+  params.rules = [...adNonipRules, ...customRules, ...nonipRules, ...ipRules];
 
-    // ip类规则
-    ...ipRules,
-  ];
-
-  // 插入规则
-  params.rules = rules;
-
-  // 远程规则类型
+  // 远程规则集类型
   const ruleAnchor = {
-    ip: {
-      type: "http",
-      interval: 1800,
-      behavior: "ipcidr",
-      format: "yaml",
-    },
-    domain: {
-      type: "http",
-      interval: 1800,
-      behavior: "domain",
-      format: "yaml",
-    },
-    classical: {
-      type: "http",
-      interval: 1800,
-      behavior: "classical",
-      format: "yaml",
-    },
+    ip: { type: "http", interval: 1800, behavior: "ipcidr", format: "yaml" },
+    domain: { type: "http", interval: 1800, behavior: "domain", format: "yaml" },
+    classical: { type: "http", interval: 1800, behavior: "classical", format: "yaml" },
   };
 
-  // 自己仓库的规则
-  const ruleProviders = {
-    /**
-     * 屏蔽部分
-     */
+  const REALSEEK =
+    "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo";
+  const SELF = "https://raw.githubusercontent.com/zkmydgth/customize/refs/heads/main";
+  const rsPath = (rel) => `./ruleset/RealSeek/Clash_Rule_DIY/${rel}`;
 
-    // ##################################################################################################################
+  params["rule-providers"] = {
+    // ===== 屏蔽 =====
+    Reject_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/REJECT/ip/Reject_ip.yaml`, path: rsPath("REJECT/ip/Reject_ip.yaml") },
+    Reject_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/REJECT/no_ip/Reject_no_ip.yaml`, path: rsPath("REJECT/no_ip/Reject_no_ip.yaml") },
+    Reject_domainset: { ...ruleAnchor.domain, url: `${REALSEEK}/REJECT/no_ip/Reject_domainset.yaml`, path: rsPath("REJECT/no_ip/Reject_domainset.yaml") },
+    Reject_no_ip_drop: { ...ruleAnchor.classical, url: `${REALSEEK}/REJECT/no_ip/Reject_no_ip_drop.yaml`, path: rsPath("REJECT/no_ip/Reject_no_ip_drop.yaml") },
+    Reject_no_ip_no_drop: { ...ruleAnchor.classical, url: `${REALSEEK}/REJECT/no_ip/Reject_no_ip_no_drop.yaml`, path: rsPath("REJECT/no_ip/Reject_no_ip_no_drop.yaml") },
 
-    // 广告拦截 / 隐私保护 / Malware 拦截 / Phiishing 拦截
-    Reject_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/REJECT/ip/Reject_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/REJECT/ip/Reject_ip.yaml",
-    },
     AdobeActivation1: {
-      type: "http",
-      interval: 1800,
-      behavior: "classical",
-      format: "yaml",
+      ...ruleAnchor.classical,
       url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdobeActivation/AdobeActivation.yaml",
       path: "./ruleset/blackmatrix7/ios_rule_script/AdobeActivation.yaml",
     },
     AdobeActivation2: {
-      type: "http",
-      interval: 1800,
-      behavior: "classical",
-      format: "yaml",
+      ...ruleAnchor.classical,
       url: "https://raw.githubusercontent.com/ignaciocastro/a-dove-is-dumb/main/clash.yaml",
       path: "./ruleset/ignaciocastro/a-dove-is-dumb/clash.yaml",
     },
-    GlobalDirect: {
-      type: "http",
-      interval: 1800,
-      behavior: "classical",
-      format: "yaml",
-      url: "https://raw.githubusercontent.com/zkmydgth/customize/refs/heads/main/DIRTCT_clash.yaml",
-      path: "./ruleset/zkmydgth/DIRTCT_clash.yaml",
-    },
 
-    // ##################################################################################################################
+    // ===== 直连 =====
+    GlobalDirect: { ...ruleAnchor.classical, url: `${SELF}/DIRTCT_clash.yaml`, path: "./ruleset/zkmydgth/DIRTCT_clash.yaml" },
 
-    // 广告拦截 / 隐私保护 / Malware 拦截 / Phiishing 拦截
-    Reject_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/REJECT/no_ip/Reject_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/REJECT/no_ip/Reject_no_ip.yaml",
-    },
+    China_ip: { ...ruleAnchor.ip, url: `${REALSEEK}/DIRECT/ip/China_ip.yaml`, path: rsPath("DIRECT/ip/China_ip.yaml") },
+    Domestic_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/ip/Domestic_ip.yaml`, path: rsPath("DIRECT/ip/Domestic_ip.yaml") },
+    GoogleFCM_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/ip/GoogleFCM_ip.yaml`, path: rsPath("DIRECT/ip/GoogleFCM_ip.yaml") },
+    Lan_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/ip/Lan_ip.yaml`, path: rsPath("DIRECT/ip/Lan_ip.yaml") },
+    NetEaseMusic_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/ip/NetEaseMusic_ip.yaml`, path: rsPath("DIRECT/ip/NetEaseMusic_ip.yaml") },
+    SteamCN_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/ip/SteamCN_ip.yaml`, path: rsPath("DIRECT/ip/SteamCN_ip.yaml") },
 
-    Reject_domainset: {
-      ...ruleAnchor.domain,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/REJECT/no_ip/Reject_domainset.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/REJECT/no_ip/Reject_domainset.yaml",
-    },
+    AppleCDN_no_ip: { ...ruleAnchor.domain, url: `${REALSEEK}/DIRECT/no_ip/AppleCDN_no_ip.yaml`, path: rsPath("DIRECT/no_ip/AppleCDN_no_ip.yaml") },
+    // 实为 DOMAIN-SUFFIX 格式，必须用 classical，用 domain 会静默失效
+    AppleCN_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/no_ip/AppleCN_no_ip.yaml`, path: rsPath("DIRECT/no_ip/AppleCN_no_ip.yaml") },
+    Direct_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/no_ip/Direct_no_ip.yaml`, path: rsPath("DIRECT/no_ip/Direct_no_ip.yaml") },
+    Domestic_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/no_ip/Domestic_no_ip.yaml`, path: rsPath("DIRECT/no_ip/Domestic_no_ip.yaml") },
+    GoogleFCM_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/no_ip/GoogleFCM_no_ip.yaml`, path: rsPath("DIRECT/no_ip/GoogleFCM_no_ip.yaml") },
+    Lan_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/no_ip/Lan_no_ip.yaml`, path: rsPath("DIRECT/no_ip/Lan_no_ip.yaml") },
+    MicrosoftCDN_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/no_ip/MicrosoftCDN_no_ip.yaml`, path: rsPath("DIRECT/no_ip/MicrosoftCDN_no_ip.yaml") },
+    NetEaseMusic_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/no_ip/NetEaseMusic_no_ip.yaml`, path: rsPath("DIRECT/no_ip/NetEaseMusic_no_ip.yaml") },
+    SteamCN_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/no_ip/SteamCN_no_ip.yaml`, path: rsPath("DIRECT/no_ip/SteamCN_no_ip.yaml") },
+    SteamRegion_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/no_ip/SteamRegion_no_ip.yaml`, path: rsPath("DIRECT/no_ip/SteamRegion_no_ip.yaml") },
 
-    Reject_no_ip_drop: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/REJECT/no_ip/Reject_no_ip_drop.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/REJECT/no_ip/Reject_no_ip_drop.yaml",
-    },
+    // ===== 代理 =====
+    Telegram_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/ip/Telegram_ip.yaml`, path: rsPath("PROXY/ip/Telegram_ip.yaml") },
+    Stream_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/ip/Stream_ip.yaml`, path: rsPath("PROXY/ip/Stream_ip.yaml") },
 
-    Reject_no_ip_no_drop: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/REJECT/no_ip/Reject_no_ip_no_drop.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/REJECT/no_ip/Reject_no_ip_no_drop.yaml",
-    },
-
-    // ##################################################################################################################
-
-    /**
-     * 直连部分
-     */
-
-    // ##################################################################################################################
-
-    // 国内常见互联网公司和服务的 IP
-    China_ip: {
-      ...ruleAnchor.ip,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/ip/China_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/ip/China_ip.yaml",
-    },
-
-    // 国内常见互联网公司和服务的 IP
-    Domestic_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/ip/Domestic_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/ip/Domestic_ip.yaml",
-    },
-
-    // GoogleFCM IP
-    GoogleFCM_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/ip/GoogleFCM_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/ip/GoogleFCM_ip.yaml",
-    },
-
-    // 内网域名和局域网 IP
-    Lan_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/ip/Lan_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/ip/Lan_ip.yaml",
-    },
-
-    // 网易云音乐 ip
-    NetEaseMusic_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/ip/NetEaseMusic_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/ip/NetEaseMusic_ip.yaml",
-    },
-
-    // SteamCN IP
-    SteamCN_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/ip/SteamCN_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/ip/SteamCN_ip.yaml",
-    },
-
-    // ##################################################################################################################
-
-    // apple CDN 云上贵州
-    AppleCDN_no_ip: {
-      ...ruleAnchor.domain,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/AppleCDN_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/AppleCDN_no_ip.yaml",
-    },
-
-    // 苹果直连域名
-    AppleCN_no_ip: {
-      ...ruleAnchor.domain,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/AppleCN_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/AppleCN_no_ip.yaml",
-    },
-
-    // 国内常见互联网公司和服务的域名
-    Direct_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/Direct_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/Direct_no_ip.yaml",
-    },
-
-    // 国内常见互联网公司和服务的域名
-    Domestic_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/Domestic_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/Domestic_no_ip.yaml",
-    },
-
-    // Google Fcm no ip
-    GoogleFCM_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/GoogleFCM_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/GoogleFCM_no_ip.yaml",
-    },
-
-    // 内网域名和局域网 IP
-    Lan_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/Lan_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/Lan_no_ip.yaml",
-    },
-
-    // 微软中国 CDN
-    MicrosoftCDN_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/MicrosoftCDN_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/MicrosoftCDN_no_ip.yaml",
-    },
-
-    // 网易云音乐域名
-    NetEaseMusic_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/NetEaseMusic_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/NetEaseMusic_no_ip.yaml",
-    },
-
-    // SteamCN 域名
-    SteamCN_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/SteamCN_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/SteamCN_no_ip.yaml",
-    },
-
-    // Steam 地区域名
-    SteamRegion_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/DIRECT/no_ip/SteamRegion_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/DIRECT/no_ip/SteamRegion_no_ip.yaml",
-    },
-
-    // ##################################################################################################################
-
-    /**
-     * 代理部分
-     */
-
-    // ##################################################################################################################
-
-    // Bilibili IP
-    Bilibili: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Bilibili_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/ip/Bilibili_no_ip.yaml",
-    },
-
-    // 流媒体 IP
-    Stream_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/ip/Stream_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/ip/Stream_ip.yaml",
-    },
-
-    // telegram ip
-    Telegram_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/zkmydgth/customize/refs/heads/main/Ai.yaml",
-      path: "./ruleset/zkmydgth/Ai.yaml",
-    },
-
-    // ##################################################################################################################
-
-    // ai 相关 包含 OpenAI、Google Gemini、Claude、Perplexity 等
-    AI_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/AI_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/AI_no_ip.yaml",
-    },
-
-    // apple
-    Apple_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Apple_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/Apple_no_ip.yaml",
-    },
-
-    // 常需要代理的静态 CDN
-    CDN_domainset: {
-      ...ruleAnchor.domain,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/CDN_domainset.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/CDN_domainset.yaml",
-    },
-
-    // 常需要代理的静态 CDN
-    CDN_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/CDN_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/CDN_no_ip.yaml",
-    },
-
-    // 存放着个人遇到需要代理的域名
-    CustomProxy_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/CustomProxy_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/CustomProxy_no_ip.yaml",
-    },
-
-    // 软件更新、操作系统等大文件下载
-    Download_domainset: {
-      ...ruleAnchor.domain,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Download_domainset.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/Download_domainset.yaml",
-    },
-
-    // 软件更新、操作系统等大文件下载
-    Download_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Download_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/Download_no_ip.yaml",
-    },
-
-    // 常见海外服务和互联网公司的域名 有部分域名被DNS污染，故使用代理
-    Global_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Global_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/Global_no_ip.yaml",
-    },
-
-    // 微软需要代理的域名
-    Microsoft_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Microsoft_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/Microsoft_no_ip.yaml",
-    },
-
-    // Steam 需要代理的域名
-    Steam_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Steam_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/Steam_no_ip.yaml",
-    },
-
-    // 流媒体域名
-    Stream_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Stream_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/Stream_no_ip.yaml",
-    },
-
-    // 流媒体域名
-    Emby_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/zkmydgth/customize/refs/heads/main/PROXY_clash.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/Emby_no_ip.yaml",
-    },
-
-    // telegram 域名
-    Telegram_no_ip: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo/PROXY/no_ip/Telegram_no_ip.yaml",
-      path: "./ruleset/RealSeek/Clash_Rule_DIY/PROXY/no_ip/Telegram_no_ip.yaml",
-    },
-
-    // ##################################################################################################################
+    AI_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/AI_no_ip.yaml`, path: rsPath("PROXY/no_ip/AI_no_ip.yaml") },
+    Apple_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Apple_no_ip.yaml`, path: rsPath("PROXY/no_ip/Apple_no_ip.yaml") },
+    Bilibili: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Bilibili_no_ip.yaml`, path: rsPath("PROXY/no_ip/Bilibili_no_ip.yaml") },
+    CDN_domainset: { ...ruleAnchor.domain, url: `${REALSEEK}/PROXY/no_ip/CDN_domainset.yaml`, path: rsPath("PROXY/no_ip/CDN_domainset.yaml") },
+    CDN_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/CDN_no_ip.yaml`, path: rsPath("PROXY/no_ip/CDN_no_ip.yaml") },
+    CustomProxy_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/CustomProxy_no_ip.yaml`, path: rsPath("PROXY/no_ip/CustomProxy_no_ip.yaml") },
+    Download_domainset: { ...ruleAnchor.domain, url: `${REALSEEK}/PROXY/no_ip/Download_domainset.yaml`, path: rsPath("PROXY/no_ip/Download_domainset.yaml") },
+    Download_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Download_no_ip.yaml`, path: rsPath("PROXY/no_ip/Download_no_ip.yaml") },
+    Emby_no_ip: { ...ruleAnchor.classical, url: `${SELF}/PROXY_clash.yaml`, path: "./ruleset/zkmydgth/PROXY_clash.yaml" },
+    Global_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Global_no_ip.yaml`, path: rsPath("PROXY/no_ip/Global_no_ip.yaml") },
+    Microsoft_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Microsoft_no_ip.yaml`, path: rsPath("PROXY/no_ip/Microsoft_no_ip.yaml") },
+    Steam_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Steam_no_ip.yaml`, path: rsPath("PROXY/no_ip/Steam_no_ip.yaml") },
+    Stream_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Stream_no_ip.yaml`, path: rsPath("PROXY/no_ip/Stream_no_ip.yaml") },
+    Telegram_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Telegram_no_ip.yaml`, path: rsPath("PROXY/no_ip/Telegram_no_ip.yaml") },
   };
-
-  // 插入远程规则
-  params["rule-providers"] = ruleProviders;
 }
 
-function getProxiesByRegexOne(params, regex) {
-  return params.proxies.filter((e) => regex.test(e.name)).map((e) => e.name);
-}
-
-function getProxiesByRegex(params, regex) {
-  const matchedProxies = params.proxies
-    .filter((e) => regex.test(e.name))
-    .map((e) => e.name);
-  return matchedProxies.length > 0 ? matchedProxies : ["手动选择"];
-}
-
-// 修改DNS
+// ---------------------------------------------------------------------------
+// DNS
+// 注意：「设置 → DNS 设置」页开启时，该页写入的 dns.* 字段优先级更高，
+//       本函数中相同的键会被丢弃。
+// ---------------------------------------------------------------------------
 function overwriteDns(params) {
-  const dnsOptions = {
+  params.dns = {
     enable: true,
-    "listen": "0.0.0.0:1053",
+    listen: "0.0.0.0:1053",
     "enhanced-mode": "fake-ip", // fake-ip 或 redir-host
     "fake-ip-range": "198.18.0.1/16",
     "use-hosts": false,
     "use-system-hosts": false,
     ipv6: false,
 
+    // fake-ip 白名单：命中的域名不走 fake-ip，返回真实 IP
     "fake-ip-filter": [
-      "*",
       "+.lan",
       "+.local",
       "time.*.com",
@@ -1041,46 +564,17 @@ function overwriteDns(params) {
       "+.msftncsi.com",
     ],
 
-    "default-nameserver": [
-      "tls://223.5.5.5",
-    ],
+    "default-nameserver": ["tls://223.5.5.5"],
 
-    nameserver: [
-      "https://dns.alidns.com/dns-query",
-      "https://doh.pub/dns-query",
-    ],
+    nameserver: ["https://dns.alidns.com/dns-query", "https://doh.pub/dns-query"],
 
-    "proxy-server-nameserver": [
-      "https://doh.pub/dns-query",
-      "https://dns.alidns.com/dns-query",
-    ],
+    "proxy-server-nameserver": ["https://doh.pub/dns-query", "https://dns.alidns.com/dns-query"],
   };
-
-  params["dns"] = dnsOptions;
 }
 
-function getManualProxiesByRegex(params, regex) {
-  const matchedProxies = params.proxies
-    .filter((e) => regex.test(e.name))
-    .map((e) => e.name);
-  return matchedProxies.length > 0
-    ? matchedProxies
-    : ["DIRECT", "手动选择", proxyName];
-}
-
-// 覆写Tunnel
-function overwriteTunnel(params) {
-  const tunnelOptions = {
-    enable: true,
-    stack: "mixed",
-    device: "Mihomo",
-    "dns-hijack": ["any:53"],
-    "auto-route": true,
-    "auto-redirect": false,
-    "auto-detect-interface": true,
-    "strict-route": false,
-    "route-exclude-address": [],
-    mtu: 1500,
-  };
-  params.tun = { ...tunnelOptions };
+// ---------------------------------------------------------------------------
+// 工具函数
+// ---------------------------------------------------------------------------
+function pickNames(params, regex) {
+  return params.proxies.filter((p) => regex.test(p.name)).map((p) => p.name);
 }
