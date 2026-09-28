@@ -41,6 +41,10 @@
 //    8. 西班牙 / 荷兰 / 印度 三个地区的正则原为 /\b(西班牙|ES|Spain)\b/i ——
 //       JS 里中文不属于 \w，导致「西班牙01」这类节点名永远匹配不上、被丢进「其它」。
 //       已改为中文/emoji 不加边界、只有拉丁缩写才加 \b。
+//    9. 顶层 `global-client-fingerprint` 已被 mihomo 移除，内核日志直接报
+//       "The `global-client-fingerprint` configuration is removed, please set
+//        `client-fingerprint` directly on the proxy instead"。
+//       改为 applyClientFingerprint() 逐节点设置（默认只补缺，不覆盖订阅自带值）。
 // ============================================================================
 
 const proxyName = "代理模式";
@@ -53,11 +57,32 @@ const flag = (code) => `${ICON_BASE}/flags/${code}.svg`;
 function main(params) {
   if (!params || !Array.isArray(params.proxies)) return params;
   overwriteBasicOptions(params);
+  applyClientFingerprint(params);
   overwriteSniffer(params);
   overwriteProxyGroups(params);
   overwriteRules(params);
   overwriteDns(params);
   return params;
+}
+
+// ---------------------------------------------------------------------------
+// 客户端 TLS 指纹
+// mihomo 已移除顶层 `global-client-fingerprint`，内核会直接报错：
+//   "The `global-client-fingerprint` configuration is removed,
+//    please set `client-fingerprint` directly on the proxy instead"
+// 改为逐节点设置。
+// ---------------------------------------------------------------------------
+const CLIENT_FINGERPRINT = "chrome"; // 设为 null 表示不处理，沿用订阅自带的值
+const FORCE_FINGERPRINT = false; // true = 强制覆盖订阅自带的 client-fingerprint
+const FP_TYPES = ["vmess", "vless", "trojan", "hysteria", "hysteria2", "tuic", "anytls"];
+
+function applyClientFingerprint(params) {
+  if (!CLIENT_FINGERPRINT) return;
+  for (const proxy of params.proxies) {
+    if (!FP_TYPES.includes(proxy.type)) continue; // 不支持该字段的协议直接跳过
+    if (!FORCE_FINGERPRINT && proxy["client-fingerprint"] !== undefined) continue;
+    proxy["client-fingerprint"] = CLIENT_FINGERPRINT;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -68,7 +93,6 @@ function overwriteBasicOptions(params) {
     "tcp-concurrent": true,
     "geodata-mode": true,
     "find-process-mode": "strict",
-    "global-client-fingerprint": "chrome",
     profile: {
       "store-selected": true,
       "store-fake-ip": true,
