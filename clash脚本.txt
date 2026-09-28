@@ -45,7 +45,93 @@
 //       "The `global-client-fingerprint` configuration is removed, please set
 //        `client-fingerprint` directly on the proxy instead"。
 //       改为 applyClientFingerprint() 逐节点设置（默认只补缺，不覆盖订阅自带值）。
+//   10. 机场的「信息类伪节点」污染了真正跑流量的组。实测本机内核里
+//       「距离下次重置剩余：22 天」这个假节点被放进了 延迟优选 / 故障转移 /
+//       负载均衡(散列) / 负载均衡(轮询) 四个组 —— 一旦被选中就整条链路不通。
+//       原脚本的 allRegex 关键词是「流量/官网/套餐/年/月…」，而该节点名一个都不含；
+//       「其它」组用的正则还带半角空格，同样从未命中。
+//       已统一为 INFO_NODE_REGEX 一处判定，同时用于「排除出流量组」和「地区归类」。
+//   11. 「苹果服务」组原先刻意不提供 DIRECT 选项（避免误直连），
+//       2026-09-28 按用户要求补上 —— DIRECT 排在候选列表最后，默认仍是「代理模式」，
+//       需要直连时手动切换即可。至此 9 个业务组全部可选 DIRECT。
 // ============================================================================
+
+// ============================================================================
+//  >>>>>>>>>>>>>>>>>>>>>>>>>>  用 户 保 护 区  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+// ----------------------------------------------------------------------------
+//  以下 4 个规则集是用户特别定制的，不属于通用配置：
+//
+//    AdobeActivation1   Adobe 屏蔽规则集（blackmatrix7）
+//    AdobeActivation2   Adobe 屏蔽规则集（a-dove-is-dumb）
+//    Emby_no_ip         个人 Emby 域名列表（本仓库 PROXY_clash.yaml）
+//    GlobalDirect       个人直连白名单（本仓库 DIRTCT_clash.yaml）
+//
+//  ⚠️ 修改本脚本时，禁止对它们做任何改动：
+//     · 不得删除、重命名这四个 rule-provider 或它们的 RULE-SET 规则条目
+//     · 不得改动它们的 url / path / behavior / interval / format
+//     · 不得调整它们在规则列表中的位置
+//         AdobeActivation1/2 → 广告拦截段，紧跟 Reject_* 之后（基线 #04 / #05）
+//         Emby_no_ip         → 域名规则段，流媒体之后（基线 #16）
+//         GlobalDirect       → IP 规则段首位，必须在所有 IP 类规则之前（基线 #30）
+//     · 不得把它们合并进 ruleAnchor 之类的公共模板（保持自包含，防止重构波及）
+//
+//  代码中搜 "保护区" 可定位全部相关位置；新增/删除规则集时请绕开这四处。
+// ============================================================================
+
+const PROTECTED_PROVIDER_NAMES = [
+  "AdobeActivation1",
+  "AdobeActivation2",
+  "Emby_no_ip",
+  "GlobalDirect",
+];
+
+const PROTECTED_RULE_ENTRIES = [
+  "RULE-SET,AdobeActivation1,REJECT",
+  "RULE-SET,AdobeActivation2,REJECT",
+  "RULE-SET,Emby_no_ip,Emby",
+  "RULE-SET,GlobalDirect,DIRECT",
+];
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>  保 护 区 起 始  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// 定义写成自包含字面量（不引用 ruleAnchor / REALSEEK / SELF 之类的外部变量），
+// 这样即使后续重构公共模板也不会牵连到它们。Object.freeze 防止被意外改写。
+const SELF_REPO = "https://raw.githubusercontent.com/zkmydgth/customize/refs/heads/main";
+
+const PROTECTED_RULE_PROVIDERS = Object.freeze({
+  AdobeActivation1: Object.freeze({
+    type: "http",
+    interval: 1800,
+    behavior: "classical",
+    format: "yaml",
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdobeActivation/AdobeActivation.yaml",
+    path: "./ruleset/blackmatrix7/ios_rule_script/AdobeActivation.yaml",
+  }),
+  AdobeActivation2: Object.freeze({
+    type: "http",
+    interval: 1800,
+    behavior: "classical",
+    format: "yaml",
+    url: "https://raw.githubusercontent.com/ignaciocastro/a-dove-is-dumb/main/clash.yaml",
+    path: "./ruleset/ignaciocastro/a-dove-is-dumb/clash.yaml",
+  }),
+  Emby_no_ip: Object.freeze({
+    type: "http",
+    interval: 1800,
+    behavior: "classical",
+    format: "yaml",
+    url: `${SELF_REPO}/PROXY_clash.yaml`,
+    path: "./ruleset/zkmydgth/PROXY_clash.yaml",
+  }),
+  GlobalDirect: Object.freeze({
+    type: "http",
+    interval: 1800,
+    behavior: "classical",
+    format: "yaml",
+    url: `${SELF_REPO}/DIRTCT_clash.yaml`,
+    path: "./ruleset/zkmydgth/DIRTCT_clash.yaml",
+  }),
+});
+// <<<<<<<<<<<<<<<<<<<<<<<<<  保 护 区 结 束  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 const proxyName = "代理模式";
 const HEALTH_CHECK_URL = "http://www.gstatic.com/generate_204";
@@ -53,6 +139,16 @@ const ICON_BASE =
   "https://fastly.jsdelivr.net/gh/clash-verge-rev/clash-verge-rev.github.io@main/docs/assets/icons";
 const icon = (name) => `${ICON_BASE}/${name}.svg`;
 const flag = (code) => `${ICON_BASE}/flags/${code}.svg`;
+
+// 「信息类」伪节点：机场用来展示剩余流量 / 到期时间的假节点，不是真节点。
+// 它们如果进入 url-test / fallback / load-balance 组，会导致该组选中一个
+// 连不通的"节点"从而整体失效，必须排除。
+// 注意：原脚本用的关键词是「 剩余 」「 到期 」，前后带半角空格，
+//       而机场实际用的名字是「剩余流量：1017.92 GB」（全角冒号、无空格），
+//       所以原写法从未命中过。
+// 如果你的机场有真实节点误命中，把对应关键词从下面删掉即可。
+const INFO_NODE_REGEX =
+  /(剩余|流量|到期|过期|重置|套餐|订阅|官网|网址|客服|公告|通知|机场|失联|Expire|Traffic|Website|Reset)/i;
 
 function main(params) {
   if (!params || !Array.isArray(params.proxies)) return params;
@@ -176,10 +272,11 @@ function overwriteProxyGroups(params) {
 
   const OTHER_GROUP = "其它 - 手动选择";
 
-  // 一次遍历：算出哪些地区有节点、以及未归类的节点
+  // 一次遍历：排除信息类伪节点后，算出哪些地区有节点、以及未归类的真实节点
   const availableRegions = [];
   const otherProxies = [];
   for (const proxy of params.proxies) {
+    if (INFO_NODE_REGEX.test(proxy.name)) continue; // 信息类伪节点，不进任何组
     const region = countryRegions.find((r) => r.regex.test(proxy.name));
     if (!region) {
       otherProxies.push(proxy.name);
@@ -188,10 +285,10 @@ function overwriteProxyGroups(params) {
     }
   }
 
-  // 所有可用于 url-test / fallback / load-balance 的原始节点
-  const allRegex =
-    /^(?!.*(?:自动|故障|流量|官网|套餐|机场|订阅|年|月|失联|频道|Traffic|Expire)).*$/;
-  const allProxies = pickNames(params, allRegex);
+  // 所有可用于 url-test / fallback / load-balance 的真实节点
+  const allProxies = params.proxies
+    .filter((p) => !INFO_NODE_REGEX.test(p.name))
+    .map((p) => p.name);
 
   // 地区自动选择组（fallback，延迟最低优先）
   const autoProxyGroups = availableRegions
@@ -295,7 +392,10 @@ function overwriteProxyGroups(params) {
     fallbackGroup.proxies = [...autoProxyNames, ...fallbackGroup.proxies];
   }
 
-  // 业务选择组：统一以 [代理模式, ...各地区组, DIRECT] 为候选
+  // 业务选择组候选：
+  //   · DIRECT 排在最前 —— Bilibili港澳台 / GoogleFCM / Steam地区 / Emby
+  //   · DIRECT 排在最后 —— 其余（含苹果服务，默认仍是走代理，需要时手动切 DIRECT）
+  // 苹果服务原先刻意不提供 DIRECT，2026-09-28 按用户要求加上该选项。
   const businessGroups = [
     { name: "电报消息", iconName: "telegram" },
     { name: "AI", iconName: "chatgpt" },
@@ -308,16 +408,14 @@ function overwriteProxyGroups(params) {
     { name: "Emby", iconName: null, customIcon: "https://cdnjs.cloudflare.com/ajax/libs/simple-icons/2.19.0/emby.svg" },
   ];
 
-  for (const bg of businessGroups) {
-    // Bilibili 港澳台 / GoogleFCM / Steam地区 / Emby：DIRECT 排在最前
-    const directFirst = ["Bilibili港澳台", "GoogleFCM", "Steam地区", "Emby"].includes(bg.name);
-    // 苹果服务不提供 DIRECT（避免误直连）
-    const withDirect = bg.name !== "苹果服务";
+  const DIRECT_FIRST = ["Bilibili港澳台", "GoogleFCM", "Steam地区", "Emby"];
 
-    const proxies = [];
-    if (directFirst && withDirect) proxies.push("DIRECT");
-    proxies.push(proxyName, ...regionGroupNames);
-    if (!directFirst && withDirect) proxies.push("DIRECT");
+  for (const bg of businessGroups) {
+    const directFirst = DIRECT_FIRST.includes(bg.name);
+
+    const proxies = directFirst
+      ? ["DIRECT", proxyName, ...regionGroupNames]
+      : [proxyName, ...regionGroupNames, "DIRECT"];
 
     groups.push({
       name: bg.name,
@@ -355,8 +453,10 @@ function overwriteRules(params) {
     "RULE-SET,Reject_domainset,REJECT",
     "RULE-SET,Reject_no_ip_drop,REJECT-DROP",
     "RULE-SET,Reject_no_ip_no_drop,REJECT",
-    "RULE-SET,AdobeActivation1,REJECT", // Adobe 屏蔽规则集
-    "RULE-SET,AdobeActivation2,REJECT", // Adobe 屏蔽规则集
+    // >>> 保护区：Adobe 屏蔽规则集，请勿删除 / 移动（紧跟 Reject_* 之后）<<<
+    "RULE-SET,AdobeActivation1,REJECT",
+    "RULE-SET,AdobeActivation2,REJECT",
+    // <<< 保护区结束 <<<
   ];
 
   const nonipRules = [
@@ -394,7 +494,9 @@ function overwriteRules(params) {
      */
     "RULE-SET,Bilibili,Bilibili港澳台",
     "RULE-SET,Stream_no_ip,流媒体",
+    // >>> 保护区：个人 Emby 域名列表，请勿删除 / 移动（基线 #16）<<<
     "RULE-SET,Emby_no_ip,Emby",
+    // <<< 保护区结束 <<<
 
     // TG 消息（域名规则先于 IP CIDR 规则，避免触发本地 DNS 解析）
     "RULE-SET,Telegram_no_ip,电报消息",
@@ -442,7 +544,9 @@ function overwriteRules(params) {
   ];
 
   const ipRules = [
-    "RULE-SET,GlobalDirect,DIRECT", // 个人直连白名单
+    // >>> 保护区：个人直连白名单，请勿删除 / 移动（必须保持在 IP 规则段首位）<<<
+    "RULE-SET,GlobalDirect,DIRECT",
+    // <<< 保护区结束 <<<
 
     // Google FCM 推送
     "RULE-SET,GoogleFCM_ip,GoogleFCM",
@@ -493,7 +597,6 @@ function overwriteRules(params) {
 
   const REALSEEK =
     "https://raw.githubusercontent.com/RealSeek/Clash_Rule_DIY/refs/heads/mihomo";
-  const SELF = "https://raw.githubusercontent.com/zkmydgth/customize/refs/heads/main";
   const rsPath = (rel) => `./ruleset/RealSeek/Clash_Rule_DIY/${rel}`;
 
   params["rule-providers"] = {
@@ -504,20 +607,10 @@ function overwriteRules(params) {
     Reject_no_ip_drop: { ...ruleAnchor.classical, url: `${REALSEEK}/REJECT/no_ip/Reject_no_ip_drop.yaml`, path: rsPath("REJECT/no_ip/Reject_no_ip_drop.yaml") },
     Reject_no_ip_no_drop: { ...ruleAnchor.classical, url: `${REALSEEK}/REJECT/no_ip/Reject_no_ip_no_drop.yaml`, path: rsPath("REJECT/no_ip/Reject_no_ip_no_drop.yaml") },
 
-    AdobeActivation1: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/AdobeActivation/AdobeActivation.yaml",
-      path: "./ruleset/blackmatrix7/ios_rule_script/AdobeActivation.yaml",
-    },
-    AdobeActivation2: {
-      ...ruleAnchor.classical,
-      url: "https://raw.githubusercontent.com/ignaciocastro/a-dove-is-dumb/main/clash.yaml",
-      path: "./ruleset/ignaciocastro/a-dove-is-dumb/clash.yaml",
-    },
+    // AdobeActivation1 / AdobeActivation2 / Emby_no_ip / GlobalDirect 在文件
+    // 顶部的 PROTECTED_RULE_PROVIDERS（保护区）中定义，此处不再重复。
 
     // ===== 直连 =====
-    GlobalDirect: { ...ruleAnchor.classical, url: `${SELF}/DIRTCT_clash.yaml`, path: "./ruleset/zkmydgth/DIRTCT_clash.yaml" },
-
     China_ip: { ...ruleAnchor.ip, url: `${REALSEEK}/DIRECT/ip/China_ip.yaml`, path: rsPath("DIRECT/ip/China_ip.yaml") },
     Domestic_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/ip/Domestic_ip.yaml`, path: rsPath("DIRECT/ip/Domestic_ip.yaml") },
     GoogleFCM_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/DIRECT/ip/GoogleFCM_ip.yaml`, path: rsPath("DIRECT/ip/GoogleFCM_ip.yaml") },
@@ -549,13 +642,43 @@ function overwriteRules(params) {
     CustomProxy_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/CustomProxy_no_ip.yaml`, path: rsPath("PROXY/no_ip/CustomProxy_no_ip.yaml") },
     Download_domainset: { ...ruleAnchor.domain, url: `${REALSEEK}/PROXY/no_ip/Download_domainset.yaml`, path: rsPath("PROXY/no_ip/Download_domainset.yaml") },
     Download_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Download_no_ip.yaml`, path: rsPath("PROXY/no_ip/Download_no_ip.yaml") },
-    Emby_no_ip: { ...ruleAnchor.classical, url: `${SELF}/PROXY_clash.yaml`, path: "./ruleset/zkmydgth/PROXY_clash.yaml" },
     Global_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Global_no_ip.yaml`, path: rsPath("PROXY/no_ip/Global_no_ip.yaml") },
     Microsoft_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Microsoft_no_ip.yaml`, path: rsPath("PROXY/no_ip/Microsoft_no_ip.yaml") },
     Steam_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Steam_no_ip.yaml`, path: rsPath("PROXY/no_ip/Steam_no_ip.yaml") },
     Stream_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Stream_no_ip.yaml`, path: rsPath("PROXY/no_ip/Stream_no_ip.yaml") },
     Telegram_no_ip: { ...ruleAnchor.classical, url: `${REALSEEK}/PROXY/no_ip/Telegram_no_ip.yaml`, path: rsPath("PROXY/no_ip/Telegram_no_ip.yaml") },
+
+    // >>> 保护区：定制规则集放最后展开，确保上面的同名键无法覆盖它们 <<<
+    ...PROTECTED_RULE_PROVIDERS,
   };
+
+  // 保护校验：确认 3 个定制规则集及其规则条目都还在（非致命，只告警）
+  verifyProtected(params);
+}
+
+// ---------------------------------------------------------------------------
+// 保护区校验
+// 只做告警、不抛异常 —— 抛异常会导致配置生成失败、直接断网。
+// 改动脚本后若在日志里看到 "[保护区]" 开头的告警，说明定制规则集被动了。
+// ---------------------------------------------------------------------------
+function verifyProtected(params) {
+  const missing = [];
+
+  const providers = params["rule-providers"] || {};
+  for (const name of PROTECTED_PROVIDER_NAMES) {
+    if (!providers[name]) missing.push("rule-provider: " + name);
+  }
+
+  const rules = params.rules || [];
+  for (const rule of PROTECTED_RULE_ENTRIES) {
+    if (rules.indexOf(rule) === -1) missing.push("rule: " + rule);
+  }
+
+  if (missing.length > 0 && typeof console !== "undefined" && typeof console.warn === "function") {
+    console.warn("[保护区] 定制规则集缺失，请检查脚本改动 -> " + missing.join(" | "));
+  }
+
+  return missing;
 }
 
 // ---------------------------------------------------------------------------
