@@ -1,0 +1,26 @@
+{
+  "managed_keys": [
+    "MOVIE_RENAME_FORMAT",
+    "TV_RENAME_FORMAT",
+    "MUSIC_RENAME_FORMAT",
+    "RENAME_FORMAT_S0_NAMES"
+  ],
+  "origin": {
+    "MOVIE_RENAME_FORMAT": "MP 设定 → 整理 → 电影重命名格式（Settings，app.env）",
+    "TV_RENAME_FORMAT": "MP 设定 → 整理 → 电视剧重命名格式（Settings，app.env）",
+    "MUSIC_RENAME_FORMAT": "MP 设定 → 整理 → 音乐重命名格式（Settings，app.env）",
+    "RENAME_FORMAT_S0_NAMES": "MP 设定 → 整理 → S0 别名（Settings，app.env）"
+  },
+  "moviepilot_version_at_write": "v3.1.3",
+  "updated_at": "2026-10-10",
+  "note": "由 gh_rename_formats.py export 从 MP 运行配置导出；改格式后请重新 export 再 push。",
+  "value": {
+    "MOVIE_RENAME_FORMAT": "{{title}}{% if original_title and original_title != title %}.{{original_title}}{% endif %}{% if year %} ({{year}}){% endif %}/{{title}}{% if original_title and original_title != title %}.{{original_title}}{% endif %}{% if year %} ({{year}}){% endif %}{% if part %}.{{part}}{% endif %}{% if webSource %}.{{webSource}}{% endif %}{% if resourceType %}.{{resourceType}}{% endif %}{% if videoFormat %}.{{videoFormat}}{% endif %}{% if videoCodec %}.{{videoCodec}}{% endif %}{% if fps and fps|int >= 50 and fps|int <= 120 %}.{{fps}}fps{% endif %}{% if audioCodec %}.{{audioCodec}}{% endif %}{% if effect %}.{{effect}}{% endif %}{% if releaseGroup %}.{{releaseGroup}}{% endif %}{{fileExt}}",
+    "TV_RENAME_FORMAT": "{{title}}{% if original_title and original_title != title %}.{{original_title}}{% endif %}{% if year %} ({{year}}){% endif %}/Season {{season}}/{{title}}{% if original_title and original_title != title %}.{{original_title}}{% endif %}.{{season_episode}}{% if part %}.{{part}}{% endif %}{% if webSource %}.{{webSource}}{% endif %}{% if resourceType %}.{{resourceType}}{% endif %}{% if videoFormat %}.{{videoFormat}}{% endif %}{% if videoCodec %}.{{videoCodec}}{% endif %}{% if fps and fps|int >= 50 and fps|int <= 120 %}.{{fps}}fps{% endif %}{% if audioCodec %}.{{audioCodec}}{% endif %}{% if effect %}.{{effect}}{% endif %}{% if releaseGroup %}.{{releaseGroup}}{% endif %}{{fileExt}}",
+    "MUSIC_RENAME_FORMAT": "{{album_artist or artist or 'Unknown Artist'}}/{{album or 'Unknown Album'}}{% if year %} ({{year}}){% endif %}{% if total_discs and total_discs > 1 %}/Disc {{disc_number or 1}}{% endif %}/{% if track %}{{track}} - {% endif %}{{title}}{{fileExt}}",
+    "RENAME_FORMAT_S0_NAMES": [
+      "Specials",
+      "SPs"
+    ]
+  }
+}
