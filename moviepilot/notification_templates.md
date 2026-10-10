@@ -30,7 +30,7 @@
 4. **订阅完成按 `msgstr`**：显示「已完成订阅」或「已完成洗版」
 5. **链接**：标题为可点击 Markdown 链接（TMDB 详情页）；订阅通知额外给 `IMDb` / `豆瓣`（有 ID 才显示）
 6. **标题加粗**：`**[片名 (年份)](链接)**`
-7. **规格补全**：`videoCodec` / `edition` / `fileExt` / `fps` / 分段 `part`
+7. **规格补全**：`videoCodec` / `fileExt` / `fps` / 分段 `part`（`edition` 不再单列 —— 内容与质量行重复，2026-10-10 删除）
    - ⚠️ 质量行只用 `resource_term` + `videoCodec` + `audioCodec`，**不要**再单独输出 `resourceType`：
      `resource_term = resourceType + effect + videoFormat` 已包含它，重复输出会出现两个 `WEB-DL`（2026-10-10 修复）。
 8. **下载保留 PT 关键项**：`volume_factor`（促销）、`freedate`（免费剩余）
@@ -87,3 +87,4 @@ python3 /config/agent/tools/gh_notification_templates.py push \
 |---|---|
 | 2026-10-10 | 首次入库：换用新版四模板（emoji + 可点击标题 + 音乐字段），并完成本地增强：季集空格版 `S01 E01-E02`、整季兜底「全集/整季」、描述/简介/失败截断、订阅完成按 `msgstr`、IMDb/豆瓣链接、标题加粗、规格补全（`videoCodec`/`edition`/`fileExt`/`fps`/`part`）、下载恢复 `volume_factor`/`freedate` |
 | 2026-10-10 | 修复质量行重复：`downloadAdded` / `organizeSuccess` 的质量行删去冗余的 `{% if resourceType %}{{ resourceType }} {% endif %}`，输出由 `WEB-DL WEB-DL 2160p H265 DDP 2.0` 变为 `WEB-DL 2160p H265 DDP 2.0`；`版本` 行按要求保留。核验：`config.system.get` 回读 + 模板渲染实测 |
+| 2026-10-10 | 删除「版本」行（此前同日曾按要求保留，现按要求移除）：`downloadAdded` / `organizeSuccess` 去掉 `{% if edition %}\n🧾 版本：{{ edition }}{% endif %}` 整行 —— `edition` 的内容已含在质量行（`webSource` + `resource_term` + 编解码）中。其余行、另两个模板均未改动。核验：`config.system.get` 回读逐字节比对（仅少该行，两模板各 62 字符）+ Jinja 渲染实测 |
