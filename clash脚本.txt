@@ -709,11 +709,19 @@ function overwriteDns(params) {
       "+.tencent.com",
       "+.msftconnecttest.com",
       "+.msftncsi.com",
+      // 公司内网域：公网 DNS 解析为 NXDOMAIN，必须走内网 DNS 且不要 fake-ip
+      "+.rails.cn",
     ],
 
     "default-nameserver": ["tls://223.5.5.5"],
 
     nameserver: ["https://dns.alidns.com/dns-query", "https://doh.pub/dns-query"],
+
+    // 内网域名指定专用解析器：rails.cn 只有公司内网 DNS(172.17.0.13) 有记录，
+    // 公网 DoH 会返回 NXDOMAIN，导致规则判 DIRECT 却拿不到 IP 而打不开。
+    "nameserver-policy": {
+      "+.rails.cn": "172.17.0.13",
+    },
 
     "proxy-server-nameserver": ["https://doh.pub/dns-query", "https://dns.alidns.com/dns-query"],
   };
