@@ -45,4 +45,12 @@ DOMAIN-SUFFIX,ogury.com,REJECT
 #   ossgw.alicdn.com/creatives-assets/ 创意素材（feupload 路径）
 [Rule]
 DOMAIN,tanx-creative.taobao.com,REJECT
-URL-REGEX,"^https:\/\/ossgw\.alicdn\.com\/creatives-assets\/",REJECT
+
+# URL-REGEX 规则必须依赖 MITM 才能看到完整 URL；域名不在 MITM 列表时规则会静默失效
+[MITM]
+ossgw.alicdn.com
+
+# 阿里妈妈创意素材：URL-REGEX 在 DIRECT 流量上匹配不到（Rule 层看不到 URL），
+# 改用 Map Local 返回 404，素材加载失败 → 开屏无法展示
+[Map Local]
+^https:\/\/ossgw\.alicdn\.com\/creatives-assets\/ data-type=text data="" status-code=404

@@ -1,5 +1,5 @@
 {
-  "source": "upstream.module",
+  "source": "upstream_new.module",
   "source_date": "2026-10-30 16:26:43",
   "kept": {
     "Rule": 2970,
@@ -38,23 +38,23 @@
   "notes": [
     "Map Local data-type=tiny-gif -> URL Rewrite reject-tinygif: 101 条",
     "Map Local data-type=file 丢弃: 2 条",
-    "本地补充 [Rule] 14 条已置顶（避免被父域 DIRECT 抢先）",
+    "本地补充 [Rule] 13 条已置顶（避免被父域 DIRECT 抢先）",
     "规则去重 168 条（完全相同 166 / 同域名多动作 2）",
     "剔除范围过宽规则 2 条: DOMAIN-KEYWORD,trace.qq.com,REJECT, DOMAIN-SUFFIX,l.qq.com,REJECT",
     "动作后缀错位修正 2 条（xxx-NO-DROP -> REJECT-NO-DROP）",
     "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）",
-    "并入本地补充 [Map Local] 2 条",
+    "并入本地补充 [Map Local] 3 条",
     "URL Rewrite/Map Local/Script 去重 3 条（1/2/0）"
   ],
   "unknown_sections": {},
   "fixes": {
-    "本地补充(Rule)": 14,
+    "本地补充(Rule)": 13,
     "规则去重": 168,
     "动作后缀错位": 2,
     "协议笔误": 19,
-    "本地补充(Map Local)": 2,
+    "本地补充(Map Local)": 3,
     "其它段去重": 3
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 401269
+  "output_bytes": 401289
 }

@@ -134,6 +134,25 @@ def process_maplocal(lines):
     return kept_lines, extra_rw, dropped
 
 
+def load_extra(path):
+    """解析 tools/extra_rules.txt（支持 [Rule] / [Map Local] / [MITM] 分段）"""
+    out, cur = {}, None
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("[") and line.endswith("]"):
+                cur = line[1:-1]
+                out.setdefault(cur, [])
+                continue
+            if cur:
+                out[cur].append(line)
+    return out
+
+
 def main():  # noqa: C901
     ap = argparse.ArgumentParser()
     ap.add_argument("src")
@@ -213,7 +232,15 @@ def main():  # noqa: C901
     report["kept"]["Script.types"] = sc_types
 
     # MITM
+    extra_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "extra_rules.txt")
+    extra = load_extra(extra_path)
     hosts = build_mitm(kept.get("MITM", []))
+    # 补充规则里声明的 MITM 域名（URL-REGEX 规则必须靠它才看得到完整 URL）
+    extra_mitm = [h for h in extra.get("MITM", []) if h and h.lower() not in {x.lower() for x in hosts}]
+    if extra_mitm:
+        hosts = hosts + extra_mitm
+        report["fixes"]["本地补充(MITM)"] = len(extra_mitm)
+        report["notes"].append("本地补充 [MITM] %d 个域名" % len(extra_mitm))
     if args.mitm_keep and os.path.exists(args.mitm_keep):
         pats = []
         with open(args.mitm_keep, encoding="utf-8-sig") as f:
@@ -323,19 +350,6 @@ def main():  # noqa: C901
     rule_lines = final
 
     # 本地补充规则（tools/extra_rules.txt），不随上游覆盖；支持 [Rule] / [Map Local] 分段
-    extra_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "extra_rules.txt")
-    extra = {}
-    if os.path.exists(extra_path):
-        cur = None
-        with open(extra_path, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("#"):
-                    continue
-                if line.startswith("[") and line.endswith("]"):
-                    cur = line[1:-1]
-                    continue
-                extra.setdefault(cur, []).append(line)
     if extra.get("Rule"):
         front = [l for l in extra["Rule"] if l not in seen]
         if front:

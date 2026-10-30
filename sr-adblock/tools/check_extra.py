@@ -62,8 +62,21 @@ def main():
         return 0
 
     secs = sections(a.module)
+    # MITM 段在产物里是单行 hostname=a,b,c，需单独解析
+    mitm_hosts = set()
+    with open(a.module, encoding="utf-8") as f:
+        for line in f:
+            t = line.strip()
+            if t.lower().startswith("hostname") and "=" in t:
+                mitm_hosts = {h.strip().lower() for h in t.split("=", 1)[1].split(",") if h.strip()}
+
     missing = []
     for sec, rules in extra.items():
+        if sec == "MITM":
+            for h in rules:
+                if h.lower() not in mitm_hosts:
+                    missing.append((sec, h))
+            continue
         target = secs.get(sec, set())
         for r in rules:
             if r not in target:
