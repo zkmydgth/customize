@@ -392,7 +392,8 @@ def main():  # noqa: C901
     url_rewrite = [l for l in urw]
     map_local = [l for l in ml_clean]
     if extra.get("Map Local"):
-        map_local = map_local + extra["Map Local"]
+        # 置顶：Map Local 同样按顺序匹配，追加到末尾会被上游同 URL 的规则抢先
+        map_local = extra["Map Local"] + map_local
         report["fixes"]["本地补充(Map Local)"] = len(extra["Map Local"])
         report["notes"].append("并入本地补充 [Map Local] %d 条" % len(extra["Map Local"]))
     scripts = [l for l in sc_clean]

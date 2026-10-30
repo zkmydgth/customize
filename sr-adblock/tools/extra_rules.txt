@@ -68,3 +68,8 @@ DOMAIN,brandvideo.biz.weibo.com,REJECT
 DOMAIN,kadmimage.biz.weibo.com,REJECT
 DOMAIN,sdkclick.biz.weibo.com,REJECT
 DOMAIN,sdkaction.biz.weibo.com,REJECT
+
+# 豆瓣开屏：上游 Map Local 返回 {} status=200，App 视为"服务正常但无数据"→ 走内置兜底。
+# 清缓存后仍有广告，改用 404 让请求真正失败。置于最前（Map Local 顺序匹配）。
+[Map Local]
+^https?:\/\/api\.douban\.com\/v\d\/app_ads\/ data-type=text data="" status-code=404
