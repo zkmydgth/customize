@@ -31,6 +31,13 @@ jobs:
           sudo apt-get install -y -qq jq >/dev/null
           echo "node $(node --version) / $(jq --version)"
 
+      - name: Lint (ruff, 版本与本地一致)
+        working-directory: sr-adblock
+        run: |
+          pip install -q "ruff==0.7.4"
+          ruff --version
+          ruff check tools/ --select F,B,SIM,RET,PIE,C9 --output-format concise
+
       - name: Fetch upstream (read-only)
         run: |
           set -euo pipefail
