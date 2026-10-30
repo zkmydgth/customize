@@ -1,7 +1,13 @@
-# 本地补充规则（不随上游覆盖，convert 期并入 [Rule] 段）
-# 格式：Shadowrocket 规则语法，一行一条；# 开头为注释
+# 本地补充规则（convert 期并入，不随上游覆盖）
+# 支持分段：[Rule] / [Map Local]
 #
-# 2026-10-30 从 Shadowrocket 代理日志（proxy-2026-10-30-230230.db）定位：
-# 知乎开屏主接口 launch_v2 / real_time_launch_v2 已由上游 Map Local 拦截，
-# 但下列商业接口仍是 DIRECT，其中 sdk/prefetch 会预加载广告素材（缓存后开屏照常显示）
-URL-REGEX,"^https:\/\/api\.zhihu\.com\/commercial_api\/(app_float_layer|real_time_pull_refresh_v2|real_time_second_floor_v2|sdk\/prefetch)",REJECT
+# ⚠️ 重要：国内 App 的接口多数在 Rule 层被判 DIRECT（来自其他配置的
+#    DOMAIN-SUFFIX,xxx.com,DIRECT），Rule 层的 URL-REGEX 会被抢先、永不生效。
+#    这类接口只能用 [Map Local]（依赖 MITM）拦截，与上游 launch_v2 的做法一致。
+#
+# 2026-10-30 从 proxy-2026-10-30-230230.db 定位：
+# 知乎 commercial_api 的 app_float_layer / real_time_pull_refresh_v2 /
+# real_time_second_floor_v2 / sdk/prefetch 仍是 DIRECT 且未被改写，
+# 其中 sdk/prefetch 会预加载广告素材（缓存后开屏照常显示）
+[Map Local]
+^https:\/\/api\.zhihu\.com\/commercial_api\/(?:app_float_layer|real_time_pull_refresh_v2|real_time_second_floor_v2|sdk\/prefetch) data-type=text data="{}" status-code=200 header="Content-Type:application/json"

@@ -322,20 +322,30 @@ def main():  # noqa: C901
     action_dup = len(uniq) - len(final)
     rule_lines = final
 
-    # 本地补充规则（tools/extra_rules.txt），不随上游覆盖
+    # 本地补充规则（tools/extra_rules.txt），不随上游覆盖；支持 [Rule] / [Map Local] 分段
     extra_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "extra_rules.txt")
+    extra = {}
     if os.path.exists(extra_path):
+        cur = None
         with open(extra_path, encoding="utf-8") as f:
-            extra = [l.strip() for l in f if l.strip() and not l.startswith("#")]
-        added = 0
-        for l in extra:
-            if l in seen:
-                continue
-            rule_lines.append(l)
-            added += 1
-        if added:
-            report["fixes"]["本地补充规则"] = added
-            report["notes"].append("并入本地补充规则 %d 条（tools/extra_rules.txt）" % added)
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if line.startswith("[") and line.endswith("]"):
+                    cur = line[1:-1]
+                    continue
+                extra.setdefault(cur, []).append(line)
+    if extra.get("Rule"):
+        n = 0
+        for l in extra["Rule"]:
+            if l not in seen:
+                rule_lines.append(l)
+                seen.add(l)
+                n += 1
+        if n:
+            report["fixes"]["本地补充(Rule)"] = n
+            report["notes"].append("并入本地补充 [Rule] %d 条" % n)
     if exact_dup or action_dup:
         report["fixes"]["规则去重"] = exact_dup + action_dup
         report["notes"].append("规则去重 %d 条（完全相同 %d / 同域名多动作 %d）"
@@ -369,6 +379,10 @@ def main():  # noqa: C901
 
     url_rewrite = [l for l in urw]
     map_local = [l for l in ml_clean]
+    if extra.get("Map Local"):
+        map_local = map_local + extra["Map Local"]
+        report["fixes"]["本地补充(Map Local)"] = len(extra["Map Local"])
+        report["notes"].append("并入本地补充 [Map Local] %d 条" % len(extra["Map Local"]))
     scripts = [l for l in sc_clean]
     extra_dropped = 0
     url_rewrite, d1 = dedupe_lines(url_rewrite)
