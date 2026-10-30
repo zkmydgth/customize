@@ -79,7 +79,9 @@ jobs:
 
       - name: Test module structure
         working-directory: sr-adblock
-        run: python3 tools/check_structure.py --module /tmp/blockAds.sr.module
+        run: |
+          python3 tools/check_structure.py --module /tmp/blockAds.sr.module
+          python3 tools/check_extra.py --module /tmp/blockAds.sr.module
 
       - name: Test mutation (0 escaped / 0 skipped)
         working-directory: sr-adblock
