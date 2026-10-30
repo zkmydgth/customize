@@ -397,6 +397,11 @@ def main():  # noqa: C901
         report["fixes"]["本地补充(Map Local)"] = len(extra["Map Local"])
         report["notes"].append("并入本地补充 [Map Local] %d 条" % len(extra["Map Local"]))
     scripts = [l for l in sc_clean]
+    if extra.get("Script"):
+        # 置顶：我们的增强脚本要优先于上游同名 pattern 的脚本
+        scripts = extra["Script"] + scripts
+        report["fixes"]["本地补充(Script)"] = len(extra["Script"])
+        report["notes"].append("本地补充 [Script] %d 条（置顶）" % len(extra["Script"]))
     extra_dropped = 0
     url_rewrite, d1 = dedupe_lines(url_rewrite)
     map_local, d2 = dedupe_lines(map_local)
