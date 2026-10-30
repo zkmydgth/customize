@@ -1,0 +1,85 @@
+name: Test SR Adblock Converter
+
+# 只在改动转换器/脚本模板时跑：快速反馈，不提交任何文件
+on:
+  push:
+    paths:
+      - "sr-adblock/tools/**"
+      - "sr-adblock/scripts/**"
+      - ".github/workflows/test-sr-adblock.yml"
+  pull_request:
+    paths:
+      - "sr-adblock/tools/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-sr-adblock-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq >/dev/null
+          echo "node $(node --version) / $(jq --version)"
+
+      - name: Fetch upstream (read-only)
+        run: |
+          set -euo pipefail
+          mkdir -p .cache
+          URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/blockAds.module"
+          for i in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o .cache/upstream.module "$URL"; then break; fi
+            echo "retry $i"; sleep 10
+          done
+          test -s .cache/upstream.module
+
+      - name: Build into /tmp (never commit)
+        working-directory: sr-adblock
+        run: |
+          set -euo pipefail
+          python3 tools/extract_body.py ../.cache/upstream.module /tmp/bodyrewrite.json
+          python3 tools/convert.py ../.cache/upstream.module /tmp/blockAds.sr.module --report /tmp/report.json
+          python3 tools/gen_scripts.py
+          python3 tools/assemble.py --module /tmp/blockAds.sr.module \
+            --rules build/body-rewrite.rules \
+            --script-url https://example.invalid/body-rewrite.js \
+            --report /tmp/assemble.json
+
+      - name: Test jq differential (jq CLI vs JS runtime)
+        working-directory: sr-adblock
+        run: python3 tools/test_equiv.py --inputs 6
+
+      - name: Test script end-to-end
+        working-directory: sr-adblock
+        run: node tools/test_script.js
+
+      - name: Test module structure
+        run: |
+          set -euo pipefail
+          F=/tmp/blockAds.sr.module
+          R=$(awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
+          S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
+          B=$(grep -c 'body-rewrite-[0-9][0-9][0-9] = ' "$F" || true)
+          echo "Rule=$R Script=$S BodyRewriteScripts=$B"
+          [ "$R" -gt 2000 ] || { echo "::error::Rule 数异常"; exit 1; }
+          [ "$S" -gt 300 ]  || { echo "::error::Script 数异常"; exit 1; }
+          [ "$B" -eq 96 ]   || { echo "::error::Body Rewrite 编译不完整 ($B/96)"; exit 1; }
+          if grep -q '^\[Body Rewrite\]' "$F"; then echo "::error::含不支持的段"; exit 1; fi
+          {
+            echo "### 转换器测试通过"
+            echo ""
+            echo "| 项 | 值 |"
+            echo "|---|---|"
+            echo "| Rule | $R |"
+            echo "| Script | $S |"
+            echo "| Body Rewrite 编译 | $B/96 |"
+          } >> "$GITHUB_STEP_SUMMARY"

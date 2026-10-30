@@ -71,8 +71,8 @@ jobs:
           python3 tools/test_equiv.py --inputs 6
           node tools/test_script.js
           F=dist/blockAds.sr.module
-          R=$(awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vc '^#' || true)
-          S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vc '^#' || true)
+          R=$(awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
+          S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
           echo "Rule=$R Script=$S"
           [ "$R" -gt 2000 ] || { echo "::error::规则数异常 $R"; exit 1; }
           [ "$S" -gt 300 ]  || { echo "::error::脚本数异常 $S"; exit 1; }
