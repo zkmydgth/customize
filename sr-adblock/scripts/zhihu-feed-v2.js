@@ -188,7 +188,10 @@ if (url.includes("/answers/v2/") || url.includes("/articles/v2/")) {
 // ==== 增强：通用广告卡片清理（2026-10-31 新增）====
 // 上游只删 type === "feed_advert"，知乎已新增多种伪装卡片，这里按标记兜底
 try {
-  if (url.includes("/topstory/recommend") && Array.isArray(obj?.data)) {
+  var _isFeed = url.indexOf("/topstory/recommend") >= 0;
+  var _isDetail = url.indexOf("/next-") >= 0 || url.indexOf("/answers/") >= 0
+                  || url.indexOf("www.zhihu.com/api/v4/answers") >= 0;
+  if ((_isFeed || _isDetail) && Array.isArray(obj && obj.data)) {
     obj.data = obj.data.filter(function (i) {
       var t = String((i && i.type) || "").toLowerCase();
       if (t.indexOf("advert") >= 0) return false;      // feed_advert / advert_card ...
