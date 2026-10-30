@@ -38,3 +38,11 @@ DOMAIN-SUFFIX,ogury.com,REJECT
 # 结构变化时会静默失效 → 改用 Map Local 直接返回空对象兜底。
 [Map Local]
 ^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|show|event\/list2) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+
+# 2026-10-31 第三次日志（清缓存后）：知乎开屏改用阿里妈妈(tanx)联盟
+# 请求 df.tanx.com 已被拦，但素材仍从下列域名加载（配置 JSON 在本地缓存里）
+#   tanx-creative.taobao.com           广告创意配置
+#   ossgw.alicdn.com/creatives-assets/ 创意素材（feupload 路径）
+[Rule]
+DOMAIN,tanx-creative.taobao.com,REJECT
+URL-REGEX,"^https:\/\/ossgw\.alicdn\.com\/creatives-assets\/",REJECT

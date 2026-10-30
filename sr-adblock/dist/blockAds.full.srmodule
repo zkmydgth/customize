@@ -32,6 +32,8 @@ DOMAIN-SUFFIX,tingyun.com,REJECT
 DOMAIN-SUFFIX,sentry.io,REJECT
 DOMAIN-SUFFIX,mintegral.com,REJECT
 DOMAIN-SUFFIX,ogury.com,REJECT
+DOMAIN,tanx-creative.taobao.com,REJECT
+URL-REGEX,"^https:\/\/ossgw\.alicdn\.com\/creatives-assets\/",REJECT
 # >>>>>>>>>>>>>>> ✅ !! ✅ <<<<<<<<<<<<<<
 
 # > 广告联盟
