@@ -337,15 +337,13 @@ def main():  # noqa: C901
                     continue
                 extra.setdefault(cur, []).append(line)
     if extra.get("Rule"):
-        n = 0
-        for l in extra["Rule"]:
-            if l not in seen:
-                rule_lines.append(l)
-                seen.add(l)
-                n += 1
-        if n:
-            report["fixes"]["本地补充(Rule)"] = n
-            report["notes"].append("并入本地补充 [Rule] %d 条" % n)
+        front = [l for l in extra["Rule"] if l not in seen]
+        if front:
+            # 必须放最前：父域常被判 DIRECT，Rule 顺序匹配下放末尾永远轮不到
+            rule_lines = front + rule_lines
+            seen.update(front)
+            report["fixes"]["本地补充(Rule)"] = len(front)
+            report["notes"].append("本地补充 [Rule] %d 条已置顶（避免被父域 DIRECT 抢先）" % len(front))
     if exact_dup or action_dup:
         report["fixes"]["规则去重"] = exact_dup + action_dup
         report["notes"].append("规则去重 %d 条（完全相同 %d / 同域名多动作 %d）"

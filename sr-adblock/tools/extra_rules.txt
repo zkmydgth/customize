@@ -11,3 +11,11 @@
 # 其中 sdk/prefetch 会预加载广告素材（缓存后开屏照常显示）
 [Map Local]
 ^https:\/\/api\.zhihu\.com\/commercial_api\/(?:app_float_layer|real_time_pull_refresh_v2|real_time_second_floor_v2|sdk\/prefetch) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+
+# 2026-10-30 从同一份代理日志补的埋点/追踪（父域被判 DIRECT，必须置顶才生效）
+[Rule]
+DOMAIN,sq.bls.mdt.qq.com,REJECT
+DOMAIN,h-adashx4bc.ut.taobao.com,REJECT
+DOMAIN,datahub.zhihu.com,REJECT
+DOMAIN,amonsul.douban.com,REJECT
+DOMAIN,iosqqdata.ab.qq.com,REJECT

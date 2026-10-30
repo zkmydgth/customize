@@ -20,6 +20,11 @@
 
 
 [Rule]
+DOMAIN,sq.bls.mdt.qq.com,REJECT
+DOMAIN,h-adashx4bc.ut.taobao.com,REJECT
+DOMAIN,datahub.zhihu.com,REJECT
+DOMAIN,amonsul.douban.com,REJECT
+DOMAIN,iosqqdata.ab.qq.com,REJECT
 # >>>>>>>>>>>>>>> ✅ !! ✅ <<<<<<<<<<<<<<
 
 # > 广告联盟
