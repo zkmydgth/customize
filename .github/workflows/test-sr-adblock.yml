@@ -38,6 +38,10 @@ jobs:
           ruff --version
           ruff check tools/ --select F,B,SIM,RET,PIE,C9 --output-format concise
 
+      - name: Privacy scan (0 命中，只输出位置不输出内容)
+        working-directory: sr-adblock
+        run: python3 tools/privacy_scan.py --all
+
       - name: Fetch upstream (read-only)
         run: |
           set -euo pipefail
