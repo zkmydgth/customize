@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: sync-sr-adblock
@@ -113,6 +114,13 @@ jobs:
           R=$(awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
           S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
           echo "Rule=$R Script=$S"
+          REJ=$(grep -cE ',(REJECT|REJECT-DROP|REJECT-NO-DROP)(,|$)' "$F" || true)
+          RATIO=$(( REJ * 100 / R ))
+          echo "拦截类规则 $REJ / $R = ${RATIO}%"
+          if [ "$RATIO" -lt 90 ]; then
+            echo "::error::拦截规则占比骤降至 ${RATIO}%（阈值 90%），疑似上游把 REJECT 改成了 DIRECT"
+            exit 1
+          fi
           [ "$R" -gt 2000 ] || { echo "::error::规则数异常 $R"; exit 1; }
           [ "$S" -gt 300 ]  || { echo "::error::脚本数异常 $S"; exit 1; }
           grep -q '^\[MITM\]' "$F" || { echo "::error::缺 MITM"; exit 1; }
@@ -129,12 +137,49 @@ jobs:
             echo "- 上游日期: $(grep -m1 '^#!date' ../.cache/upstream.module || true)"
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Open issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '自动同步失败：Shadowrocket 去广告模块';
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'auto-sync', per_page: 10
+            });
+            const body = [
+              `运行: ${context.runId}`,
+              `提交: ${context.sha.slice(0, 8)}`,
+              `链接: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              '',
+              '本次**未提交任何文件**（Verify/Commit 已被跳过），线上产物保持上一版。'
+            ].join('\n');
+            if (issues.length) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: issues[0].number, body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ['auto-sync']
+              });
+            }
+
       - name: Commit & push
         run: |
           set -euo pipefail
+          MOD=sr-adblock/dist/blockAds.sr.module
+          count(){ awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$1" 2>/dev/null | grep -vcE '^\s*(#|$)' || echo 0; }
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add sr-adblock/dist sr-adblock/scripts sr-adblock/build
           if git diff --staged --quiet; then echo "上游无变化"; exit 0; fi
-          git commit -m "chore: sync upstream $(date -u +%Y-%m-%d)"
+          git show "HEAD:$MOD" > /tmp/old.module 2>/dev/null || : > /tmp/old.module
+          OLD=$(count /tmp/old.module); NEW=$(count "$MOD")
+          DELTA=$(( NEW - OLD )); [ "$DELTA" -ge 0 ] && SIGN="+" || SIGN=""
+          S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$MOD" | grep -vcE '^\s*(#|$)' || echo 0)
+          H=$(awk '/^\[MITM\]/{getline; print}' "$MOD" | tr ',' '\n' | wc -l)
+          git commit -m "chore: sync upstream $(date -u +%Y-%m-%d)" \
+            -m "Rule ${OLD} -> ${NEW} (${SIGN}${DELTA}) ｜ Script ${S} ｜ MITM ${H}"
           git push
