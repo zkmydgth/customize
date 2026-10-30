@@ -25,6 +25,13 @@ DOMAIN,h-adashx4bc.ut.taobao.com,REJECT
 DOMAIN,datahub.zhihu.com,REJECT
 DOMAIN,amonsul.douban.com,REJECT
 DOMAIN,iosqqdata.ab.qq.com,REJECT
+DOMAIN-SUFFIX,reyun.com,REJECT
+DOMAIN-SUFFIX,sensorsdata.cn,REJECT
+DOMAIN-SUFFIX,thinkingdata.cn,REJECT
+DOMAIN-SUFFIX,tingyun.com,REJECT
+DOMAIN-SUFFIX,sentry.io,REJECT
+DOMAIN-SUFFIX,mintegral.com,REJECT
+DOMAIN-SUFFIX,ogury.com,REJECT
 # >>>>>>>>>>>>>>> ✅ !! ✅ <<<<<<<<<<<<<<
 
 # > 广告联盟
@@ -8163,7 +8170,6 @@ DOMAIN-SUFFIX,mindmapper.cc,REJECT
 DOMAIN-SUFFIX,playable-stats.mindworks-creative.com,REJECT
 DOMAIN-SUFFIX,mineon.xin,REJECT
 DOMAIN-SUFFIX,ad.mingruidata.com,REJECT
-DOMAIN-SUFFIX,mintegral.com,REJECT
 DOMAIN-SUFFIX,insight.mintel.com,REJECT
 DOMAIN-SUFFIX,mip37c9nf.com,REJECT
 DOMAIN-SUFFIX,wm.mipcdn.com,REJECT
@@ -9397,7 +9403,6 @@ DOMAIN-SUFFIX,sentry.semsportal.com,REJECT
 DOMAIN-SUFFIX,sentry1.semsportal.com,REJECT
 DOMAIN-SUFFIX,senbiaojita.com,REJECT
 DOMAIN-SUFFIX,sense-international.com,REJECT
-DOMAIN-SUFFIX,sensorsdata.cn,REJECT
 DOMAIN-SUFFIX,sentry-1536568448.cn-northwest-1.elb.amazonaws.com.cn,REJECT
 DOMAIN-SUFFIX,seordl.cn,REJECT
 DOMAIN-SUFFIX,logstat.t.sfht.com,REJECT
@@ -9863,7 +9868,6 @@ DOMAIN-SUFFIX,sstats.thermoscientific.cn,REJECT
 DOMAIN-SUFFIX,stats.thermoscientific.cn,REJECT
 DOMAIN-SUFFIX,thgh902ny.com,REJECT
 DOMAIN-SUFFIX,analytics.thinkingcloud.net,REJECT
-DOMAIN-SUFFIX,thinkingdata.cn,REJECT
 DOMAIN-SUFFIX,thj36m3dm.com,REJECT
 DOMAIN-SUFFIX,trk.thomas-pump.cn,REJECT
 DOMAIN-SUFFIX,trail.thomsonreuters.cn,REJECT
@@ -9881,7 +9885,6 @@ DOMAIN-SUFFIX,tiantiansoft.com,REJECT
 DOMAIN-SUFFIX,tiexing.com,REJECT
 DOMAIN-SUFFIX,smetrics.tiffany.cn,REJECT
 DOMAIN-SUFFIX,tikishop.top,REJECT
-DOMAIN-SUFFIX,tingyun.com,REJECT
 DOMAIN-SUFFIX,tisszhb.cn,REJECT
 DOMAIN-SUFFIX,img2.titan007.com,REJECT
 DOMAIN-SUFFIX,log.tititi.xyz,REJECT

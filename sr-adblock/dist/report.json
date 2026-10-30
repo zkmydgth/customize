@@ -38,7 +38,7 @@
   "notes": [
     "Map Local data-type=tiny-gif -> URL Rewrite reject-tinygif: 101 条",
     "Map Local data-type=file 丢弃: 2 条",
-    "本地补充 [Rule] 5 条已置顶（避免被父域 DIRECT 抢先）",
+    "本地补充 [Rule] 12 条已置顶（避免被父域 DIRECT 抢先）",
     "规则去重 173 条（完全相同 171 / 同域名多动作 2）",
     "剔除范围过宽规则 2 条: DOMAIN-KEYWORD,trace.qq.com,REJECT, DOMAIN-SUFFIX,l.qq.com,REJECT",
     "动作后缀错位修正 2 条（xxx-NO-DROP -> REJECT-NO-DROP）",
@@ -48,7 +48,7 @@
   ],
   "unknown_sections": {},
   "fixes": {
-    "本地补充(Rule)": 5,
+    "本地补充(Rule)": 12,
     "规则去重": 173,
     "动作后缀错位": 2,
     "协议笔误": 19,
@@ -56,5 +56,5 @@
     "其它段去重": 14
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 401303
+  "output_bytes": 401537
 }
