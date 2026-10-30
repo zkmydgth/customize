@@ -8,7 +8,8 @@ import sys
 SRC = sys.argv[1] if len(sys.argv) > 1 else "upstream.module"
 DST = sys.argv[2] if len(sys.argv) > 2 else "/tmp/bodyrewrite.json"
 
-lines = open(SRC, encoding="utf-8", errors="replace").read().replace("\r\n", "\n").split("\n")
+with open(SRC, encoding="utf-8", errors="replace") as f:
+    lines = f.read().replace("\r\n", "\n").split("\n")
 inb, rows = False, []
 for l in lines:
     if l.strip() == "[Body Rewrite]":
@@ -29,7 +30,8 @@ for r in rows:
     else:
         out.append({"type": "unknown", "raw": r})
 
-json.dump(out, open(DST, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+with open(DST, "w", encoding="utf-8") as f:
+    json.dump(out, f, ensure_ascii=False, indent=1)
 print(json.dumps({"total": len(out),
                   "jq": sum(1 for x in out if x["type"] == "jq"),
                   "replace": sum(1 for x in out if x["type"] == "replace"),

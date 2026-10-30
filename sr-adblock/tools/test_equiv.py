@@ -51,7 +51,7 @@ def gen_inputs(fields, n, seed):
             None,
         ])
     out.append(shape)
-    for i in range(n - 1):
+    for _ in range(n - 1):
         d = {}
         for f in sorted(fields):
             d[f] = rnd(0, fields, rng)
@@ -66,7 +66,8 @@ def main():
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()
 
-    data = json.load(open("/tmp/bodyrewrite.json", encoding="utf-8"))
+    with open("/tmp/bodyrewrite.json", encoding="utf-8") as f:
+        data = json.load(f)
     jq_items = [x for x in data if x.get("type") == "jq"]
     if args.only >= 0:
         jq_items = [jq_items[args.only]]
@@ -86,7 +87,8 @@ def main():
         cases.append({"id": idx, "ast": ast, "inputs": inputs})
         meta.append({"id": idx, "expr": expr, "pattern": item["pattern"]})
 
-    open("/tmp/cases.json", "w", encoding="utf-8").write(json.dumps(cases, ensure_ascii=False))
+    with open("/tmp/cases.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(cases, ensure_ascii=False))
 
     # JS 批量求值
     js = subprocess.run(["node", os.path.join(HERE, "test_runner.js"), "/tmp/cases.json"],

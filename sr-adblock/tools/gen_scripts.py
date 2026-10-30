@@ -63,7 +63,8 @@ def parse_replace(raw):
 
 
 def main():
-    data = json.load(open(SRC, encoding="utf-8"))
+    with open(SRC, encoding="utf-8") as f:
+        data = json.load(f)
     rules, stats = [], {"jq": 0, "replace": 0, "failed": 0}
 
     for idx, item in enumerate(data):
@@ -87,7 +88,8 @@ def main():
             rules.append({"n": name, "re": pat, "rep": [search, rep]})
             stats["replace"] += 1
 
-    rt = open(RT, encoding="utf-8").read()
+    with open(RT, encoding="utf-8") as f:
+        rt = f.read()
     rt = re.sub(r"^/\*.*?\*/", "", rt, flags=re.S)
 
     body = []
@@ -98,38 +100,53 @@ def main():
         [{"n": r["n"], "p": r["re"], "j": r.get("jq"), "r": r.get("rep")} for r in rules],
         ensure_ascii=False, separators=(",", ":")) + ";")
     body.append("""
-function __pick__(url){
-  for (var i=0;i<__RULES__.length;i++){
-    var r=__RULES__[i];
-    try { if (new RegExp(r.p).test(url)) return r; } catch(e){}
-  }
-  return null;
+function __rx(p){
+  var flags = "";
+  while (p.indexOf("(?i)") === 0) { flags += "i"; p = p.slice(4); }
+  try { return new RegExp(p, flags); } catch (e) { return null; }
 }
-(function(){
+var __RE__ = [];
+for (var __i = 0; __i < __RULES__.length; __i++) __RE__.push(__rx(__RULES__[__i].p));
+
+(function () {
   var url = ($request && $request.url) || "";
-  var rule = __pick__(url);
-  if (!rule || !$response) { $done({}); return; }
-  var body = $response.body;
+  var body = $response && $response.body;
   if (typeof body !== "string") { $done({}); return; }
-  if (rule.r) {
-    var a = rule.r[0], b = rule.r[1];
-    if (a) body = body.split(a).join(b);
-    $done({body: body});
-    return;
+
+  // 同一 URL 可能命中多条规则（上游大量重复 pattern），必须全部依次应用
+  var matched = [];
+  for (var i = 0; i < __RULES__.length; i++) {
+    if (__RE__[i] && __RE__[i].test(url)) matched.push(__RULES__[i]);
   }
-  try {
-    var obj = JSON.parse(body);
-    var out = JQRT.make(rule.j)(obj);
-    $done({body: JSON.stringify(out.length ? out[0] : null)});
-  } catch (e) {
-    $done({body: body});
+  if (!matched.length) { $done({}); return; }
+
+  var obj = undefined;   // undefined=未解析 / null=解析失败
+  for (var k = 0; k < matched.length; k++) {
+    var r = matched[k];
+    if (r.r) {                                  // 字符串替换
+      if (r.r[0]) body = body.split(r.r[0]).join(r.r[1]);
+      obj = undefined;                          // 字符串已变，需重新解析
+      continue;
+    }
+    if (!r.j) continue;
+    if (obj === undefined) {
+      try { obj = JSON.parse(body); } catch (e) { obj = null; }
+    }
+    if (obj === null) continue;
+    try {
+      var out = JQRT.make(r.j)(obj);
+      if (out.length && out[0] !== undefined) obj = out[0];
+    } catch (e) { /* 单条失败不影响其他规则 */ }
   }
+  if (obj !== undefined && obj !== null) body = JSON.stringify(obj);
+  $done({ body: body });
 })();
 """)
     os.makedirs(os.path.join(ROOT, "scripts"), exist_ok=True)
     os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
     js = "\n".join(body)
-    open(os.path.join(ROOT, "scripts/body-rewrite.js"), "w", encoding="utf-8").write(js)
+    with open(os.path.join(ROOT, "scripts/body-rewrite.js"), "w", encoding="utf-8") as f:
+        f.write(js)
 
     lines = []
     for r in rules:
@@ -137,7 +154,8 @@ function __pick__(url){
             continue
         lines.append("%s = type=http-response, pattern=%s, script-path=%s, requires-body=1, max-size=-1, timeout=20"
                      % (r["n"], r["re"], "__SCRIPT_URL__"))
-    open(os.path.join(ROOT, "build/body-rewrite.rules"), "w", encoding="utf-8").write("\n".join(lines) + "\n")
+    with open(os.path.join(ROOT, "build/body-rewrite.rules"), "w", encoding="utf-8") as f:
+        f.write("\n".join(lines) + "\n")
 
     print(json.dumps({**stats, "script_bytes": len(js.encode()),
                       "rule_count": len([r for r in rules if not r.get("err")])},

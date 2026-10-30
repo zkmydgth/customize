@@ -3,9 +3,7 @@
 """把 body-rewrite 规则合并进已转换的 SR 模块，并补全 MITM。"""
 import argparse
 import json
-import os
 import re
-import sys
 
 SEC_RE = re.compile(r"^\[([^\[\]]+)\]\s*$")
 
@@ -62,7 +60,7 @@ def hosts_of_pattern(pat):
     return out
 
 
-def main():
+def main():  # noqa: C901
     ap = argparse.ArgumentParser()
     ap.add_argument("--module", required=True)
     ap.add_argument("--rules", required=True)
@@ -70,10 +68,11 @@ def main():
     ap.add_argument("--report", default="")
     args = ap.parse_args()
 
-    text = open(args.module, encoding="utf-8").read()
+    with open(args.module, encoding="utf-8") as f:
+        text = f.read()
     header, secs = split_sections(text)
-    rules = [l for l in open(args.rules, encoding="utf-8").read().split("\n")
-             if l.strip() and not l.startswith("#")]
+    with open(args.rules, encoding="utf-8") as f:
+        rules = [l for l in f.read().split("\n") if l.strip() and not l.startswith("#")]
     rules = [l.replace("__SCRIPT_URL__", args.script_url) for l in rules]
 
     secs = [(n, ls) for n, ls in secs]
@@ -98,9 +97,9 @@ def main():
     missing = []
     for p in pats:
         for h in hosts_of_pattern(p):
-            if h not in hosts and not any(h.endswith(x.lstrip("*")) for x in hosts if x.startswith("*")):
-                if h not in missing:
-                    missing.append(h)
+            if (h not in hosts and h not in missing
+                    and not any(h.endswith(x.lstrip("*")) for x in hosts if x.startswith("*"))):
+                missing.append(h)
     if missing:
         hosts = hosts + missing
         names = [n for n, _ in secs]
@@ -115,13 +114,15 @@ def main():
         out.append("[%s]" % n)
         out.extend(ls)
     txt = "\n".join(out).rstrip() + "\n"
-    open(args.module, "w", encoding="utf-8", newline="\n").write(txt)
+    with open(args.module, "w", encoding="utf-8", newline="\n") as f:
+        f.write(txt)
 
     info = {"script_rules": len(rules), "mitm_added": missing,
             "mitm_total": len(hosts), "bytes": len(txt.encode())}
     print(json.dumps(info, ensure_ascii=False, indent=1))
     if args.report:
-        json.dump(info, open(args.report, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        with open(args.report, "w", encoding="utf-8") as f:
+            json.dump(info, f, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":

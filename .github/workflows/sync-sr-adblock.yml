@@ -68,9 +68,10 @@ jobs:
         working-directory: sr-adblock
         run: |
           set -euo pipefail
+          F=dist/blockAds.sr.module
           python3 tools/test_equiv.py --inputs 6
           node tools/test_script.js
-          F=dist/blockAds.sr.module
+          python3 tools/check_structure.py --module "$F"
           R=$(awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
           S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
           echo "Rule=$R Script=$S"

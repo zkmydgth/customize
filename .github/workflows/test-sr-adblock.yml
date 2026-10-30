@@ -63,6 +63,16 @@ jobs:
         run: node tools/test_script.js
 
       - name: Test module structure
+        working-directory: sr-adblock
+        run: python3 tools/check_structure.py --module /tmp/blockAds.sr.module
+
+      - name: Test mutation (0 escaped / 0 skipped)
+        working-directory: sr-adblock
+        env:
+          UPSTREAM: ../.cache/upstream.module
+        run: python3 tools/mutation.py
+
+      - name: Legacy structure stats
         run: |
           set -euo pipefail
           F=/tmp/blockAds.sr.module

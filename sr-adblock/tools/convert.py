@@ -20,7 +20,6 @@ import datetime
 import json
 import os
 import re
-import sys
 
 KEEP = ["Rule", "Host", "URL Rewrite", "Map Local", "Script", "MITM"]
 DROP = ["Body Rewrite", "Header Rewrite"]
@@ -100,8 +99,7 @@ def clean_script_line(line):
     """SR 适配：删掉 argument= 字段；requires-body 归一为 1/0"""
     line = re.sub(r",?\s*argument=[^,]*", "", line)
     line = re.sub(r"requires-body=(true|1)\b", "requires-body=1", line, flags=re.I)
-    line = re.sub(r"requires-body=(false|0)\b", "requires-body=0", line, flags=re.I)
-    return line
+    return re.sub(r"requires-body=(false|0)\b", "requires-body=0", line, flags=re.I)
 
 
 def process_maplocal(lines):
@@ -127,7 +125,7 @@ def process_maplocal(lines):
     return kept_lines, extra_rw, dropped
 
 
-def main():
+def main():  # noqa: C901
     ap = argparse.ArgumentParser()
     ap.add_argument("src")
     ap.add_argument("dst")
@@ -157,8 +155,6 @@ def main():
     }
 
     # ---- 逐段处理 ----
-    out_blocks = []
-
     # Rule
     rule_lines = kept.get("Rule", [])
     rule_eff = eff(rule_lines)
@@ -206,7 +202,9 @@ def main():
     hosts = build_mitm(kept.get("MITM", []))
     if args.mitm_keep and os.path.exists(args.mitm_keep):
         pats = []
-        for l in open(args.mitm_keep, encoding="utf-8-sig"):
+        with open(args.mitm_keep, encoding="utf-8-sig") as f:
+            keep_lines = f.read().split("\n")
+        for l in keep_lines:
             l = l.strip()
             if l and not l.startswith("#"):
                 pats.append(l)

@@ -41,7 +41,7 @@ def tokenize(src):
     return toks
 
 
-def unescape(s):
+def unescape(s):  # noqa: C901
     out, i = [], 0
     while i < len(s):
         c = s[i]
@@ -226,7 +226,7 @@ class Parser:
             break
         return e
 
-    def primary(self):
+    def primary(self):  # noqa: C901
         k, v = self.peek()
         if k == "dotfield":
             self.next()
@@ -355,7 +355,7 @@ def parse(src):
         return p.parse()
     except JQError as e:
         pos = POS[min(p.i, len(POS) - 1)] if POS else 0
-        raise JQError("%s | near=%s | src=%r" % (e, src[pos:pos + 120], pos))
+        raise JQError("%s | near=%s | src=%r" % (e, src[pos:pos + 120], pos)) from None
 
 
 if __name__ == "__main__":
