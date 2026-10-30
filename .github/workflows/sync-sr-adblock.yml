@@ -66,6 +66,8 @@ jobs:
 
       - name: Merge extra ad rules (best-effort, 上游 QX 规则集)
         working-directory: sr-adblock
+        env:
+          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
         run: |
           set -euo pipefail
           URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/QuantumultX/filter/filter.list"
