@@ -67,6 +67,16 @@ python3 tools/test_equiv.py --inputs 6
 node tools/test_script.js
 ```
 
+## 额外规则合并（可选增强）
+
+上游除 `blockAds.module` 外还有一份 Quantumult X 过滤规则集
+（`QuantumultX/filter/filter.list`，2668 条），同步时会**自动合并去重**：
+
+- 与现有 Rule 重叠 **97.3%**（2528/2599 域名），实际新增 **43 条**
+- 去重口径：精确同值 + 父级后缀覆盖（`sub.existing.com` 被 `DOMAIN-SUFFIX,existing.com` 覆盖则跳过）
+- **风险闸门**：候选若是知名主站本身（`temu.com` 等），默认不并入——拦掉整个站点会让 App 打不开
+- 拉取失败不影响主流程（best-effort）
+
 ## 上游变化时怎么自适配
 
 | 上游变化 | 处理 | 是否阻断 |

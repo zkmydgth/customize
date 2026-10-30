@@ -64,6 +64,18 @@ jobs:
             --script-url "$RAW/scripts/body-rewrite.js" \
             --report build/assemble.json
 
+      - name: Merge extra ad rules (best-effort, 上游 QX 规则集)
+        working-directory: sr-adblock
+        run: |
+          set -euo pipefail
+          URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/QuantumultX/filter/filter.list"
+          if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o /tmp/qx_filter.list "$URL" && [ -s /tmp/qx_filter.list ]; then
+            python3 tools/merge_extra.py --module dist/blockAds.sr.module \
+              --source /tmp/qx_filter.list --report build/merge.json
+          else
+            echo "::warning::额外规则源拉取失败，本次跳过合并（不影响主流程）"
+          fi
+
       - name: Verify (jq differential + script smoke test + structure)
         working-directory: sr-adblock
         run: |
@@ -93,6 +105,9 @@ jobs:
             echo "- Rule: $R / Script: $S"
             echo "- Body Rewrite 已编译: $(grep -c 'body-rewrite-[0-9][0-9][0-9] = ' "$F")"
             echo "- 未能处理（unhandled）: $UN 条"
+            if [ -f build/merge.json ]; then
+              echo "- 额外合并: $(python3 -c "import json;d=json.load(open('build/merge.json'));print('%d 条（去重跳过 %d，风险主站跳过 %d）'%(d['added'],d['skipped_duplicate'],len(d['skipped_major_site'])))")"
+            fi
             echo "- 上游日期: $(grep -m1 '^#!date' ../.cache/upstream.module || true)"
           } >> "$GITHUB_STEP_SUMMARY"
 
