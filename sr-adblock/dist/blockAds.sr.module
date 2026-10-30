@@ -1822,10 +1822,8 @@ DOMAIN,v2.gdt.qq.com,REJECT
 DOMAIN,win.gdt.qq.com,REJECT
 DOMAIN,wup.imtt.qq.com,REJECT
 DOMAIN,tpstelemetry.tencent.com,REJECT
-DOMAIN-KEYWORD,trace.qq.com,REJECT
 DOMAIN-KEYWORD,trace.video.qq.com,REJECT
 DOMAIN-SUFFIX,gdt.qq.com,REJECT
-DOMAIN-SUFFIX,l.qq.com,REJECT
 DOMAIN-SUFFIX,ugdtimg.com,REJECT
 IP-CIDR,47.110.187.87/32,REJECT,no-resolve
 DOMAIN,cnlogs.umeng.com,REJECT
@@ -2453,14 +2451,14 @@ DOMAIN,adclick.tencentmusic.com,REJECT
 DOMAIN,otheve.beacon.qq.com,REJECT
 DOMAIN,monitor.music.qq.com,REJECT
 DOMAIN,stat.y.qq.com,REJECT
-DOMAIN,tmead.y.qq.com-NO-DROP,REJECT
+DOMAIN,tmead.y.qq.com,REJECT-NO-DROP
 DOMAIN,oth.str.mdt.qq.com,REJECT
 DOMAIN,h.trace.qq.com,REJECT
 DOMAIN,sdk.e.qq.com,REJECT
 DOMAIN,p.l.qq.com,REJECT
 DOMAIN,us.l.qq.com,REJECT
 DOMAIN,tangram.e.qq.com,REJECT
-DOMAIN,tmeadbak.y.qq.com-NO-DROP,REJECT
+DOMAIN,tmeadbak.y.qq.com,REJECT-NO-DROP
 DOMAIN-SUFFIX,imtmp.net,REJECT
 DOMAIN,tmeadcomm.y.qq.com,REJECT
 DOMAIN,ad.tencentmusic.com,REJECT

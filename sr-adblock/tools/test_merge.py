@@ -25,6 +25,8 @@ host-suffix, newad.example, reject
 host-suffix, temu.com, reject
 host-keyword, trackerword, reject
 host-suffix, allowed.example, direct
+host-suffix, l.qq.com, reject
+host-keyword, trace.qq.com, reject
 """
 
 
@@ -58,6 +60,8 @@ def main():  # noqa: C901
                 fails.append("知名主站未被风险闸门拦截")
             if "trackerword" not in txt:
                 fails.append("DOMAIN-KEYWORD 未并入")
+            if "l.qq.com" in txt or "trace.qq.com" in txt:
+                fails.append("范围过宽的域名未被闸门拦截")
             if "allowed.example" in txt:
                 fails.append("非 reject 规则被误并入")
             if info.get("added") != 2:

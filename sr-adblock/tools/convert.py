@@ -23,6 +23,12 @@ import re
 
 import repair  # noqa: E402
 
+# 范围过宽、误伤风险明确的规则（上游自带，转换期剔除并记入 report）
+TOO_BROAD = {
+    ("DOMAIN-KEYWORD", "trace.qq.com"),   # 关键词匹配任意位置，会命中非 QQ 域名的 URL 参数
+    ("DOMAIN-SUFFIX", "l.qq.com"),        # 腾讯短链/日志全集，拦掉影响 QQ 内链接跳转
+}
+
 KEEP = ["Rule", "Host", "URL Rewrite", "Map Local", "Script", "MITM"]
 DROP = ["Body Rewrite", "Header Rewrite", "General"]
 SEC_RE = re.compile(r"^\[([^\[\]]+)\]\s*$")
@@ -266,6 +272,30 @@ def main():  # noqa: C901
             out.append(nl)
         return out
     rule_lines = _fix(rule_lines)
+    misplaced = 0
+    fixed_rules = []
+    for l in rule_lines:
+        nl, ch = repair.fix_misplaced_action(l)
+        if ch:
+            misplaced += 1
+        fixed_rules.append(nl)
+    rule_lines = fixed_rules
+    broad_dropped = []
+    kept_rules = []
+    for l in rule_lines:
+        parts = [x.strip() for x in l.split(",")]
+        if len(parts) >= 2 and (parts[0], parts[1]) in TOO_BROAD:
+            broad_dropped.append(l)
+            continue
+        kept_rules.append(l)
+    rule_lines = kept_rules
+    if broad_dropped:
+        report["dropped"]["过宽规则"] = len(broad_dropped)
+        report["notes"].append("剔除范围过宽规则 %d 条: %s"
+                               % (len(broad_dropped), ", ".join(broad_dropped)))
+    if misplaced:
+        report["fixes"]["动作后缀错位"] = misplaced
+        report["notes"].append("动作后缀错位修正 %d 条（xxx-NO-DROP -> REJECT-NO-DROP）" % misplaced)
     urw = _fix(urw)
     ml_clean = _fix(ml_clean)
     if fixed_n:

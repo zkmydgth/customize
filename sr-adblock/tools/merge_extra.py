@@ -35,6 +35,10 @@ MAJOR = {
 }
 
 
+# 范围过宽：DOMAIN-SUFFIX 会拦掉整片子域、DOMAIN-KEYWORD 会匹配任意包含该串的 URL
+TOO_BROAD = {"l.qq.com", "trace.qq.com"}
+
+
 def parse_source(path):
     """解析 QX/Clash 风格规则文件 -> [(TYPE, value)]"""
     out = []
@@ -95,11 +99,14 @@ def main():  # noqa: C901
         return (t in ("DOMAIN", "DOMAIN-SUFFIX")
                 and any(vl == s or vl.endswith("." + s) for s in suffix))
 
-    added, skipped_dup, skipped_major = [], 0, []
+    added, skipped_dup, skipped_major, skipped_broad = [], 0, [], []
     for src in args.source:
         for t, v in parse_source(src):
             if covered(t, v):
                 skipped_dup += 1
+                continue
+            if t in ("DOMAIN-SUFFIX", "DOMAIN-KEYWORD") and v.lower() in TOO_BROAD:
+                skipped_broad.append(v)
                 continue
             if (not args.allow_major and t in ("DOMAIN", "DOMAIN-SUFFIX")
                     and v.lower() in MAJOR):
@@ -118,7 +125,7 @@ def main():  # noqa: C901
         f.write("\n".join(text))
 
     info = {"added": len(added), "skipped_duplicate": skipped_dup,
-            "skipped_major_site": skipped_major}
+            "skipped_major_site": skipped_major, "skipped_too_broad": skipped_broad}
     print(json.dumps(info, ensure_ascii=False, indent=1))
     if args.report:
         with open(args.report, "w", encoding="utf-8") as f:

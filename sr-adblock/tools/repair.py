@@ -39,6 +39,19 @@ def fix_hostname(h):
     return h, h != raw, "hostname 规范化"
 
 
+def fix_misplaced_action(line):
+    """上游把动作后缀写进了域名位置，导致规则永不命中。
+
+    例：DOMAIN,tmead.y.qq.com-NO-DROP,REJECT
+        -> DOMAIN,tmead.y.qq.com,REJECT-NO-DROP
+    """
+    m = re.match(r"^(DOMAIN(?:-SUFFIX|-KEYWORD)?),([^,\s]+?)-(NO-DROP|DROP),(REJECT)(.*)$", line)
+    if not m:
+        return line, False
+    typ, host, act, _, rest = m.groups()
+    return "%s,%s,REJECT-%s%s" % (typ, host, act, rest), True
+
+
 def rule_key(line):
     """规则去重键：忽略注释与空白差异"""
     return re.sub(r"\s+", " ", line.strip())

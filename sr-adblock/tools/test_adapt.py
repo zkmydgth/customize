@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""自适配测试：模拟上游「新增段 / 新规则类型 / 写坏语法」时，
-转换流程必须不崩溃、把无法处理的项记录下来，而不是静默丢弃。
+"""自适配测试：模拟上游「新增段 / 新规则类型 / 写坏语法 / 动作错位」时，
+转换流程必须不崩溃、把无法处理的项记录下来，而不是静默丢弃；能修的必须修好。
 """
 import json
 import os
@@ -22,6 +22,7 @@ some-new-key = 1
 DOMAIN,keep-me.example,REJECT
 DOMAIN-SUFFIX,keep2.example,REJECT
 BRAND-NEW-RULE-TYPE,foo.example,SOME-POLICY
+DOMAIN,misplaced.example.com-NO-DROP,REJECT
 
 [URL Rewrite]
 ^https?:\/\/rw\.example\.com\/a - reject
@@ -59,7 +60,6 @@ def main():  # noqa: C901
         out = os.path.join(td, "out.module")
         rep = os.path.join(td, "report.json")
 
-        # 1) convert 不崩 + 未识别项被记录
         p = run([sys.executable, "tools/convert.py", src, out, "--report", rep])
         if p.returncode != 0:
             fails.append("convert 崩溃: " + (p.stderr or "")[-300:])
@@ -76,16 +76,18 @@ def main():  # noqa: C901
             for k in ("keep-me.example", "keep2.example", "ml.example.com", "rw.example.com"):
                 if k not in plain:
                     fails.append("正常规则丢失: " + k)
+            if "DOMAIN,misplaced.example.com,REJECT-NO-DROP" not in txt:
+                fails.append("动作后缀错位未修复")
+            if "misplaced.example.com-NO-DROP" in txt:
+                fails.append("错位域名仍残留")
             if "reject-tinygif" not in txt:
                 fails.append("tiny-gif 未转换")
             mitm = [l for l in txt.split("\n") if l.lower().startswith("hostname")]
             if not mitm or any("%APPEND%" in l for l in mitm):
                 fails.append("MITM 的 %%APPEND%% 未清理: " + repr(mitm))
-            # 协议笔误应被放宽
             if r"https?:\/\/rw2" not in txt:
                 fails.append("http:// 笔误未修正")
 
-        # 2) gen_scripts 不崩 + 坏条目进 unhandled
         p = run([sys.executable, "tools/extract_body.py", src, "/tmp/adapt_body.json"])
         if p.returncode != 0:
             fails.append("extract 崩溃: " + (p.stderr or "")[-200:])
@@ -99,9 +101,9 @@ def main():  # noqa: C901
             elif os.path.exists(rp):
                 with open(rp, encoding="utf-8") as f:
                     r = json.load(f)
-                un = r.get("unhandled", [])
-                if len(un) < 2:
-                    fails.append("坏条目未被记录为 unhandled（实际 %d 条）" % len(un))
+                if len(r.get("unhandled", [])) < 2:
+                    fails.append("坏条目未被记录为 unhandled（实际 %d 条）"
+                                 % len(r.get("unhandled", [])))
                 if r.get("jq", 0) < 1:
                     fails.append("正常 jq 规则未生成")
                 if r.get("replace", 0) < 1:
@@ -112,7 +114,7 @@ def main():  # noqa: C901
         for f in fails:
             print("  -", f)
         return 1
-    print("ADAPT PASS: 新段被记录 / 新规则类型保留 / 坏语法进 unhandled / 正常规则不受影响")
+    print("ADAPT PASS: 新段记录 / 新类型保留 / 坏语法进 unhandled / 动作错位修复 / 正常规则不受影响")
     return 0
 
 
