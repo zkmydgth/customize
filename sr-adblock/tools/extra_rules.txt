@@ -54,3 +54,17 @@ ossgw.alicdn.com
 # 改用 Map Local 返回 404，素材加载失败 → 开屏无法展示
 [Map Local]
 ^https:\/\/ossgw\.alicdn\.com\/creatives-assets\/ data-type=text data="" status-code=404
+
+# 2026-10-31 第五次日志：微博开屏广告（模块里原本 0 条微博规则，全部 DIRECT）
+# biz.weibo.com 是微博商业化域名，以下为明确的广告链路：
+#   adstrategy  广告策略下发
+#   brandvideo  品牌视频（开屏视频源）
+#   kadmimage   广告图片
+#   sdkclick    广告点击上报
+#   sdkaction   广告行为上报
+[Rule]
+DOMAIN,adstrategy.biz.weibo.com,REJECT
+DOMAIN,brandvideo.biz.weibo.com,REJECT
+DOMAIN,kadmimage.biz.weibo.com,REJECT
+DOMAIN,sdkclick.biz.weibo.com,REJECT
+DOMAIN,sdkaction.biz.weibo.com,REJECT

@@ -33,6 +33,11 @@ DOMAIN-SUFFIX,sentry.io,REJECT
 DOMAIN-SUFFIX,mintegral.com,REJECT
 DOMAIN-SUFFIX,ogury.com,REJECT
 DOMAIN,tanx-creative.taobao.com,REJECT
+DOMAIN,adstrategy.biz.weibo.com,REJECT
+DOMAIN,brandvideo.biz.weibo.com,REJECT
+DOMAIN,kadmimage.biz.weibo.com,REJECT
+DOMAIN,sdkclick.biz.weibo.com,REJECT
+DOMAIN,sdkaction.biz.weibo.com,REJECT
 # >>>>>>>>>>>>>>> ✅ !! ✅ <<<<<<<<<<<<<<
 
 # > 广告联盟
