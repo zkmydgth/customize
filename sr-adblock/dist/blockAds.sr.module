@@ -7901,6 +7901,7 @@ https://.+\.gamersky.com/v1/statisticAd data-type=text data="{}" status-code=200
 # >>>>>>>>>>>>>>> 🟣 <<<<<<<<<<<<<<
 
 [Script]
+知乎信息流增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/topstory\/recommend, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-feed.js, requires-body=1, max-size=-1, timeout=20
 12306 = type=http-request, pattern=^https?:\/\/ad\.12306\.cn\/ad\/ser\/getAdList, script-path=https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js, requires-body=1, timeout=60
 51信用卡管家 = type=http-response, pattern=^https?:\/\/api\.u51\.com\/liabilitygateway\/api\/v\d\/homepage\/liabilityline, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/51card.js, requires-body=1, timeout=60
 51信用卡管家 = type=http-response, pattern=^https?:\/\/api\.u51\.com\/generic-config-gateway\/api\/v\d\/guanjia\/me-tab2\/config, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/51card.js, requires-body=1, timeout=60
