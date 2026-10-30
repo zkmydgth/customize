@@ -39,6 +39,10 @@
     "Map Local data-type=file 丢弃: 2 条",
     "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）"
   ],
+  "unknown_sections": {},
+  "fixes": {
+    "协议笔误": 19
+  },
   "output": "dist/blockAds.sr.module",
   "output_bytes": 411607
 }

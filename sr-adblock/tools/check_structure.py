@@ -57,8 +57,8 @@ def main():
 
     mitm = " ".join(secs.get("MITM", []))
     need("hostname" in mitm, "MITM 缺 hostname")
-    need("%APPEND%" not in mitm, "MITM 仍含 Surge 专有 %APPEND%")
-    need("%INSERT%" not in mitm, "MITM 仍含 Surge 专有 %INSERT%")
+    need("%append%" not in mitm.lower(), "MITM 仍含 Surge 专有 %APPEND%")
+    need("%insert%" not in mitm.lower(), "MITM 仍含 Surge 专有 %INSERT%")
     hosts = []
     for l in secs.get("MITM", []):
         if l.lower().startswith("hostname"):

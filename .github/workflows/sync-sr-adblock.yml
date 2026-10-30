@@ -72,6 +72,14 @@ jobs:
           python3 tools/test_equiv.py --inputs 6
           node tools/test_script.js
           python3 tools/check_structure.py --module "$F"
+          UN=$(python3 -c "import json;d=json.load(open('build/report.json'));print(len(d.get('unhandled',[])))")
+          TOT=$(python3 -c "import json;d=json.load(open('build/report.json'));print(d.get('jq',0)+d.get('replace',0)+len(d.get('unhandled',[])))")
+          echo "unhandled=$UN / total=$TOT"
+          # 自适配：个别条目处理不了不阻断；超过 20% 说明上游大改，停止提交
+          if [ "$UN" -gt 0 ] && [ $((UN * 5)) -gt "$TOT" ]; then
+            echo "::error::unhandled 占比超过 20%（$UN/$TOT），疑似上游结构大改，已停止提交"
+            exit 1
+          fi
           R=$(awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
           S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
           echo "Rule=$R Script=$S"
@@ -84,6 +92,7 @@ jobs:
             echo ""
             echo "- Rule: $R / Script: $S"
             echo "- Body Rewrite 已编译: $(grep -c 'body-rewrite-[0-9][0-9][0-9] = ' "$F")"
+            echo "- 未能处理（unhandled）: $UN 条"
             echo "- 上游日期: $(grep -m1 '^#!date' ../.cache/upstream.module || true)"
           } >> "$GITHUB_STEP_SUMMARY"
 

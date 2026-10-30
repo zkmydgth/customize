@@ -56,9 +56,9 @@ MUTATIONS = [
     },
     {
         "name": "M5 MITM 不清理 %APPEND%（结构缺陷）",
-        "file": "tools/convert.py",
-        "old": '            h = re.sub(r"^%(APPEND|INSERT)%\\s*", "", h, flags=re.I)',
-        "new": "            pass  # mutated",
+        "file": "tools/repair.py",
+        "old": '    h = re.sub(r"^%(APPEND|INSERT)%\\s*", "", h, flags=re.I).strip().lower()',
+        "new": "    h = h.strip().lower()  # mutated",
         "regen": False,
         "build": True,
         "test": ["python3", "tools/check_structure.py", "--module", "dist/_mut.module"],

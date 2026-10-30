@@ -53,6 +53,10 @@ jobs:
           done
           test -s .cache/upstream.module
 
+      - name: Test upstream adaptation (新段/新规则类型/坏语法)
+        working-directory: sr-adblock
+        run: python3 tools/test_adapt.py
+
       - name: Build into /tmp (never commit)
         working-directory: sr-adblock
         run: |

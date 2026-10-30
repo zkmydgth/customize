@@ -21,10 +21,10 @@ import json
 import os
 import re
 
-from urlfix import fix_scheme, count_fixed  # noqa: E402
+import repair  # noqa: E402
 
 KEEP = ["Rule", "Host", "URL Rewrite", "Map Local", "Script", "MITM"]
-DROP = ["Body Rewrite", "Header Rewrite"]
+DROP = ["Body Rewrite", "Header Rewrite", "General"]
 SEC_RE = re.compile(r"^\[([^\[\]]+)\]\s*$")
 
 # SR 不支持 / 无意义的段内条目类型（预留）
@@ -74,7 +74,7 @@ def parse_header(header):
 
 
 def build_mitm(lines):
-    hosts = []
+    hosts, fixes = [], {}
     for line in eff(lines):
         if not line.lower().startswith("hostname"):
             continue
@@ -84,8 +84,9 @@ def build_mitm(lines):
             if not h:
                 continue
             # Surge 的模块合并指令，SR 不认
-            h = re.sub(r"^%(APPEND|INSERT)%\s*", "", h, flags=re.I)
-            h = h.strip()
+            h, changed, _ = repair.fix_hostname(h)
+            if changed:
+                fixes["hostname 规范化"] = fixes.get("hostname 规范化", 0) + 1
             if h:
                 hosts.append(h)
     seen, uniq = set(), []
@@ -144,9 +145,12 @@ def main():  # noqa: C901
     for name, lines in sections:
         if name in KEEP:
             kept.setdefault(name, []).extend(lines)
+    unknown_sections = {}
     for name, lines in sections:
         if name in DROP or name not in KEEP:
             dropped[name] = dropped.get(name, 0) + len(eff(lines))
+            if name not in DROP:
+                unknown_sections[name] = {"lines": len(eff(lines)), "sample": eff(lines)[:2]}
 
     report = {
         "source": os.path.basename(args.src),
@@ -154,6 +158,8 @@ def main():  # noqa: C901
         "kept": {},
         "dropped": dropped,
         "notes": [],
+        "unknown_sections": unknown_sections,
+        "fixes": {},
     }
 
     # ---- 逐段处理 ----
@@ -249,12 +255,22 @@ def main():  # noqa: C901
     out.append("")
 
     # 上游 URL 协议笔误（http:// / http?:）统一放宽为 https?://
-    fixed_n = count_fixed(rule_lines) + count_fixed(urw) + count_fixed(ml_clean)
+    fixed_n = 0
+    def _fix(lines):
+        nonlocal fixed_n
+        out = []
+        for l in lines:
+            nl, changed, _ = repair.fix_scheme(l)
+            if changed:
+                fixed_n += 1
+            out.append(nl)
+        return out
+    rule_lines = _fix(rule_lines)
+    urw = _fix(urw)
+    ml_clean = _fix(ml_clean)
     if fixed_n:
         report["notes"].append("URL 协议笔误修正 %d 条（http:// 或 http?: -> https?://）" % fixed_n)
-    rule_lines = [fix_scheme(l) for l in rule_lines]
-    urw = [fix_scheme(l) for l in urw]
-    ml_clean = [fix_scheme(l) for l in ml_clean]
+        report["fixes"]["协议笔误"] = fixed_n
 
     def block(title, lines):
         if not eff(lines):

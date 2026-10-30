@@ -67,6 +67,30 @@ python3 tools/test_equiv.py --inputs 6
 node tools/test_script.js
 ```
 
+## 上游变化时怎么自适配
+
+| 上游变化 | 处理 | 是否阻断 |
+|---|---|---|
+| 新增段落 | 记录到 `report.unknown_sections`，不崩溃 | 否 |
+| 新增规则类型（如 `PROCESS-NAME`） | **原样保留**（SR 可能支持，不因不认识就删） | 否 |
+| jq 用了新语法 | 该条跳过并记入 `unhandled`，其余规则照常生成 | 否（>20% 才阻断） |
+| pattern 正则写坏 | 记入 `unhandled`，不产出无法编译的规则 | 否 |
+| 上游删段/大改 | Rule 数骤降 > 20% | **是**（停止提交，避免推坏文件） |
+
+## 上游缺陷自动修复
+
+转换期统一修复（`tools/repair.py`），每次同步重新执行，修好的结果不会被上游覆盖：
+
+| 缺陷 | 修复 |
+|---|---|
+| `http:\/\/` / `http?:\/\/`（缺 s） | → `https?:\/\/`（只放宽不收紧） |
+| `(?i)` 内联标志（JS 非法） | 拆成 RegExp flags |
+| `%APPEND%` / `%INSERT%`（Surge 专有） | 剥离并规范化 hostname |
+| 同一 URL 多条规则 | 全部依次应用（不再只取第一条） |
+| 对象尾逗号（`{a:1,}`） | jq 解析器容错 |
+| `data-type=tiny-gif` / `file` | 转 `reject-tinygif` / 丢弃 |
+| 完全重复的规则行 | 去重（保留首个） |
+
 ## 已知边界
 
 - `[Header Rewrite]` 1 条（B 站 gRPC）SR 无对应段，未转换

@@ -15,9 +15,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from jqparse import parse
-from urlfix import fix_scheme
+import repair
 
-SRC = "/tmp/bodyrewrite.json"
+SRC = sys.argv[1] if len(sys.argv) > 1 else "/tmp/bodyrewrite.json"
+OUT_ROOT = sys.argv[2] if len(sys.argv) > 2 else None
 RT = os.path.join(HERE, "jq_runtime.js")
 
 
@@ -67,6 +68,7 @@ def main():
     with open(SRC, encoding="utf-8") as f:
         data = json.load(f)
     rules, stats = [], {"jq": 0, "replace": 0, "failed": 0}
+    unhandled = []
 
     for idx, item in enumerate(data):
         name = "body-rewrite-%03d" % idx
@@ -76,11 +78,16 @@ def main():
                 ast = parse(expr)
             except Exception as e:
                 stats["failed"] += 1
-                rules.append({"n": name, "re": item["pattern"], "err": str(e)[:120]})
+                unhandled.append({"name": name, "pattern": item["pattern"][:160], "reason": str(e)[:120]})
                 continue
-            if fix_scheme(item["pattern"]) != item["pattern"]:
+            pat2, ch1, _ = repair.fix_scheme(item["pattern"])
+            if ch1:
                 stats["scheme_fixed"] = stats.get("scheme_fixed", 0) + 1
-            rules.append({"n": name, "re": fix_scheme(item["pattern"]), "jq": ast, "e": expr[:200]})
+            if not repair.pattern_compiles(pat2):
+                unhandled.append({"name": name, "pattern": pat2[:160], "reason": "pattern 无法编译"})
+                stats["failed"] += 1
+                continue
+            rules.append({"n": name, "re": pat2, "jq": ast, "e": expr[:200]})
             stats["jq"] += 1
         else:
             pr = parse_replace(item["raw"])
@@ -88,9 +95,10 @@ def main():
                 stats["failed"] += 1
                 continue
             pat, search, rep = pr
-            if fix_scheme(pat) != pat:
+            pat2, ch1, _ = repair.fix_scheme(pat)
+            if ch1:
                 stats["scheme_fixed"] = stats.get("scheme_fixed", 0) + 1
-            rules.append({"n": name, "re": fix_scheme(pat), "rep": [search, rep]})
+            rules.append({"n": name, "re": pat2, "rep": [search, rep]})
             stats["replace"] += 1
 
     with open(RT, encoding="utf-8") as f:
@@ -147,10 +155,11 @@ for (var __i = 0; __i < __RULES__.length; __i++) __RE__.push(__rx(__RULES__[__i]
   $done({ body: body });
 })();
 """)
-    os.makedirs(os.path.join(ROOT, "scripts"), exist_ok=True)
-    os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
+    root = OUT_ROOT or ROOT
+    os.makedirs(os.path.join(root, "scripts"), exist_ok=True)
+    os.makedirs(os.path.join(root, "build"), exist_ok=True)
     js = "\n".join(body)
-    with open(os.path.join(ROOT, "scripts/body-rewrite.js"), "w", encoding="utf-8") as f:
+    with open(os.path.join(root, "scripts/body-rewrite.js"), "w", encoding="utf-8") as f:
         f.write(js)
 
     lines = []
@@ -159,12 +168,15 @@ for (var __i = 0; __i < __RULES__.length; __i++) __RE__.push(__rx(__RULES__[__i]
             continue
         lines.append("%s = type=http-response, pattern=%s, script-path=%s, requires-body=1, max-size=-1, timeout=20"
                      % (r["n"], r["re"], "__SCRIPT_URL__"))
-    with open(os.path.join(ROOT, "build/body-rewrite.rules"), "w", encoding="utf-8") as f:
+    with open(os.path.join(root, "build/body-rewrite.rules"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 
-    print(json.dumps({**stats, "script_bytes": len(js.encode()),
-                      "rule_count": len([r for r in rules if not r.get("err")])},
-                     ensure_ascii=False, indent=1))
+    rep = {**stats, "script_bytes": len(js.encode()),
+           "rule_count": len([r for r in rules if not r.get("err")]),
+           "unhandled": unhandled}
+    with open(os.path.join(root, "build/report.json"), "w", encoding="utf-8") as f:
+        json.dump(rep, f, ensure_ascii=False, indent=1)
+    print(json.dumps(rep, ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":
