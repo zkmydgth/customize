@@ -36,8 +36,9 @@
   },
   "notes": [
     "Map Local data-type=tiny-gif -> URL Rewrite reject-tinygif: 101 条",
-    "Map Local data-type=file 丢弃: 2 条"
+    "Map Local data-type=file 丢弃: 2 条",
+    "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）"
   ],
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 411574
+  "output_bytes": 411607
 }

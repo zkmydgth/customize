@@ -15,6 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from jqparse import parse
+from urlfix import fix_scheme
 
 SRC = "/tmp/bodyrewrite.json"
 RT = os.path.join(HERE, "jq_runtime.js")
@@ -77,7 +78,9 @@ def main():
                 stats["failed"] += 1
                 rules.append({"n": name, "re": item["pattern"], "err": str(e)[:120]})
                 continue
-            rules.append({"n": name, "re": item["pattern"], "jq": ast, "e": expr[:200]})
+            if fix_scheme(item["pattern"]) != item["pattern"]:
+                stats["scheme_fixed"] = stats.get("scheme_fixed", 0) + 1
+            rules.append({"n": name, "re": fix_scheme(item["pattern"]), "jq": ast, "e": expr[:200]})
             stats["jq"] += 1
         else:
             pr = parse_replace(item["raw"])
@@ -85,7 +88,9 @@ def main():
                 stats["failed"] += 1
                 continue
             pat, search, rep = pr
-            rules.append({"n": name, "re": pat, "rep": [search, rep]})
+            if fix_scheme(pat) != pat:
+                stats["scheme_fixed"] = stats.get("scheme_fixed", 0) + 1
+            rules.append({"n": name, "re": fix_scheme(pat), "rep": [search, rep]})
             stats["replace"] += 1
 
     with open(RT, encoding="utf-8") as f:

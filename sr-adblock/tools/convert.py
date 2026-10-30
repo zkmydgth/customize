@@ -21,6 +21,8 @@ import json
 import os
 import re
 
+from urlfix import fix_scheme, count_fixed  # noqa: E402
+
 KEEP = ["Rule", "Host", "URL Rewrite", "Map Local", "Script", "MITM"]
 DROP = ["Body Rewrite", "Header Rewrite"]
 SEC_RE = re.compile(r"^\[([^\[\]]+)\]\s*$")
@@ -113,7 +115,7 @@ def process_maplocal(lines):
         if not l.strip() or l.lstrip().startswith("#"):
             kept_lines.append(l)
             continue
-        l2 = re.sub(r"\^http\?:", "^https?:", l)
+        l2 = l
         if "data-type=file" in l2:
             dropped += 1
             continue
@@ -245,6 +247,14 @@ def main():  # noqa: C901
             out.append("#  已剔除 [%s] %d 条（SR 不支持）" % (k, v))
     out.append("# ============================================================")
     out.append("")
+
+    # 上游 URL 协议笔误（http:// / http?:）统一放宽为 https?://
+    fixed_n = count_fixed(rule_lines) + count_fixed(urw) + count_fixed(ml_clean)
+    if fixed_n:
+        report["notes"].append("URL 协议笔误修正 %d 条（http:// 或 http?: -> https?://）" % fixed_n)
+    rule_lines = [fix_scheme(l) for l in rule_lines]
+    urw = [fix_scheme(l) for l in urw]
+    ml_clean = [fix_scheme(l) for l in ml_clean]
 
     def block(title, lines):
         if not eff(lines):

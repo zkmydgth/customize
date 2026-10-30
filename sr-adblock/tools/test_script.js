@@ -40,6 +40,9 @@ const cases = [
   ['内联标志 (?i) 规则必须生效', 'https://lzmh.lz-qs.com:6025/lzmh_app_api/api/v2/user/getUserBaseInfoAndConfig?x=1',
     JSON.stringify({value:{config:{a:1},x:2}}),
     {raw: JSON.stringify({value:{x:2}})}],
+  ['协议笔误修正：https 也能命中（上游只写 http）', 'https://dili.sqcosmos.com/jiekou/mains/p1.html',
+    JSON.stringify({album:[{id:"4154"},{id:"4155"},{id:"4165"}]}),
+    {raw: JSON.stringify({album:[{id:"4155"}]})}],
   ['未匹配 URL 应原样返回', 'https://example.com/nothing',
     '{"a":1}', 'noop']
 ];
