@@ -1,13 +1,13 @@
 {
   "source": "upstream.module",
-  "source_date": "2026-10-30 16:26:43",
+  "source_date": "2026-10-25 22:36:13",
   "kept": {
-    "Rule": 2970,
+    "Rule": 2975,
     "Rule.types": {
       "DOMAIN-SUFFIX": 2257,
       "DOMAIN-KEYWORD": 113,
       "AND": 59,
-      "DOMAIN": 487,
+      "DOMAIN": 492,
       "IP-CIDR": 35,
       "IP-CIDR6": 3,
       "URL-REGEX": 15,
@@ -20,41 +20,41 @@
       "header": 1,
       "reject-tinygif": 101
     },
-    "Map Local": 709,
-    "Script": 218,
+    "Map Local": 714,
+    "Script": 224,
     "Script.types": {
       "http-request": 5,
-      "http-response": 213
+      "http-response": 219
     },
     "MITM.hostnames": 939,
     "Host": 0
   },
   "dropped": {
+    "General": 1,
     "Header Rewrite": 1,
     "Body Rewrite": 96,
-    "General": 1,
     "过宽规则": 2
   },
   "notes": [
     "Map Local data-type=tiny-gif -> URL Rewrite reject-tinygif: 101 条",
     "Map Local data-type=file 丢弃: 2 条",
     "本地补充 [Rule] 12 条已置顶（避免被父域 DIRECT 抢先）",
-    "规则去重 168 条（完全相同 166 / 同域名多动作 2）",
+    "规则去重 173 条（完全相同 171 / 同域名多动作 2）",
     "剔除范围过宽规则 2 条: DOMAIN-KEYWORD,trace.qq.com,REJECT, DOMAIN-SUFFIX,l.qq.com,REJECT",
     "动作后缀错位修正 2 条（xxx-NO-DROP -> REJECT-NO-DROP）",
     "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）",
     "并入本地补充 [Map Local] 1 条",
-    "URL Rewrite/Map Local/Script 去重 3 条（1/2/0）"
+    "URL Rewrite/Map Local/Script 去重 14 条（1/7/6）"
   ],
   "unknown_sections": {},
   "fixes": {
     "本地补充(Rule)": 12,
-    "规则去重": 168,
+    "规则去重": 173,
     "动作后缀错位": 2,
     "协议笔误": 19,
     "本地补充(Map Local)": 1,
-    "其它段去重": 3
+    "其它段去重": 14
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 401008
+  "output_bytes": 401537
 }

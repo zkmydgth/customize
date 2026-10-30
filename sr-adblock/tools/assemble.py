@@ -100,11 +100,11 @@ def main():  # noqa: C901
             if (h not in hosts and h not in missing
                     and not any(h.endswith(x.lstrip("*")) for x in hosts if x.startswith("*"))):
                 missing.append(h)
-    if missing:
-        hosts = hosts + missing
-        names = [n for n, _ in secs]
-        i = names.index("MITM")
-        secs[i] = ("MITM", ["hostname = " + ",".join(hosts)])
+    # 排序保证可重复构建（否则上游顺序微调会产生无意义 diff）；集合相同，功能等价
+    hosts = sorted(set(hosts + missing), key=str.lower)
+    names = [n for n, _ in secs]
+    i = names.index("MITM")
+    secs[i] = ("MITM", ["hostname = " + ",".join(hosts)])
 
     out = list(header)
     for n, ls in secs:
