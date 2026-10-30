@@ -1,0 +1,13 @@
+# MITM hostname 白名单（可选）
+#
+# 默认不启用：仓库根目录没有 tools/mitm-keep.txt 时，模块会带全部 939 个 hostname。
+# 想瘦身：把本文件复制到 tools/mitm-keep.txt，按需增删（每行一个正则，整行匹配）。
+#
+# 示例（取消注释即生效）：
+# ^ad\.12306\.cn$
+# ^.*\.bilibili\.com$
+# ^api\.m\.jd\.com$
+# ^.*\.zhihu\.com$
+# ^(www\.)?xiaohongshu\.com$
+#
+# 提示：把不需要的 App 域名删掉，TLS 解密面越小，兼容性和耗电越好。

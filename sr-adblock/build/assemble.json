@@ -1,0 +1,11 @@
+{
+  "script_rules": 96,
+  "mitm_added": [
+    "47.100.65.202",
+    "az2-api-js.ksapisrv.com",
+    "az2-api-idc.gifshow.com",
+    "az2-api.gifshow.com"
+  ],
+  "mitm_total": 943,
+  "bytes": 437239
+}

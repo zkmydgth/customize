@@ -1,0 +1,97 @@
+name: Sync Shadowrocket Ad Module
+
+on:
+  schedule:
+    # 每天 20:00 UTC = 北京 04:00
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-sr-adblock
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq >/dev/null
+          node --version && jq --version
+
+      - name: Fetch upstream Surge module
+        run: |
+          set -euo pipefail
+          mkdir -p .cache
+          URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/blockAds.module"
+          for i in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o .cache/upstream.module "$URL"; then break; fi
+            echo "retry $i"; sleep 15
+          done
+          test -s .cache/upstream.module
+          echo "upstream: $(wc -c < .cache/upstream.module) bytes"
+
+      - name: Extract Body Rewrite
+        working-directory: sr-adblock
+        run: python3 tools/extract_body.py ../.cache/upstream.module /tmp/bodyrewrite.json
+
+      - name: Convert (rules / rewrite / map local)
+        working-directory: sr-adblock
+        env:
+          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
+        run: |
+          set -euo pipefail
+          python3 tools/convert.py ../.cache/upstream.module dist/blockAds.sr.module \
+            --raw-url "$RAW/dist/blockAds.sr.module" --report dist/report.json
+
+      - name: Compile Body Rewrite -> JS
+        working-directory: sr-adblock
+        run: python3 tools/gen_scripts.py
+
+      - name: Assemble final module
+        working-directory: sr-adblock
+        env:
+          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
+        run: |
+          python3 tools/assemble.py --module dist/blockAds.sr.module \
+            --rules build/body-rewrite.rules \
+            --script-url "$RAW/scripts/body-rewrite.js" \
+            --report build/assemble.json
+
+      - name: Verify (jq differential + script smoke test + structure)
+        working-directory: sr-adblock
+        run: |
+          set -euo pipefail
+          python3 tools/test_equiv.py --inputs 6
+          node tools/test_script.js
+          F=dist/blockAds.sr.module
+          R=$(awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vc '^#' || true)
+          S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vc '^#' || true)
+          echo "Rule=$R Script=$S"
+          [ "$R" -gt 2000 ] || { echo "::error::规则数异常 $R"; exit 1; }
+          [ "$S" -gt 300 ]  || { echo "::error::脚本数异常 $S"; exit 1; }
+          grep -q '^\[MITM\]' "$F" || { echo "::error::缺 MITM"; exit 1; }
+          if grep -q '^\[Body Rewrite\]' "$F"; then echo "::error::含不受支持的段"; exit 1; fi
+          {
+            echo "### 模块同步结果"
+            echo ""
+            echo "- Rule: $R / Script: $S"
+            echo "- Body Rewrite 已编译: $(grep -c 'body-rewrite-[0-9][0-9][0-9] = ' "$F")"
+            echo "- 上游日期: $(grep -m1 '^#!date' ../.cache/upstream.module || true)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit & push
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sr-adblock/dist sr-adblock/scripts sr-adblock/build
+          if git diff --staged --quiet; then echo "上游无变化"; exit 0; fi
+          git commit -m "chore: sync upstream $(date -u +%Y-%m-%d)"
+          git push

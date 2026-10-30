@@ -1,0 +1,44 @@
+{
+  "source": "upstream.module",
+  "source_date": "2026-10-25 22:36:13",
+  "built": "2026-10-30 12:49:18 UTC",
+  "kept": {
+    "Rule": 2975,
+    "Rule.types": {
+      "DOMAIN-SUFFIX": 2257,
+      "DOMAIN-KEYWORD": 113,
+      "AND": 59,
+      "DOMAIN": 492,
+      "IP-CIDR": 35,
+      "IP-CIDR6": 3,
+      "URL-REGEX": 15,
+      "USER-AGENT": 1
+    },
+    "URL Rewrite": 619,
+    "URL Rewrite.actions": {
+      "reject": 514,
+      "302": 3,
+      "header": 1,
+      "reject-tinygif": 101
+    },
+    "Map Local": 714,
+    "Script": 224,
+    "Script.types": {
+      "http-request": 5,
+      "http-response": 219
+    },
+    "MITM.hostnames": 939,
+    "Host": 0
+  },
+  "dropped": {
+    "General": 1,
+    "Header Rewrite": 1,
+    "Body Rewrite": 96
+  },
+  "notes": [
+    "Map Local data-type=tiny-gif -> URL Rewrite reject-tinygif: 101 条",
+    "Map Local data-type=file 丢弃: 2 条"
+  ],
+  "output": "dist/blockAds.sr.module",
+  "output_bytes": 411526
+}
