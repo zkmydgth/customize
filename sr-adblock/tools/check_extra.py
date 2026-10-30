@@ -51,7 +51,7 @@ def sections(path):
     return d
 
 
-def main():
+def main():  # noqa: C901
     ap = argparse.ArgumentParser()
     ap.add_argument("--module", default=os.path.join(ROOT, "dist/blockAds.sr.module"))
     a = ap.parse_args()
