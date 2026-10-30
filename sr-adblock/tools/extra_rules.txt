@@ -1,0 +1,7 @@
+# 本地补充规则（不随上游覆盖，convert 期并入 [Rule] 段）
+# 格式：Shadowrocket 规则语法，一行一条；# 开头为注释
+#
+# 2026-10-30 从 Shadowrocket 代理日志（proxy-2026-10-30-230230.db）定位：
+# 知乎开屏主接口 launch_v2 / real_time_launch_v2 已由上游 Map Local 拦截，
+# 但下列商业接口仍是 DIRECT，其中 sdk/prefetch 会预加载广告素材（缓存后开屏照常显示）
+URL-REGEX,"^https:\/\/api\.zhihu\.com\/commercial_api\/(app_float_layer|real_time_pull_refresh_v2|real_time_second_floor_v2|sdk\/prefetch)",REJECT

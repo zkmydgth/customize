@@ -3680,6 +3680,11 @@ DOMAIN-SUFFIX,bu02.zybang.com,REJECT
 DOMAIN-SUFFIX,adm.myzaker.com,REJECT
 DOMAIN-SUFFIX,ggs.myzaker.com,REJECT
 DOMAIN-SUFFIX,push-android.myzaker.com,REJECT
+
+
+
+# >>>>>>>>>>>>>>> 🟣 <<<<<<<<<<<<<<
+URL-REGEX,"^https:\/\/api\.zhihu\.com\/commercial_api\/(app_float_layer|real_time_pull_refresh_v2|real_time_second_floor_v2|sdk\/prefetch)",REJECT
 DOMAIN-SUFFIX,ad-delivery.net,REJECT
 DOMAIN-SUFFIX,spot.im,REJECT
 DOMAIN-SUFFIX,revjet.com,REJECT
@@ -3723,10 +3728,6 @@ DOMAIN-SUFFIX,ad-sign.byteimg.com,REJECT
 DOMAIN-SUFFIX,tos.pstatp.com,REJECT
 DOMAIN-SUFFIX,pangolin.snssdk.com,REJECT
 DOMAIN-SUFFIX,video-cn.snssdk.com,REJECT
-
-
-
-# >>>>>>>>>>>>>>> 🟣 <<<<<<<<<<<<<<
 
 [URL Rewrite]
 # >>>>>>>>>>>>>>> ✅ !! ✅ <<<<<<<<<<<<<<

@@ -321,6 +321,21 @@ def main():  # noqa: C901
         final.append(l)
     action_dup = len(uniq) - len(final)
     rule_lines = final
+
+    # 本地补充规则（tools/extra_rules.txt），不随上游覆盖
+    extra_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "extra_rules.txt")
+    if os.path.exists(extra_path):
+        with open(extra_path, encoding="utf-8") as f:
+            extra = [l.strip() for l in f if l.strip() and not l.startswith("#")]
+        added = 0
+        for l in extra:
+            if l in seen:
+                continue
+            rule_lines.append(l)
+            added += 1
+        if added:
+            report["fixes"]["本地补充规则"] = added
+            report["notes"].append("并入本地补充规则 %d 条（tools/extra_rules.txt）" % added)
     if exact_dup or action_dup:
         report["fixes"]["规则去重"] = exact_dup + action_dup
         report["notes"].append("规则去重 %d 条（完全相同 %d / 同域名多动作 %d）"
