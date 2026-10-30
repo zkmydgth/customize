@@ -151,7 +151,6 @@ def main():
     report = {
         "source": os.path.basename(args.src),
         "source_date": meta.get("date", ""),
-        "built": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         "kept": {},
         "dropped": dropped,
         "notes": [],
@@ -236,7 +235,7 @@ def main():
     out.append("#!tag=去广告,Shadowrocket")
     if args.raw_url:
         out.append("#!raw-url=" + args.raw_url)
-    out.append("#!date=" + report["built"])
+    out.append("#!date=" + (meta.get("date") or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")))
     out.append("")
     out.append("# ============================================================")
     out.append("#  Shadowrocket 适配版 · 自动生成，请勿手工修改")
