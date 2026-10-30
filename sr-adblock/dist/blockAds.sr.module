@@ -1,5 +1,5 @@
-#!name=SR 去广告&净化（fmz200 转换）
-#!desc=由 fmz200/wool_scripts 的 Surge 模块自动转换，只保留 Shadowrocket 支持的段落：已移除 Body Rewrite(jq) 与 Header Rewrite，MITM 已清理 %APPEND% 并去重。
+#!name=SR 去广告&净化（fmz200 · 完整版）
+#!desc=由 fmz200/wool_scripts 的 Surge 模块自动转换：Body Rewrite 96 条已编译为 JS 脚本一并生效；Header Rewrite 与 General 中 SR 不支持的项已剔除；MITM 已清理 %APPEND% 并补全脚本所需域名。
 #!author=fmz200 (rules/scripts) · sr-adblock (converter)
 #!homepage=https://github.com/fmz200/wool_scripts
 #!icon=https://raw.githubusercontent.com/fmz200/wool_scripts/main/icons/apps/AdblockPlus.png
@@ -7,7 +7,7 @@
 #!category=去广告
 #!tag=去广告,Shadowrocket
 #!raw-url=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/dist/blockAds.sr.module
-#!date=2026-10-30 12:50:22 UTC
+#!date=2026-10-30 12:50:59 UTC
 
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改

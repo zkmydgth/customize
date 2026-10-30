@@ -220,9 +220,9 @@ def main():
     report["kept"]["Host"] = len(eff(host_lines))
 
     # ---- 组装输出 ----
-    name = "SR 去广告&净化（fmz200 转换）"
-    desc = ("由 fmz200/wool_scripts 的 Surge 模块自动转换，只保留 Shadowrocket 支持的段落："
-            "已移除 Body Rewrite(jq) 与 Header Rewrite，MITM 已清理 %APPEND% 并去重。")
+    name = "SR 去广告&净化（fmz200 · 完整版）"
+    desc = ("由 fmz200/wool_scripts 的 Surge 模块自动转换：Body Rewrite 96 条已编译为 JS 脚本一并生效；"
+            "Header Rewrite 与 General 中 SR 不支持的项已剔除；MITM 已清理 %APPEND% 并补全脚本所需域名。")
     out = []
     out.append("#!name=" + name)
     out.append("#!desc=" + desc)

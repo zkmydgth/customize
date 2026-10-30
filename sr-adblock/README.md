@@ -26,7 +26,7 @@ https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/dist/blockA
 
 | 上游段落 | 处理 | 条数（2026-10-25 版） |
 |---|---|---|
-| `[Rule]` | 原样保留 | 2974（含 `IP-CIDR6` 3 条） |
+| `[Rule]` | 原样保留 | 2975（含 `IP-CIDR6` 3 条） |
 | `[URL Rewrite]` | 原样保留 | 518 |
 | `[Map Local]` | `tiny-gif` → URL Rewrite 的 `reject-tinygif`；`data-type=file` 丢弃；修正 `^http?:` 笔误 | 714 (+101) |
 | `[Script]` | 保留；去掉 `argument=`；`requires-body` 归一 | 224 |
