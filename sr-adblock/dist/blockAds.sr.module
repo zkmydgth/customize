@@ -686,7 +686,6 @@ DOMAIN-SUFFIX,c.uaa.iqiyi.com,REJECT
 DOMAIN-SUFFIX,cloudpush.iqiyi.com,REJECT
 DOMAIN-SUFFIX,cm.passport.iqiyi.com,REJECT
 DOMAIN-SUFFIX,count.game.pps.tv,REJECT
-DOMAIN-SUFFIX,cupid.iqiyi.com,REJECT
 DOMAIN-SUFFIX,emoticon.sns.iqiyi.com,REJECT
 DOMAIN-SUFFIX,gamecenter.iqiyi.com,REJECT
 DOMAIN-SUFFIX,mbdlog.iqiyi.com,REJECT
@@ -958,7 +957,6 @@ DOMAIN,hmma.baidu.com,REJECT
 
 # > 百度地图
 # hostname = dss0.bdstatic.com, tb1.bdstatic.com, tb2.bdstatic.com, ss0.bdstatic.com, gss0.bdstatic.com, newclient.map.baidu.com
-DOMAIN,afd.baidu.com,REJECT
 DOMAIN,afdconf.baidu.com,REJECT
 DOMAIN,httpdns.baidubce.com,REJECT
 DOMAIN,lc.map.baidu.com,REJECT
@@ -1146,7 +1144,6 @@ DOMAIN-SUFFIX,t.dangdang.com,REJECT
 # > 滴滴青桔
 # hostname = pt-starimg.didistatic.com, omgup*.xiaojukeji.com
 #DOMAIN-KEYWORD, pt-starimg.didistatic.com, REJECT
-IP-CIDR,203.107.1.1/24,REJECT,no-resolve
 
 # > 电脑之家
 DOMAIN-SUFFIX,btn.pchome.net,REJECT
@@ -1233,7 +1230,6 @@ DOMAIN-SUFFIX,newton-api.ele.me,REJECT
 DOMAIN,i-lq.snssdk.com,REJECT
 DOMAIN,is-lq.snssdk.com,REJECT
 DOMAIN,ug-sinfonlinea.bytedance.com,REJECT
-DOMAIN,dig.bdurl.net,REJECT
 DOMAIN,activity-ag.awemeughun.com,REJECT
 DOMAIN,mcs.snssdk.com,REJECT
 DOMAIN,tnc3-alisc1.snssdk.com,REJECT
@@ -1380,7 +1376,6 @@ DOMAIN-SUFFIX,seavideo-ak.espn.go.com,REJECT
 # > Google
 # hostname = pagead2.googlesyndication.com
 DOMAIN-SUFFIX,google-analytics.com,REJECT
-DOMAIN,safebrowsing.googleapis.com,REJECT
 DOMAIN-SUFFIX,doubleclick.net,REJECT
 DOMAIN-SUFFIX,doubleclick.com,REJECT
 DOMAIN-SUFFIX,googleadservices.com,REJECT
@@ -1444,7 +1439,6 @@ DOMAIN,v2mi.gdt.qq.com,REJECT
 DOMAIN,da.bridgeturbo.com,REJECT
 DOMAIN,adx-os.bridgeturbo.com,REJECT
 DOMAIN,adx-bj.anythinktech.com,REJECT
-DOMAIN,mobads.baidu.com,REJECT
 
 # > 好游快爆
 DOMAIN-SUFFIX,ad.3839.com,REJECT
@@ -1676,7 +1670,6 @@ DOMAIN,g.koowo.com,REJECT
 DOMAIN,kgmobilestat.kugou.com,REJECT
 DOMAIN,kgmobilestatbak.kugou.com,REJECT
 DOMAIN,mobilelog.kugou.com,REJECT
-DOMAIN,adsfile.bssdlbig.kugou.com,REJECT
 DOMAIN,pgdt.gtimg.com,REJECT
 DOMAIN,adsmind.gdtimg.com,REJECT
 DOMAIN-KEYWORD,searchrecommend.kugou.com,REJECT
@@ -1762,7 +1755,6 @@ AND,((DOMAIN-KEYWORD,sf),(DOMAIN-KEYWORD,-static.i18n-pglstatp.com)),REJECT
 AND,((DOMAIN-KEYWORD,if),(DOMAIN-KEYWORD,-cdn-tos.bytescm.com)),REJECT
 AND,((DOMAIN-KEYWORD,if),(DOMAIN-KEYWORD,-analytics.bytescm.com)),REJECT
 AND,((DOMAIN-KEYWORD,lf),(DOMAIN-KEYWORD,-analytics.bytescm.com)),REJECT
-AND,((DOMAIN-KEYWORD,lf),(DOMAIN-KEYWORD,-analytics.bytescm.com)),REJECT
 AND,((DOMAIN-KEYWORD,ads),(DOMAIN-KEYWORD,normal),(DOMAIN-SUFFIX,zijieapi.com)),REJECT
 AND,((DOMAIN-KEYWORD,api),(DOMAIN-KEYWORD,-access-),(DOMAIN-SUFFIX,pangle.io)),REJECT
 AND,((DOMAIN-KEYWORD,api),(DOMAIN-KEYWORD,-log-),(DOMAIN-SUFFIX,pangle.io)),REJECT
@@ -1789,32 +1781,23 @@ DOMAIN,mssdk.volces.com,REJECT
 DOMAIN,pangolin.snssdk.com,REJECT
 DOMAIN,gromore.pangolin-sdk-toutiao.com,REJECT
 DOMAIN,ether-pack.pangolin-sdk-toutiao.com,REJECT
-DOMAIN-KEYWORD,-ad-sign.byteimg.com,REJECT
 DOMAIN-KEYWORD,api-access.pangolin-sdk-toutiao,REJECT
 DOMAIN-KEYWORD,log-api.pangolin-sdk-toutiao,REJECT
 DOMAIN-KEYWORD,-ad.byteoversea.com,REJECT
-DOMAIN-KEYWORD,video-cn.snssdk.com,REJECT
-DOMAIN-KEYWORD,asiad.byteactivity,REJECT
-DOMAIN,adsmind.gdtimg.com,REJECT
-DOMAIN,adsmind.ugdtimg.com,REJECT
 DOMAIN,c2.gdt.qq.com,REJECT
 DOMAIN,huatuocode.huatuo.qq.com,REJECT
 DOMAIN,info4.video.qq.com,REJECT
 DOMAIN,info6.video.qq.com,REJECT
 DOMAIN,ios.bugly.qq.com,REJECT
 DOMAIN,ios.video.mpush.qq.com,REJECT
-DOMAIN,mi.gdt.qq.com,REJECT
 DOMAIN,otheve.beacon.qq.com,REJECT
 DOMAIN,pgdt.gtimg.cn,REJECT
-DOMAIN,pgdt.ugdtimg.com,REJECT
 DOMAIN,qzs.gdtimg.com,REJECT
 DOMAIN,qzs.qq.com,REJECT
 DOMAIN,rmonitor.qq.com,REJECT
 DOMAIN,sdk.e.qq.com,REJECT
 DOMAIN,sdkconfig.video.qq.com,REJECT
 DOMAIN,t.gdt.qq.com,REJECT
-DOMAIN,tmead.y.qq.com,REJECT
-DOMAIN,tmeadbak.y.qq.com,REJECT
 DOMAIN,tmeadcomm.y.qq.com,REJECT
 DOMAIN,tpns.qq.com,REJECT
 DOMAIN,v.gdt.qq.com,REJECT
@@ -1897,10 +1880,6 @@ DOMAIN-SUFFIX,cm.kwad.com,REJECT
 # > 快手
 # hostname = az4-api.ksapisrv.com, az4-api-idc.ksapisrv.com, az2-api.ksapisrv.com, az2-api-idc.ksapisrv.com, apissl.gifshow.com, apissl.ksapisrv.com, az2-api-js.gifshow.com, az2-live.ksapisrv.com
 # DOMAIN, js-ad.a.yximgs.com, REJECT
-DOMAIN-SUFFIX,e.kuaishou.com,REJECT
-DOMAIN-SUFFIX,cm.downloader.commercial.kuaishou.com,REJECT
-DOMAIN-SUFFIX,cm.ad.gifshow.com,REJECT
-DOMAIN-SUFFIX,cm.kwad.com,REJECT
 
 # > 快速问医生
 DOMAIN-SUFFIX,ax.120ask.com,REJECT
@@ -1982,7 +1961,6 @@ DOMAIN-SUFFIX,wth.lenovomm.com,REJECT
 DOMAIN-SUFFIX,yx.lenovomm.com,REJECT
 
 # > 两步路
-DOMAIN-SUFFIX,admobile.top,REJECT
 
 # > Line
 # hostname = a.line.me, ad.line-scdn.net, w.line.me, gw.line.naver.jp, lan.line.me, buy.line.me, crs-event.line.me, obs.line-scdn.net, d.line-scdn.net, scdn.line-apps.com, sch.line.me, static.line-scdn.net, nelo2-col.linecorp.com, uts-front.line-apps.com, cix.line-apps.com, legy.line-apps.com, ec-bot-obs.line-scdn.net
@@ -2145,7 +2123,6 @@ DOMAIN,sdkconfig.ad.xiaomi.com,REJECT
 DOMAIN-KEYWORD,cm-10-134.getui.com,REJECT
 DOMAIN-KEYWORD,sdk.open.talk.getui.com,REJECT
 DOMAIN-KEYWORD,cm-10-35.getui.com,REJECT
-DOMAIN-KEYWORD,c-hzgt2.getui.com,REJECT
 DOMAIN-SUFFIX,sdk.open.talk.igexin.com,REJECT
 
 # > 蘑菇街
@@ -2317,11 +2294,7 @@ DOMAIN-SUFFIX,static.g.pptv.com,REJECT
 # hostname = open.e.kuaishou.cn, api-access.pangolin-sdk-toutiao-b.com, api-access.pangolin-sdk-toutiao.com, api-access.pangolin-sdk-toutiao1.com, dsp-x.jd.com, api-cfg.wtzw.com, p1-lm.adukwai.com, lf-cdn-tos.bytescm.com
 DOMAIN,cdn-new-ad.wtzw.com,REJECT
 DOMAIN,a-remad.qm989.com,REJECT
-DOMAIN,mobads.baidu.com,REJECT
-DOMAIN-SUFFIX,gdt.qq.com,REJECT
-DOMAIN,qzs.gdtimg.com,REJECT
 DOMAIN,mobads-pre-config.cdn.bcebos.com,REJECT
-DOMAIN,pgdt.ugdtimg.com,REJECT
 
 # > 齐鲁网
 DOMAIN-SUFFIX,g3.iqilu.com,REJECT
@@ -2383,49 +2356,8 @@ AND,((IP-CIDR,110.249.199.75/32,no-resolve),(DEST-PORT,6443)),REJECT
 AND,((IP-CIDR,111.225.147.191/32,no-resolve),(DEST-PORT,6443)),REJECT
 AND,((IP-CIDR,111.63.61.101/32,no-resolve),(DEST-PORT,6443)),REJECT
 AND,((IP-CIDR,220.243.141.0/32,no-resolve),(DEST-PORT,6443)),REJECT
-AND,((DOMAIN-KEYWORD,-ad-),(DOMAIN-SUFFIX,byteimg.com)),REJECT
-AND,((DOMAIN-KEYWORD,-ttam-),(DOMAIN-SUFFIX,ibyteimg.com)),REJECT
-AND,((DOMAIN-KEYWORD,ssdk-),(DOMAIN-SUFFIX,pangle.io)),REJECT
-AND,((DOMAIN-KEYWORD,pangolin),(DOMAIN-SUFFIX,sgsnssdk.com)),REJECT
-AND,((DOMAIN-KEYWORD,lf),(DOMAIN-KEYWORD,-short.bytetos.com)),REJECT
-AND,((DOMAIN-KEYWORD,v),(DOMAIN-KEYWORD,-be-pack.pglstatp-toutiao.com)),REJECT
-AND,((DOMAIN-KEYWORD,sf),(DOMAIN-KEYWORD,-be-pack.pglstatp-toutiao.com)),REJECT
-AND,((DOMAIN-KEYWORD,s),(DOMAIN-KEYWORD,-fe-scm.pglstatp-toutiao.com)),REJECT
-AND,((DOMAIN-KEYWORD,sf),(DOMAIN-KEYWORD,-ttcdn-tos.pstatp.com)),REJECT
-AND,((DOMAIN-KEYWORD,sf),(DOMAIN-KEYWORD,-static.i18n-pglstatp.com)),REJECT
-AND,((DOMAIN-KEYWORD,if),(DOMAIN-KEYWORD,-analytics.bytescm.com)),REJECT
-AND,((DOMAIN-KEYWORD,lf),(DOMAIN-KEYWORD,-analytics.bytescm.com)),REJECT
-AND,((DOMAIN-KEYWORD,lf),(DOMAIN-KEYWORD,-analytics.bytescm.com)),REJECT
-AND,((DOMAIN-KEYWORD,ads),(DOMAIN-KEYWORD,normal),(DOMAIN-SUFFIX,zijieapi.com)),REJECT
-AND,((DOMAIN-KEYWORD,api),(DOMAIN-KEYWORD,-access-),(DOMAIN-SUFFIX,pangle.io)),REJECT
-AND,((DOMAIN-KEYWORD,api),(DOMAIN-KEYWORD,-log-),(DOMAIN-SUFFIX,pangle.io)),REJECT
-AND,((DOMAIN-KEYWORD,api),(DOMAIN-KEYWORD,-dual-event-),(DOMAIN-SUFFIX,pangle.io)),REJECT
-AND,((DOMAIN-KEYWORD,api),(DOMAIN-KEYWORD,pangolin),(DOMAIN-SUFFIX,sgsnssdk.com)),REJECT
-AND,((DOMAIN-KEYWORD,ads),(DOMAIN-KEYWORD,-normal-lq),(DOMAIN-SUFFIX,zijieapi.com)),REJECT
-URL-REGEX,"^https?:\/\/p\d+-be-pack-sign\.pglstatp-toutiao\.com\/(ad-app-package|web\.business\.image)\/",REJECT
-DOMAIN,mon.zijieapi.com,REJECT
 #DOMAIN, is.snssdk.com, REJECT
-DOMAIN,bds.snssdk.com,REJECT
-DOMAIN,dm.bytedance.com,REJECT
-DOMAIN,dm.pstatp.com,REJECT
-DOMAIN,dm.toutiao.com,REJECT
-DOMAIN,log.snssdk.com,REJECT
-DOMAIN,s3a.pstatp.com,REJECT
-DOMAIN,sdfp.snssdk.com,REJECT
-DOMAIN,tosv.boe.byted.org,REJECT
-DOMAIN,tosv.byted.org,REJECT
-DOMAIN,extlog.snssdk.com,REJECT
-DOMAIN,mssdk-bu.bytedance.com,REJECT
-DOMAIN,toblog.ctobsnssdk.com,REJECT
-DOMAIN,mssdk.volces.com,REJECT
-DOMAIN,pangolin.snssdk.com,REJECT
-DOMAIN,gromore.pangolin-sdk-toutiao.com,REJECT
-DOMAIN-KEYWORD,-ad-sign.byteimg.com,REJECT
 # DOMAIN-KEYWORD, api-access.pangolin-sdk-toutiao, REJECT // 被复写替代
-DOMAIN-KEYWORD,log-api.pangolin-sdk-toutiao,REJECT
-DOMAIN-KEYWORD,-ad.byteoversea.com,REJECT
-DOMAIN-KEYWORD,video-cn.snssdk.com,REJECT
-DOMAIN-KEYWORD,asiad.byteactivity,REJECT
 
 # > 蜻蜓FM
 DOMAIN,ad.qingting.fm,REJECT
@@ -2437,7 +2369,6 @@ DOMAIN,ad-cdn.qingting.fm,REJECT
 DOMAIN,iadmusicmat.music.126.net,REJECT
 DOMAIN,iadmat.nosdn.127.net,REJECT
 DOMAIN,iadmatapk.nosdn.127.net,REJECT
-DOMAIN,httpdns.n.netease.com,REJECT
 DOMAIN,httpdns.music.163.com,REJECT
 
 # > QQ音乐
@@ -2448,25 +2379,18 @@ DOMAIN,adcdn.tencentmusic.com,REJECT
 DOMAIN,adcdn6.tencentmusic.com,REJECT
 DOMAIN,adexpo.tencentmusic.com,REJECT
 DOMAIN,adclick.tencentmusic.com,REJECT
-DOMAIN,otheve.beacon.qq.com,REJECT
 DOMAIN,monitor.music.qq.com,REJECT
 DOMAIN,stat.y.qq.com,REJECT
 DOMAIN,tmead.y.qq.com,REJECT-NO-DROP
 DOMAIN,oth.str.mdt.qq.com,REJECT
 DOMAIN,h.trace.qq.com,REJECT
-DOMAIN,sdk.e.qq.com,REJECT
 DOMAIN,p.l.qq.com,REJECT
 DOMAIN,us.l.qq.com,REJECT
 DOMAIN,tangram.e.qq.com,REJECT
 DOMAIN,tmeadbak.y.qq.com,REJECT-NO-DROP
 DOMAIN-SUFFIX,imtmp.net,REJECT
-DOMAIN,tmeadcomm.y.qq.com,REJECT
-DOMAIN,ad.tencentmusic.com,REJECT
-DOMAIN,adstats.tencentmusic.com,REJECT
-DOMAIN,tmead.y.qq.com,REJECT
 DOMAIN-SUFFIX,rqd.qq.com,REJECT
 DOMAIN-SUFFIX,wup.imtt.qq.com,REJECT
-DOMAIN-SUFFIX,gdt.qq.com,REJECT
 DOMAIN-SUFFIX,android.rqd.qq.com,REJECT
 DOMAIN-SUFFIX,e.qq.com,REJECT
 DOMAIN-SUFFIX,v.gdt.qq.com,REJECT
@@ -2505,7 +2429,6 @@ DOMAIN-SUFFIX,wxsnsdythumb.wxs.qq.com,REJECT
 
 # > 什么值得买
 # hostname = homepage-api.smzdm.com, haojia-api.smzdm.com, app-api.smzdm.com, user-api.smzdm.com, article-api.smzdm.com, qianbao.smzdm.com, s-api.smzdm.com, haojia.m.smzdm.com
-DOMAIN,aaid.uyunad.com,REJECT
 DOMAIN,acs4baichuan.m.taobao.com,REJECT
 DOMAIN,adashxgc.ut.taobao.com,REJECT
 DOMAIN,analytics-api.smzdm.com,REJECT
@@ -2513,7 +2436,6 @@ DOMAIN,baichuan-sdk.alicdn.com,REJECT
 DOMAIN,dgstatic.jd.com,REJECT
 DOMAIN,msg.umengcloud.com,REJECT
 DOMAIN,sec.umeng.com,REJECT
-DOMAIN,ulogs.umeng.com,REJECT
 DOMAIN,ynuf.aliapp.org,REJECT
 DOMAIN-SUFFIX,res-ga.smzdm.com,REJECT
 
@@ -2566,7 +2488,6 @@ DOMAIN-SUFFIX,brand.sogou.com,REJECT
 DOMAIN-SUFFIX,bsiet.husky.sogou.com,REJECT
 # 屏蔽京东和搜狗收集信息 @jFrecht, REJECT
 DOMAIN-SUFFIX,jdqd.jd.com,REJECT
-DOMAIN-SUFFIX,shouji.sougou.com,REJECT
 DOMAIN-SUFFIX,cpc.sogou.com,REJECT
 DOMAIN-SUFFIX,fair.sogou.com,REJECT
 DOMAIN-SUFFIX,files2.sogou.com,REJECT
@@ -2770,21 +2691,6 @@ DOMAIN-SUFFIX,aeventlog.beacon.qq.com,REJECT
 DOMAIN-SUFFIX,analy.qq.com,REJECT
 DOMAIN-SUFFIX,astrategy.beacon.qq.com,REJECT
 DOMAIN-SUFFIX,rp.crasheye.cn,REJECT
-DOMAIN-SUFFIX,cmshow.gtimg.cn,REJECT
-DOMAIN-SUFFIX,discuz.gtimg.cn,REJECT
-DOMAIN-SUFFIX,gu.qlogo.cn,REJECT
-DOMAIN-SUFFIX,py.qlogo.cn,REJECT
-DOMAIN-SUFFIX,py2.qlogo.cn,REJECT
-DOMAIN-SUFFIX,beacon.gtimg.com,REJECT
-DOMAIN-SUFFIX,bla.gtimg.com,REJECT
-DOMAIN-SUFFIX,lb.gtimg.com,REJECT
-DOMAIN-SUFFIX,pgdt.gtimg.com,REJECT
-DOMAIN-SUFFIX,ra.gtimg.com,REJECT
-DOMAIN-SUFFIX,splashqqlive.gtimg.com,REJECT
-DOMAIN-SUFFIX,swa.gtimg.com,REJECT
-DOMAIN-SUFFIX,tui.gtimg.com,REJECT
-DOMAIN-SUFFIX,wa.gtimg.com,REJECT
-DOMAIN-SUFFIX,wb.gtimg.com,REJECT
 
 # > 腾讯智慧
 DOMAIN-SUFFIX,tencentmind.com,REJECT
@@ -2793,7 +2699,6 @@ DOMAIN-SUFFIX,p.tencentmind.com,REJECT
 # > 天神
 DOMAIN,track.tenjin.com,REJECT
 DOMAIN,track.tenjin.io,REJECT
-DOMAIN,errlog.umeng.com,REJECT
 DOMAIN,lf9-cdn-tos.bytegecko.com,REJECT
 DOMAIN,novel.pangolin-sdk-toutiao.com,REJECT
 
@@ -2866,19 +2771,12 @@ DOMAIN-SUFFIX,inhousedsp.com,REJECT
 DOMAIN-SUFFIX,i.sng.link,REJECT
 DOMAIN-SUFFIX,inner-active.mobi,REJECT
 DOMAIN-SUFFIX,richmob.cn,REJECT
-DOMAIN-SUFFIX,amazon-adsystem.com,REJECT
 DOMAIN-SUFFIX,ads.pubmatic.com,REJECT
 DOMAIN-SUFFIX,bidder.criteo.com,REJECT
-DOMAIN-SUFFIX,gum.criteo.com,REJECT
-DOMAIN-SUFFIX,smaato.net,REJECT
 DOMAIN-SUFFIX,spadsync.com,REJECT
 DOMAIN-SUFFIX,ads.inmobi.com,REJECT
 #DOMAIN-SUFFIX,akamaized.net, REJECT
-DOMAIN-SUFFIX,spadsync.com,REJECT
-DOMAIN-SUFFIX,tpc.googlesyndication.com,REJECT
-DOMAIN-SUFFIX,googleadsserving.cn,REJECT
 DOMAIN-SUFFIX,googleads.g.doubleclick.net,REJECT
-DOMAIN-SUFFIX,inner-active.mobi,REJECT
 DOMAIN-SUFFIX,4dvertible.com,REJECT
 DOMAIN-SUFFIX,smadex.com,REJECT
 
@@ -2900,7 +2798,6 @@ DOMAIN-SUFFIX,xd.code.tanwanyx.com,REJECT
 # hostname = *.i18n-pglstatp.com
 DOMAIN-SUFFIX,adjust.com,REJECT
 DOMAIN-SUFFIX,applvn.com,REJECT
-DOMAIN-SUFFIX,app-measurement.com,REJECT
 DOMAIN-SUFFIX,pangle.io,REJECT
 DOMAIN-SUFFIX,applovin.com,REJECT
 DOMAIN-SUFFIX,appier.net,REJECT
@@ -2986,7 +2883,6 @@ DOMAIN-SUFFIX,adslot.uc.cn,REJECT
 DOMAIN-SUFFIX,alissl.ucdl.pp.uc.cn,REJECT
 DOMAIN-SUFFIX,api.mp.uc.cn,REJECT
 DOMAIN-SUFFIX,api.open.uc.cn,REJECT
-DOMAIN-SUFFIX,applog.uc.cn,REJECT
 DOMAIN-SUFFIX,applogios.uc.cn,REJECT
 DOMAIN-SUFFIX,bench.uc.cn,REJECT
 DOMAIN-SUFFIX,client.tv.uc.cn,REJECT
@@ -2997,14 +2893,11 @@ DOMAIN-SUFFIX,hao.uc.cn,REJECT
 DOMAIN-SUFFIX,lobmuc.cn,REJECT
 DOMAIN-SUFFIX,open-uc.cn,REJECT
 DOMAIN-SUFFIX,puds.test.uae.uc.cn,REJECT
-DOMAIN-SUFFIX,track.uc.cn,REJECT
 DOMAIN-SUFFIX,wmedia-track.uc.cn,REJECT
 DOMAIN-SUFFIX,woodpecker.uc.cn,REJECT
 DOMAIN,gecko-pangle-lf.snssdk.com,REJECT
 DOMAIN,mercury-sdk.snssdk.com,REJECT
 DOMAIN,tbm.snssdk.com,REJECT
-DOMAIN,toblog.ctobsnssdk.com,REJECT
-DOMAIN,tnc3-aliec2.snssdk.com,REJECT
 DOMAIN-SUFFIX,kwurl.ucweb.com,REJECT
 DOMAIN-SUFFIX,uc9.ucweb.com,REJECT
 DOMAIN-SUFFIX,ucus.ucweb.com,REJECT
@@ -3051,7 +2944,6 @@ DOMAIN-KEYWORD,paradisestatic.vivo.com.cn,REJECT
 # > 歪麦霸王餐
 # 去开屏 , REJECT
 DOMAIN-SUFFIX,ad.gameley.com,REJECT
-DOMAIN-SUFFIX,zlsdk.1rtb.net,REJECT
 
 # > 豌豆荚
 DOMAIN-SUFFIX,push.wandoujia.com,REJECT
@@ -3065,8 +2957,6 @@ DOMAIN,admusicpic.music.126.net,REJECT
 DOMAIN,g1.163.com,REJECT
 DOMAIN,gorgon.youdao.com,REJECT
 DOMAIN,iad.g.163.com,REJECT
-DOMAIN,iadmat.nosdn.127.net,REJECT
-DOMAIN,iadmusicmat.music.126.net,REJECT
 DOMAIN,iadmusicmatvideo.music.126.net,REJECT
 DOMAIN,impservice.dictapp.youdao.com,REJECT
 DOMAIN,impservice.youdao.com,REJECT
@@ -3154,8 +3044,6 @@ DOMAIN-SUFFIX,log.yex.youdao.com,REJECT
 # > 网易大神
 # hostname = god.gameyw.netease.com, app-conf.ds.163.com
 # 拦截HTTPDNS
-DOMAIN,httpdns.music.163.com,REJECT
-DOMAIN,httpdns.n.netease.com,REJECT
 DOMAIN,httpdns-sdk.n.netease.com,REJECT
 DOMAIN,httpdns.yunxindns.com,REJECT
 DOMAIN,lofter.httpdns.c.163.com,REJECT
@@ -3167,11 +3055,6 @@ IP-CIDR,115.236.121.195/32,REJECT,no-resolve
 
 # > 网易云音乐
 # hostname = ipv4.music.163.com, interface.music.163.com, interface3.music.163.com, interface9.music.163.com
-DOMAIN,iadmusicmat.music.126.net,REJECT
-DOMAIN,iadmat.nosdn.127.net,REJECT
-DOMAIN,iadmatapk.nosdn.127.net,REJECT
-DOMAIN,httpdns.n.netease.com,REJECT
-DOMAIN,httpdns.music.163.com,REJECT
 
 # > 唯品会
 # hostname = b.appsimg.com, mapi.appvipshop.com
@@ -3394,45 +3277,6 @@ DOMAIN-SUFFIX,s.img.mix.sina.com.cn,REJECT
 DOMAIN-SUFFIX,motu.p4p.sina.com.cn,REJECT
 DOMAIN-SUFFIX,count.video.sina.com.cn,REJECT
 DOMAIN-SUFFIX,sinaaliyun.cn,REJECT
-DOMAIN-SUFFIX,ad.sina.com.cn,REJECT
-DOMAIN-SUFFIX,ad4.sina.com.cn,REJECT
-DOMAIN-SUFFIX,adbox.sina.com.cn,REJECT
-DOMAIN-SUFFIX,counter.sina.com.cn,REJECT
-DOMAIN-SUFFIX,current.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d0.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d00.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d1.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d2.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d3.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d4.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d5.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d6.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d7.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d8.sina.com.cn,REJECT
-DOMAIN-SUFFIX,d9.sina.com.cn,REJECT
-DOMAIN-SUFFIX,dcads.sina.com.cn,REJECT
-DOMAIN-SUFFIX,p4p.sina.com.cn,REJECT
-DOMAIN-SUFFIX,pfp.sina.com.cn,REJECT
-DOMAIN-SUFFIX,rm.sina.com.cn,REJECT
-DOMAIN-SUFFIX,sax.sina.com.cn,REJECT
-DOMAIN-SUFFIX,saxn.sina.com.cn,REJECT
-DOMAIN-SUFFIX,saxs.sina.com.cn,REJECT
-DOMAIN-SUFFIX,sbeacon.sina.com.cn,REJECT
-DOMAIN-SUFFIX,slog.sina.com.cn,REJECT
-DOMAIN-SUFFIX,woocall.sina.com.cn,REJECT
-DOMAIN-SUFFIX,img.amp.ad.sina.com.cn,REJECT
-DOMAIN-SUFFIX,img.adbox.sina.com.cn,REJECT
-DOMAIN-SUFFIX,m.beacon.sina.com.cn,REJECT
-DOMAIN-SUFFIX,r.dmp.sina.com.cn,REJECT
-DOMAIN-SUFFIX,int.dpool.sina.com.cn,REJECT
-DOMAIN-SUFFIX,mg.games.sina.com.cn,REJECT
-DOMAIN-SUFFIX,adm.leju.sina.com.cn,REJECT
-DOMAIN-SUFFIX,staticadm.leju.sina.com.cn,REJECT
-DOMAIN-SUFFIX,cre.mix.sina.com.cn,REJECT
-DOMAIN-SUFFIX,interest.mix.sina.com.cn,REJECT
-DOMAIN-SUFFIX,s.img.mix.sina.com.cn,REJECT
-DOMAIN-SUFFIX,motu.p4p.sina.com.cn,REJECT
-DOMAIN-SUFFIX,count.video.sina.com.cn,REJECT
 DOMAIN-SUFFIX,2016.sina.cn,REJECT
 DOMAIN-SUFFIX,cre-dp.sina.cn,REJECT
 DOMAIN-SUFFIX,dmp.sina.cn,REJECT
@@ -3577,7 +3421,6 @@ DOMAIN-SUFFIX,adx-open-service.youku.com,REJECT
 DOMAIN-SUFFIX,rhdc-acs.youku.com,REJECT
 # DOMAIN-SUFFIX, sjarvis.taobao.com, REJECT
 DOMAIN,httpdns.alicdn.com,REJECT
-DOMAIN,adsmind.ugdtimg.com,REJECT
 DOMAIN,amdc.m.youku.com,REJECT
 DOMAIN,apiv4-iyes.youku.com,REJECT
 # DOMAIN, mc.atm.youku.com, REJECT
@@ -3742,15 +3585,8 @@ DOMAIN,crash2.zhihu.com,REJECT
 DOMAIN,118.89.204.198,REJECT
 IP-CIDR,118.89.204.198/32,REJECT,no-resolve
 IP-CIDR6,2402:4e00:1200:ed00:0:9089:6dac:96b6/128,REJECT,no-resolve
-DOMAIN,appcloud.zhihu.com,REJECT
-DOMAIN,appcloud2.in.zhihu.com,REJECT
-DOMAIN,crash2.zhihu.com,REJECT
-DOMAIN,mqtt.zhihu.com,REJECT
-DOMAIN,sugar.zhihu.com,REJECT
 DOMAIN,zxid-m.mobileservice.cn,REJECT
 IP-CIDR,103.41.167.237/32,REJECT,no-resolve
-IP-CIDR,118.89.204.198/32,REJECT,no-resolve
-IP-CIDR6,2402:4e00:1200:ed00:0:9089:6dac:96b6/128,REJECT,no-resolve
 
 # > 中关村
 DOMAIN-SUFFIX,apppv.zol.com.cn,REJECT
@@ -3834,15 +3670,6 @@ DOMAIN-SUFFIX,extlog.snssdk.com,REJECT
 DOMAIN-SUFFIX,sdfp.snssdk.com,REJECT
 DOMAIN-SUFFIX,temai.snssdk.com,REJECT
 DOMAIN-SUFFIX,xlog.snssdk.com,REJECT
-DOMAIN-SUFFIX,ad.toutiao.com,REJECT
-DOMAIN-SUFFIX,dm.toutiao.com,REJECT
-DOMAIN-SUFFIX,dsp.toutiao.com,REJECT
-DOMAIN-SUFFIX,nativeapp.toutiao.com,REJECT
-DOMAIN-SUFFIX,partner.toutiao.com,REJECT
-DOMAIN-SUFFIX,track.toutiao.com,REJECT
-DOMAIN-SUFFIX,dm.pstatp.com,REJECT
-DOMAIN-SUFFIX,pb3.pstatp.com,REJECT
-DOMAIN-SUFFIX,s3a.pstatp.com,REJECT
 
 # > 作业帮
 # hostname = syh.zybang.com, www.zybang.com
@@ -4844,7 +4671,6 @@ https://ios.sspai.com/api/v3/recommend/page/get\?ad.*ios_home_modal - reject
 
 # > 盛趣游戏
 # hostname = daoyu.sdo.com
-^https?:\/\/daoyu\.sdo\.com\/api\/userCommon\/getAppStartAd - reject
 
 # > 识货
 # hostname = sh-gateway.shihuo.cn, static.shihuocdn.cn
@@ -7002,7 +6828,6 @@ https://api.rr.tv/storage/business/rootName/app/homePage\?dataType=JSON data-typ
 # > 苏e行
 # hostname = ad.shunchangzhixing.com, api.bwton.com
 # 需卸载重装，有缓存
-^https?:\/\/ad\.shunchangzhixing\.com\/getAd data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 ^https?:\/\/api\.bwton\.com\/bff\/app\/h5\/v1\/station\/goods data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
@@ -7283,18 +7108,13 @@ https://api.rr.tv/storage/business/rootName/app/homePage\?dataType=JSON data-typ
 # > 网易云音乐
 # hostname = ipv4.music.163.com, interface.music.163.com, interface3.music.163.com, interface9.music.163.com
 # 屏蔽广告
-https?:\/\/(ipv4|interface\d?)\.music\.163.com\/e?api\/ad data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 # 今日运势 商城 Beat专区 音乐收藏家 | type:ACTIVITY | 低至5.2折
-^https?:\/\/interface\d?\.music\.163\.com\/w?e?api\/(side-bar\/mini-program\/music-service\/account|delivery\/(batch-deliver|deliver)|moment\/tab\/info\/get|yunbei\/account\/entrance\/get) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 # 播放页歌名下方∶乐迷团｜关注｜播放页提示｜音乐应用红点｜播放提示
-^https?:\/\/interface\d?\.music\.163\.com\/eapi\/(resource\/comments?\/musiciansaid|community\/friends\/fans-group\/artist\/group\/get|user\/sub\/artist|music\/songshare\/text\/recommend\/get|mine\/applet\/redpoint|resniche\/position\/play\/new\/get) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 # 搜索页热搜卡片｜猜你喜欢｜我的应用下方提醒
-^https?:\/\/interface\d?\.music\.163.com\/w?e?api\/(search\/(chart|default|rcmd\/keyword|specialkeyword)|resource-exposure\/|activity\/bonus\/playpage\/time\/query) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
-^https?:\/\/interface\d?\.music\.163.com\/eapi\/(mlivestream\/entrance\/playpage|link\/(position\/show\/strategy|scene\/show)|ios\/version|v\d\/content\/exposure\/comment\/banner) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 # > 微店
 # hostname = thor.weidian.com
@@ -7342,7 +7162,6 @@ https?:\/\/(ipv4|interface\d?)\.music\.163.com\/e?api\/ad data-type=text data="{
 
 # > WIFI万能钥匙
 # 首页弹窗广告
-^https?:\/\/cds\.wifi188\.com\/feeds\.sec data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 
 # >>>>>>>>>>>>>>> ✅ X ✅ <<<<<<<<<<<<<<
@@ -8238,12 +8057,6 @@ Protobuf = type=http-response, pattern=^https:\/\/(?:\w+-spclient|spclient\.wg)\
 途虎养车去广告 = type=http-response, pattern=^https?:\/\/(cl-)?gateway\.tuhu\.cn(\/cl)?\/cl-shop-api\/shopTab\/getModuleForC, script-path=https://raw.githubusercontent.com/zirawell/R-Store/main/Res/Scripts/AntiAd/tuhu.js, requires-body=1, timeout=60
 vgTime = type=http-response, pattern=^https?:\/\/app02\.vgtime\.com:8080\/vgtime-app\/api\/v2\/init\/ad\.json, script-path=https://raw.githubusercontent.com/app2smile/rules/master/js/vgtime.js, requires-body=1, timeout=60
 网易有道词典 = type=http-response, pattern=^https?:\/\/dict\.youdao\.com\/(homepage\/promotion|course\/tab\/home|homepage\/tile), script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/youdao/dict-youdao-ad.js, requires-body=1, timeout=60
-NetEaseCloudMusic_mian = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/(batch|v\d\/resource\/comment\/floor\/get), script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
-NetEaseCloudMusic_tab = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/link\/home\/framework\/tab, script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20,{{{DT}}},{{{FX}}}]"
-NetEaseCloudMusic_home = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/(homepage\/block\/page|link\/page\/rcmd\/(resource\/show|block\/resource\/multi\/refresh)), script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20,{PRRK},{PRDRD},{PRSCVPT},{PRST},{PRRR},{HMPR},{PRMST},{PRCN}]"
-NetEaseCloudMusic_fx = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/link\/page\/discovery\/resource\/show, script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
-NetEaseCloudMusic_mybarad = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/link\/position\/show\/resource, script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
-NetEaseCloudMusic_foll = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/user\/follow\/users\/mixed\/get, script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
 UnblockURLinWeChat-解除微信链接限制 = type=http-response, pattern=^https\:\/\/(weixin110\.qq|security.wechat)\.com\/cgi-bin\/mmspamsupport-bin\/newredirectconfirmcgi\?, script-path=https://raw.githubusercontent.com/zZPiglet/Task/master/asset/UnblockURLinWeChat.js, requires-body=1, timeout=60
 温尼伯站 = type=http-response, pattern=^https:\/\/vue3-api\.zhixiny\.cn\/v1\/initui\?key=index, script-path=https://raw.githubusercontent.com/Sliverkiss/QuantumultX/main/AdBlock/xmApp/wnbz.js, requires-body=1, timeout=60
 商品信息流广告 = type=http-response, pattern=^https:\/\/(g-)?acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlehome\.home\.nextfresh\/, script-path=https://raw.githubusercontent.com/ishowshu/qx/refs/heads/main/script/goofish.js, requires-body=1

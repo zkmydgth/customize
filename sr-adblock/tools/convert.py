@@ -289,6 +289,42 @@ def main():  # noqa: C901
             continue
         kept_rules.append(l)
     rule_lines = kept_rules
+
+    # 去重：上游本身有 147 行重复；合并后又带入若干；动作错位修复也会产生同域名双动作
+    simple_types = ("DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD", "IP-CIDR", "IP-CIDR6")
+    pri = {"REJECT-NO-DROP": 3, "REJECT-DROP": 2, "REJECT": 1}
+    seen, uniq = set(), []
+    for l in rule_lines:
+        st = l.strip()
+        if not st or st.startswith("#"):     # 注释与空行不参与去重
+            uniq.append(l)
+            continue
+        if st in seen:
+            continue
+        seen.add(st)
+        uniq.append(l)
+    exact_dup = sum(1 for l in rule_lines if l.strip() and not l.strip().startswith("#")) - len(seen)
+
+    best = {}
+    for i, l in enumerate(uniq):
+        p = [x.strip() for x in l.split(",")]
+        if len(p) >= 3 and p[0] in simple_types:
+            k = (p[0], p[1])
+            if k not in best or pri.get(p[2], 0) > pri.get(best[k][0], 0):
+                best[k] = (p[2], i)
+    keep = {i for _, i in best.values()}
+    final = []
+    for i, l in enumerate(uniq):
+        p = [x.strip() for x in l.split(",")]
+        if len(p) >= 3 and p[0] in simple_types and i not in keep:
+            continue
+        final.append(l)
+    action_dup = len(uniq) - len(final)
+    rule_lines = final
+    if exact_dup or action_dup:
+        report["fixes"]["规则去重"] = exact_dup + action_dup
+        report["notes"].append("规则去重 %d 条（完全相同 %d / 同域名多动作 %d）"
+                               % (exact_dup + action_dup, exact_dup, action_dup))
     if broad_dropped:
         report["dropped"]["过宽规则"] = len(broad_dropped)
         report["notes"].append("剔除范围过宽规则 %d 条: %s"
@@ -302,6 +338,33 @@ def main():  # noqa: C901
         report["notes"].append("URL 协议笔误修正 %d 条（http:// 或 http?: -> https?://）" % fixed_n)
         report["fixes"]["协议笔误"] = fixed_n
 
+    def dedupe_lines(lines):
+        seen, out, removed = set(), [], 0
+        for l in lines:
+            st = l.strip()
+            if not st or st.startswith("#"):
+                out.append(l)
+                continue
+            if st in seen:
+                removed += 1
+                continue
+            seen.add(st)
+            out.append(l)
+        return out, removed
+
+    url_rewrite = [l for l in urw]
+    map_local = [l for l in ml_clean]
+    scripts = [l for l in sc_clean]
+    extra_dropped = 0
+    url_rewrite, d1 = dedupe_lines(url_rewrite)
+    map_local, d2 = dedupe_lines(map_local)
+    scripts, d3 = dedupe_lines(scripts)
+    extra_dropped = d1 + d2 + d3
+    if extra_dropped:
+        report["fixes"]["其它段去重"] = extra_dropped
+        report["notes"].append("URL Rewrite/Map Local/Script 去重 %d 条（%d/%d/%d）"
+                               % (extra_dropped, d1, d2, d3))
+
     def block(title, lines):
         if not eff(lines):
             return
@@ -313,9 +376,9 @@ def main():  # noqa: C901
 
     block("Rule", rule_lines)
     block("Host", host_lines)
-    block("URL Rewrite", urw)
-    block("Map Local", ml_clean)
-    block("Script", sc_clean)
+    block("URL Rewrite", url_rewrite)
+    block("Map Local", map_local)
+    block("Script", scripts)
     if hosts:
         out.append("[MITM]")
         # SR 对多行 hostname 的合并行为不稳定，统一输出为单行（上游也是单行）

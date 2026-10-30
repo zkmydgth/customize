@@ -38,15 +38,19 @@
   "notes": [
     "Map Local data-type=tiny-gif -> URL Rewrite reject-tinygif: 101 条",
     "Map Local data-type=file 丢弃: 2 条",
+    "规则去重 173 条（完全相同 171 / 同域名多动作 2）",
     "剔除范围过宽规则 2 条: DOMAIN-KEYWORD,trace.qq.com,REJECT, DOMAIN-SUFFIX,l.qq.com,REJECT",
     "动作后缀错位修正 2 条（xxx-NO-DROP -> REJECT-NO-DROP）",
-    "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）"
+    "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）",
+    "URL Rewrite/Map Local/Script 去重 14 条（1/7/6）"
   ],
   "unknown_sections": {},
   "fixes": {
+    "规则去重": 173,
     "动作后缀错位": 2,
-    "协议笔误": 19
+    "协议笔误": 19,
+    "其它段去重": 14
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 411542
+  "output_bytes": 400922
 }

@@ -12,8 +12,8 @@
 
 | 版本 | 规则数 | 体积 | 适合 |
 |---|---|---|---|
-| **精简版** `dist/blockAds.sr.module` | 3016 | 439 KB | 日常使用，匹配开销最小 |
-| **增强版** `dist/blockAds.full.srmodule` | **10859** | 746 KB | 覆盖优先，多拦 7800+ 长尾广告域名 |
+| **精简版** `dist/blockAds.sr.module` | 2843 | 428 KB | 日常使用，匹配开销最小 |
+| **增强版** `dist/blockAds.full.srmodule` | **10686** | 735 KB | 覆盖优先，多拦 7800+ 长尾广告域名 |
 
 增强版 = 精简版 + `217heidai/adblockfilters` 的 Shadowrocket lite（8480 条）。
 两者重叠仅 **6.7%**——fmz200 覆盖国内大厂广告，heidai 覆盖随机字符的长尾垃圾域名（`00k456wyh.com` 这类），互补性强。
@@ -40,7 +40,7 @@ https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/dist/blockA
 
 | 上游段落 | 处理 | 条数（2026-10-25 版） |
 |---|---|---|
-| `[Rule]` | 原样保留 | 2975（含 `IP-CIDR6` 3 条） |
+| `[Rule]` | 原样保留 + **去重**（上游自带 171 行重复） | 2800（含 `IP-CIDR6` 3 条） |
 | `[URL Rewrite]` | 原样保留 | 518 |
 | `[Map Local]` | `tiny-gif` → URL Rewrite 的 `reject-tinygif`；`data-type=file` 丢弃；修正 `^http?:` 笔误 | 714 (+101) |
 | `[Script]` | 保留；去掉 `argument=`；`requires-body` 归一 | 224 |
