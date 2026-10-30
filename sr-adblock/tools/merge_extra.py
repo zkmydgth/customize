@@ -82,6 +82,8 @@ def main():  # noqa: C901
     ap.add_argument("--min-len", type=int, default=0,
                     help="排除长度<=N 且只有两段的域名（防误伤），0=不过滤")
     ap.add_argument("--action", default="REJECT", help="统一动作（默认 REJECT）")
+    ap.add_argument("--set-name", default="", help="改写 #!name=")
+    ap.add_argument("--set-raw-url", default="", help="改写 #!raw-url=")
     args = ap.parse_args()
 
     with open(args.module, encoding="utf-8") as f:
@@ -130,6 +132,13 @@ def main():  # noqa: C901
             if t == "DOMAIN-SUFFIX":
                 suffix.add(v.lower())
             added.append("%s,%s,%s" % (t, v, args.action))
+
+    if args.set_name or args.set_raw_url:
+        for i, line in enumerate(text):
+            if args.set_name and line.startswith("#!name="):
+                text[i] = "#!name=" + args.set_name
+            if args.set_raw_url and line.startswith("#!raw-url="):
+                text[i] = "#!raw-url=" + args.set_raw_url
 
     if added and rule_idx:
         pos = rule_idx[-1] + 1

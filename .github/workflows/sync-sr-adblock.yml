@@ -71,7 +71,10 @@ jobs:
           URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/QuantumultX/filter/filter.list"
           if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o /tmp/qx_filter.list "$URL" && [ -s /tmp/qx_filter.list ]; then
             python3 tools/merge_extra.py --module dist/blockAds.sr.module \
-              --source /tmp/qx_filter.list --report build/merge.json
+              --source /tmp/qx_filter.list \
+              --set-name "SR 去广告&净化（精简版）" \
+              --set-raw-url "$RAW/dist/blockAds.sr.module" \
+              --report build/merge.json
           else
             echo "::warning::QX 规则源拉取失败，本次跳过"
           fi
@@ -82,6 +85,8 @@ jobs:
           if curl -fsSL --retry 3 --retry-delay 5 --max-time 90 -o /tmp/heidai_lite.sgmodule "$HURL" && [ -s /tmp/heidai_lite.sgmodule ]; then
             python3 tools/merge_extra.py --module dist/blockAds.full.srmodule \
               --source /tmp/heidai_lite.sgmodule --min-len 7 --action REJECT \
+              --set-name "SR 去广告&净化（增强版）" \
+              --set-raw-url "$RAW/dist/blockAds.full.srmodule" \
               --report build/merge_full.json
           else
             echo "::warning::增强规则源拉取失败，本次增强版=精简版"

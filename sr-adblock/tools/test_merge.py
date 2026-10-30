@@ -11,6 +11,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 
 MODULE = """#!name=t
+#!raw-url=https://old.example/x.module
 
 [Rule]
 DOMAIN-SUFFIX,existing.com,REJECT
@@ -43,7 +44,9 @@ def main():  # noqa: C901
             f.write(SOURCE)
 
         p = subprocess.run([sys.executable, "tools/merge_extra.py", "--module", m,
-                            "--source", s, "--min-len", "7", "--report", r],
+                            "--source", s, "--min-len", "7",
+                            "--set-name", "NEWNAME", "--set-raw-url", "https://new.example/y.module",
+                            "--report", r],
                            capture_output=True, text=True)
         if p.returncode != 0:
             fails.append("merge 崩溃: " + (p.stderr or "")[-200:])
@@ -66,6 +69,10 @@ def main():  # noqa: C901
                 fails.append("范围过宽的域名未被闸门拦截")
             if "xy.com" in txt:
                 fails.append("短域名未被 --min-len 过滤（误伤风险）")
+            if "#!name=NEWNAME" not in txt:
+                fails.append("--set-name 未生效")
+            if "#!raw-url=https://new.example/y.module" not in txt:
+                fails.append("--set-raw-url 未生效（会导致增强版指回精简版）")
             if "allowed.example" in txt:
                 fails.append("非 reject 规则被误并入")
             if info.get("added") != 2:
