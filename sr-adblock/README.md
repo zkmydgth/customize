@@ -8,6 +8,20 @@
 - 产物：`dist/blockAds.sr.module`
 - 更新：GitHub Actions 每天 04:00（北京）拉取 → 转换 → **验证** → 提交；也可手动触发
 
+## 两个版本，按需选一个
+
+| 版本 | 规则数 | 体积 | 适合 |
+|---|---|---|---|
+| **精简版** `dist/blockAds.sr.module` | 3016 | 439 KB | 日常使用，匹配开销最小 |
+| **增强版** `dist/blockAds.full.srmodule` | **10859** | 746 KB | 覆盖优先，多拦 7800+ 长尾广告域名 |
+
+增强版 = 精简版 + `217heidai/adblockfilters` 的 Shadowrocket lite（8480 条）。
+两者重叠仅 **6.7%**——fmz200 覆盖国内大厂广告，heidai 覆盖随机字符的长尾垃圾域名（`00k456wyh.com` 这类），互补性强。
+
+增强版做了三道过滤：短域名（≤7 字符且两段）68 条排除、范围过宽 2 条排除、动作统一为 `REJECT`（原 `REJECT-DROP` 会让 App 等超时）。
+
+> 规则从 3k 涨到 1.1 万，SR 每次连接要多扫约 8k 条。体感上连接建立慢几毫秒，若觉得卡就换回精简版。
+
 ## 在 Shadowrocket 里使用
 
 ```

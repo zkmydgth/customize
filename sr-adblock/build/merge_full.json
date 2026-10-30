@@ -1,0 +1,10 @@
+{
+  "added": 7843,
+  "skipped_duplicate": 567,
+  "skipped_major_site": [],
+  "skipped_too_broad": [
+    "l.qq.com",
+    "trace.qq.com"
+  ],
+  "skipped_short": 68
+}

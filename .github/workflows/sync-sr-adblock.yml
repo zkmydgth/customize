@@ -73,7 +73,18 @@ jobs:
             python3 tools/merge_extra.py --module dist/blockAds.sr.module \
               --source /tmp/qx_filter.list --report build/merge.json
           else
-            echo "::warning::额外规则源拉取失败，本次跳过合并（不影响主流程）"
+            echo "::warning::QX 规则源拉取失败，本次跳过"
+          fi
+
+          # 增强版：再叠加 217heidai 的 Shadowrocket lite（长尾广告域名）
+          HURL="https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockshadowrocketlite.sgmodule"
+          cp dist/blockAds.sr.module dist/blockAds.full.srmodule
+          if curl -fsSL --retry 3 --retry-delay 5 --max-time 90 -o /tmp/heidai_lite.sgmodule "$HURL" && [ -s /tmp/heidai_lite.sgmodule ]; then
+            python3 tools/merge_extra.py --module dist/blockAds.full.srmodule \
+              --source /tmp/heidai_lite.sgmodule --min-len 7 --action REJECT \
+              --report build/merge_full.json
+          else
+            echo "::warning::增强规则源拉取失败，本次增强版=精简版"
           fi
 
       - name: Verify (jq differential + script smoke test + structure)

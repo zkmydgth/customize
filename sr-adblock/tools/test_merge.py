@@ -27,6 +27,7 @@ host-keyword, trackerword, reject
 host-suffix, allowed.example, direct
 host-suffix, l.qq.com, reject
 host-keyword, trace.qq.com, reject
+host-suffix, xy.com, reject
 """
 
 
@@ -42,7 +43,8 @@ def main():  # noqa: C901
             f.write(SOURCE)
 
         p = subprocess.run([sys.executable, "tools/merge_extra.py", "--module", m,
-                            "--source", s, "--report", r], capture_output=True, text=True)
+                            "--source", s, "--min-len", "7", "--report", r],
+                           capture_output=True, text=True)
         if p.returncode != 0:
             fails.append("merge 崩溃: " + (p.stderr or "")[-200:])
         else:
@@ -62,6 +64,8 @@ def main():  # noqa: C901
                 fails.append("DOMAIN-KEYWORD 未并入")
             if "l.qq.com" in txt or "trace.qq.com" in txt:
                 fails.append("范围过宽的域名未被闸门拦截")
+            if "xy.com" in txt:
+                fails.append("短域名未被 --min-len 过滤（误伤风险）")
             if "allowed.example" in txt:
                 fails.append("非 reject 规则被误并入")
             if info.get("added") != 2:

@@ -50,10 +50,17 @@ def parse_source(path):
             parts = [p.strip() for p in line.split(",")]
             if len(parts) < 2:
                 continue
-            t = TYPE_MAP.get(parts[0].lower())
-            if not t:
-                continue
-            if len(parts) > 2 and "reject" not in parts[2].lower():
+            raw_type = parts[0]
+            if raw_type.upper() in ("DOMAIN", "DOMAIN-SUFFIX", "DOMAIN-KEYWORD",
+                                    "IP-CIDR", "IP-CIDR6"):
+                t = raw_type.upper()          # 已经是 SR/Surge 语法
+                action = parts[2] if len(parts) > 2 else "REJECT"
+            else:
+                t = TYPE_MAP.get(raw_type.lower())
+                if not t:
+                    continue
+                action = parts[2] if len(parts) > 2 else "reject"
+            if "reject" not in action.lower():
                 continue
             out.append((t, parts[1]))
     return out
@@ -72,6 +79,9 @@ def main():  # noqa: C901
     ap.add_argument("--source", action="append", default=[], help="额外规则文件，可多次指定")
     ap.add_argument("--report", default="")
     ap.add_argument("--allow-major", action="store_true", help="不跳过知名主站（不推荐）")
+    ap.add_argument("--min-len", type=int, default=0,
+                    help="排除长度<=N 且只有两段的域名（防误伤），0=不过滤")
+    ap.add_argument("--action", default="REJECT", help="统一动作（默认 REJECT）")
     args = ap.parse_args()
 
     with open(args.module, encoding="utf-8") as f:
@@ -99,11 +109,15 @@ def main():  # noqa: C901
         return (t in ("DOMAIN", "DOMAIN-SUFFIX")
                 and any(vl == s or vl.endswith("." + s) for s in suffix))
 
-    added, skipped_dup, skipped_major, skipped_broad = [], 0, [], []
+    added, skipped_dup, skipped_major, skipped_broad, skipped_short = [], 0, [], [], []
     for src in args.source:
         for t, v in parse_source(src):
             if covered(t, v):
                 skipped_dup += 1
+                continue
+            if args.min_len and t in ("DOMAIN", "DOMAIN-SUFFIX") \
+                    and len(v) <= args.min_len and v.count(".") == 1:
+                skipped_short.append(v)
                 continue
             if t in ("DOMAIN-SUFFIX", "DOMAIN-KEYWORD") and v.lower() in TOO_BROAD:
                 skipped_broad.append(v)
@@ -115,7 +129,7 @@ def main():  # noqa: C901
             have.add((t, v))
             if t == "DOMAIN-SUFFIX":
                 suffix.add(v.lower())
-            added.append("%s,%s,REJECT" % (t, v))
+            added.append("%s,%s,%s" % (t, v, args.action))
 
     if added and rule_idx:
         pos = rule_idx[-1] + 1
@@ -125,7 +139,8 @@ def main():  # noqa: C901
         f.write("\n".join(text))
 
     info = {"added": len(added), "skipped_duplicate": skipped_dup,
-            "skipped_major_site": skipped_major, "skipped_too_broad": skipped_broad}
+            "skipped_major_site": skipped_major, "skipped_too_broad": skipped_broad,
+            "skipped_short": len(skipped_short)}
     print(json.dumps(info, ensure_ascii=False, indent=1))
     if args.report:
         with open(args.report, "w", encoding="utf-8") as f:
