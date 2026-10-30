@@ -7890,6 +7890,7 @@ https://.+\.gamersky.com/v1/statisticAd data-type=text data="{}" status-code=200
 
 # >>>>>>>>>>>>>>> 🟣 <<<<<<<<<<<<<<
 ^https:\/\/api\.zhihu\.com\/commercial_api\/(?:app_float_layer|real_time_pull_refresh_v2|real_time_second_floor_v2|sdk\/prefetch) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|show|event\/list2) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 [Script]
 12306 = type=http-request, pattern=^https?:\/\/ad\.12306\.cn\/ad\/ser\/getAdList, script-path=https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js, requires-body=1, timeout=60

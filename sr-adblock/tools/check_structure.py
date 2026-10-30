@@ -67,6 +67,17 @@ def main():
     need(len(set(hosts)) == len(hosts), "MITM hostname 有重复")
     need(not any(" " in h for h in hosts), "MITM hostname 含空格（解析失败）")
 
+    # Rule 段不得出现 Map Local / URL Rewrite 语法（放错段 = 规则不生效）
+    misplaced = [l for l in secs.get("Rule", [])
+                 if "data-type=" in l or " status-code=" in l or l.endswith(" - reject")]
+    need(not misplaced, "Rule 段含其他段语法（放错段）: %d 条，例: %s"
+         % (len(misplaced), misplaced[0][:60] if misplaced else ""))
+
+    # Map Local 段不得出现纯 Rule 语法（只有 TYPE,value,policy 三段且无 data-type）
+    bad_ml = [l for l in secs.get("Map Local", [])
+              if "data-type=" not in l and l.count(",") == 2]
+    need(not bad_ml, "Map Local 段疑似混入 Rule 语法: %d 条" % len(bad_ml))
+
     urw = secs.get("URL Rewrite", [])
     need(sum(1 for l in urw if l.endswith("reject-tinygif")) >= 100,
          "reject-tinygif 条数不足（Map Local 转换丢失）")

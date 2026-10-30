@@ -31,3 +31,10 @@ DOMAIN-SUFFIX,tingyun.com,REJECT
 DOMAIN-SUFFIX,sentry.io,REJECT
 DOMAIN-SUFFIX,mintegral.com,REJECT
 DOMAIN-SUFFIX,ogury.com,REJECT
+
+# 2026-10-31 代理日志（proxy-2026-10-31-002043.db）：
+# B 站 app.bilibili.com/x/v2/splash/list 走 DIRECT，且 splash/show 已带 ad_extra
+# （=App 已决定展示广告）。上游 Body Rewrite 只清 data.show/event_list，
+# 结构变化时会静默失效 → 改用 Map Local 直接返回空对象兜底。
+[Map Local]
+^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|show|event\/list2) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
