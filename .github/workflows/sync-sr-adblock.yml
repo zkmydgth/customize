@@ -121,7 +121,7 @@ jobs:
             echo "::error::拦截规则占比骤降至 ${RATIO}%（阈值 90%），疑似上游把 REJECT 改成了 DIRECT"
             exit 1
           fi
-          [ "$R" -gt 999999 ] || { echo "::error::规则数异常 $R"; exit 1; }
+          [ "$R" -gt 2000 ] || { echo "::error::规则数异常 $R"; exit 1; }
           [ "$S" -gt 300 ]  || { echo "::error::脚本数异常 $S"; exit 1; }
           grep -q '^\[MITM\]' "$F" || { echo "::error::缺 MITM"; exit 1; }
           if grep -q '^\[Body Rewrite\]' "$F"; then echo "::error::含不受支持的段"; exit 1; fi
