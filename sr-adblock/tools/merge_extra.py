@@ -38,6 +38,14 @@ MAJOR = {
 # 范围过宽：DOMAIN-SUFFIX 会拦掉整片子域、DOMAIN-KEYWORD 会匹配任意包含该串的 URL
 TOO_BROAD = {"l.qq.com", "trace.qq.com"}
 
+# 确定误伤：不是广告，而是 App 的 DNS/网络基础服务，拦掉会影响正常功能。
+# 2026-10-31 从代理日志发现：增强版拦了 dns.weixin.qq.com.cn 84 次（微信 MMTLS），
+# 来源是 217heidai 规则集把微信 DNS 误标成广告。
+MERGE_DENY = {
+    "dns.weixin.qq.com", "dns.weixin.qq.com.cn", "aedns.weixin.qq.com",
+    "httpdns.alicdn.com", "httpdns.baidu.com", "httpdns.meituan.com",
+}
+
 
 def parse_source(path):
     """解析 QX/Clash 风格规则文件 -> [(TYPE, value)]"""
@@ -122,6 +130,9 @@ def main():  # noqa: C901
                 skipped_short.append(v)
                 continue
             if t in ("DOMAIN-SUFFIX", "DOMAIN-KEYWORD") and v.lower() in TOO_BROAD:
+                skipped_broad.append(v)
+                continue
+            if v.lower() in MERGE_DENY:
                 skipped_broad.append(v)
                 continue
             if (not args.allow_major and t in ("DOMAIN", "DOMAIN-SUFFIX")
