@@ -77,9 +77,12 @@ def main():  # noqa: C901
 
     secs = [(n, ls) for n, ls in secs]
     names = [n for n, _ in secs]
+    # 幂等：先剔除上次运行留下的 body-rewrite-NNN 行，否则重跑一次变 192 条
+    body_re = re.compile(r"^\s*body-rewrite-\d{3}\s*=")
     if "Script" in names:
         i = names.index("Script")
-        secs[i] = ("Script", secs[i][1] + rules)
+        kept = [l for l in secs[i][1] if not body_re.match(l)]
+        secs[i] = ("Script", kept + rules)
     else:
         secs.append(("Script", rules))
 
@@ -91,7 +94,8 @@ def main():  # noqa: C901
             hosts = [h.strip() for h in l.split("=", 1)[1].split(",") if h.strip()]
     pats = []
     for l in rules:
-        m = re.search(r"pattern=(\S+?),\s*script-path=", l)
+        # 不要求 pattern 后紧跟 script-path：字段顺序变更时旧写法会静默变成 0 条
+        m = re.search(r"\bpattern=([^,]+)", l)
         if m:
             pats.append(m.group(1))
     missing = []
