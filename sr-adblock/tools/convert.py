@@ -111,6 +111,18 @@ def clean_script_line(line):
     return re.sub(r"requires-body=(false|0)\b", "requires-body=0", line, flags=re.I)
 
 
+# 上游 fmz200 知乎脚本含一个会导致脚本崩溃的 bug（item vs i），
+# 由 tools/patch_zhihu.py 修补后托管在我们自己的仓库，规则改指向这份修补版。
+UPSTREAM_ZHIHU = "https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js"
+
+
+def redirect_script_path(line, scripts_base):
+    """把上游知乎脚本替换为本地托管的修补版，其余 script-path 不动"""
+    if UPSTREAM_ZHIHU in line:
+        return line.replace(UPSTREAM_ZHIHU, scripts_base + "zhihu.js")
+    return line
+
+
 def process_maplocal(lines):
     """Map Local 适配：
        - 修正上游正则笔误 ^http?:/  ->  ^https?:/
@@ -223,6 +235,18 @@ def main():  # noqa: C901
     sc = kept.get("Script", [])
     sc_eff = eff(sc)
     sc_clean = [clean_script_line(l) for l in sc_eff]
+    # 知乎脚本改指向本地修补版（上游版本有 item 未定义的崩溃 bug）
+    if args.raw_url and "/dist/" in args.raw_url:
+        _scripts_base = args.raw_url.rsplit("/dist/", 1)[0] + "/scripts/"
+        _r = 0
+        for _i, _l in enumerate(sc_clean):
+            _n = redirect_script_path(_l, _scripts_base)
+            if _n != _l:
+                sc_clean[_i] = _n
+                _r += 1
+        if _r:
+            report["fixes"]["知乎脚本重定向"] = _r
+            report["notes"].append("知乎脚本改指向本地修补版 %d 条" % _r)
     report["kept"]["Script"] = len(sc_clean)
     sc_types = {}
     for l in sc_eff:
