@@ -135,14 +135,40 @@ def main():  # noqa: C901
 
     if args.set_name or args.set_raw_url:
         for i, line in enumerate(text):
-            if args.set_name and line.startswith("#!name="):
+            # 容忍 BOM：带 BOM 的模块用 startswith 判断会静默不生效
+            bare = line.lstrip("\ufeff")
+            if args.set_name and bare.startswith("#!name="):
                 text[i] = "#!name=" + args.set_name
-            if args.set_raw_url and line.startswith("#!raw-url="):
+            if args.set_raw_url and bare.startswith("#!raw-url="):
                 text[i] = "#!raw-url=" + args.set_raw_url
 
     if added and rule_idx:
-        pos = rule_idx[-1] + 1
+        # 置顶：Rule 是顺序匹配、首条命中即停。插在段尾时，一旦上游出现
+        # 父域 DIRECT/PROXY，这些规则会整批永不命中（2026-10-31 审计）
+        pos = rule_idx[0]
         text = text[:pos] + added + text[pos:]
+
+    # 合并会改变 Rule 条数，头部统计行要跟着更新（否则与实际不符）
+    def _counts(lines):
+        d, cur = {}, None
+        for l in lines:
+            t = l.strip()
+            if t.startswith("[") and t.endswith("]"):
+                cur, d[cur] = t[1:-1], 0
+                continue
+            if cur and t and not t.startswith("#"):
+                d[cur] += 1
+        return d
+    c = _counts(text)
+    mitm_n = 0
+    for l in text:
+        if l.strip().lower().startswith("hostname") and "=" in l:
+            mitm_n = len([h for h in l.split("=", 1)[1].split(",") if h.strip()])
+    for i, l in enumerate(text):
+        if l.startswith("#  保留统计:"):
+            text[i] = ("#  保留统计: Rule %d / URL Rewrite %d / Map Local %d / Script %d / MITM %d hosts"
+                       % (c.get("Rule", 0), c.get("URL Rewrite", 0), c.get("Map Local", 0),
+                          c.get("Script", 0), mitm_n))
 
     with open(args.module, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(text))
