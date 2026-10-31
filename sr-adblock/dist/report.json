@@ -13,9 +13,9 @@
       "URL-REGEX": 15,
       "USER-AGENT": 1
     },
-    "URL Rewrite": 619,
+    "URL Rewrite": 618,
     "URL Rewrite.actions": {
-      "reject": 514,
+      "reject": 513,
       "302": 3,
       "header": 1,
       "reject-tinygif": 101
@@ -28,17 +28,20 @@
     },
     "MITM.hostnames": 939,
     "Host": 0,
-    "final": "Rule 2818 / URL Rewrite 618 / Map Local 711 / Script 218 / MITM 939 hosts"
+    "final": "Rule 2818 / URL Rewrite 617 / Map Local 711 / Script 218 / MITM 939 hosts"
   },
   "dropped": {
     "Header Rewrite": 1,
     "Body Rewrite": 96,
     "General": 1,
+    "URL Rewrite 垃圾行": 1,
     "过宽规则": 2
   },
   "notes": [
     "Map Local data-type=tiny-gif -> URL Rewrite reject-tinygif: 101 条",
     "Map Local data-type=file 丢弃: 2 条",
+    "剔除 URL Rewrite 段中的 hostname 行 1 条",
+    "脚本地址 github.com -> raw 直链 13 条",
     "知乎脚本改指向本地修补版 12 条",
     "本地补充 [Rule] 18 条已置顶（避免被父域 DIRECT 抢先）",
     "规则去重 168 条（完全相同 166 / 同域名多动作 2）",
@@ -50,6 +53,7 @@
   ],
   "unknown_sections": {},
   "fixes": {
+    "脚本地址改直链": 13,
     "知乎脚本重定向": 12,
     "本地补充(Rule)": 18,
     "规则去重": 168,
@@ -59,5 +63,5 @@
     "其它段去重": 3
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 401463
+  "output_bytes": 401649
 }

@@ -12,10 +12,11 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  保留统计: Rule 2861 / URL Rewrite 618 / Map Local 711 / Script 314 / MITM 944 hosts
+#  保留统计: Rule 2861 / URL Rewrite 617 / Map Local 711 / Script 314 / MITM 944 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
 #  已剔除 [General] 1 条（SR 不支持）
+#  已剔除 [URL Rewrite 垃圾行] 1 条（SR 不支持）
 # ============================================================
 
 
@@ -4919,7 +4920,6 @@ https://support.you.163.com/appversync/check.do - reject
 ^https?:\/\/res-release\.wuta-cam\.com\/json\/ads_component_cache\.json - reject
 
 # > WIFI万能钥匙
-hostname - reject
 
 # > WPS
 # hostname = ios.wps.cn, mobile-pic.cache.iciba.com
@@ -8004,7 +8004,7 @@ mdb = type=http-response, pattern=^https?:\/\/creditcardapp\.bankcomm\.(com|cn)\
 芒果TV播放详情页 = type=http-response, pattern=^https?:\/\/mobile\.api\.mgtv\.com\/v10\/video\/info\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/cnftp.js, requires-body=1, timeout=60
 芒果TV播放详情页 = type=http-response, pattern=^https?:\/\/mobile-thor\.api\.mgtv\.com\/v1\/vod\/info\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/cnftp.js, requires-body=1, timeout=60
 芒果TV搜索框填充词 = type=http-response, pattern=^https?:\/\/mobileso\.bz\.mgtv\.com\/mobile\/recommend\/v2\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/cnftp.js, requires-body=1, timeout=60
-美丽修行广告 = type=http-response, pattern=^https:\/\/api\.bevol\.com\/(?:appmain\/app\/home\/page|usercenter\/account\/info|personal\/page|appmain\/app\/home\/launch|trialbox\/shop\/app\/homePage)$, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/mlxx/mlxx.js, requires-body=1, timeout=60
+美丽修行广告 = type=http-response, pattern=^https:\/\/api\.bevol\.com\/(?:appmain\/app\/home\/page|usercenter\/account\/info|personal\/page|appmain\/app\/home\/launch|trialbox\/shop\/app\/homePage)$, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/mlxx/mlxx.js, requires-body=1, timeout=60
 美柚App净化 = type=http-response, pattern=^https:\/\/config-service\.seeyouyima\.com\/api\/configs\/batch\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/meiyou/meiyou_ads.js, requires-body=1, timeout=60
 美柚App净化 = type=http-response, pattern=^https:\/\/config-service\.seeyouyima\.com\/api\/configs\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/meiyou/meiyou_ads.js, requires-body=1, timeout=60
 咪咕视频个人中心去广告 = type=http-response, pattern=^https?:\/\/display-sc\.miguvideo\.com\/display\/v3\/static\/PERSONAL_CENTER$, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/refs/heads/main/Scripts/miguvideo/miguvideo_ads.js, requires-body=1, timeout=60
@@ -8080,18 +8080,18 @@ UnblockURLinWeChat-解除微信链接限制 = type=http-response, pattern=^https
 搜索结果信息流广告 = type=http-response, pattern=^https:\/\/g-acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idlemtopsearch\.search\/, script-path=https://raw.githubusercontent.com/ishowshu/qx/refs/heads/main/script/goofish.js, requires-body=1
 同城页横幅广告 = type=http-response, pattern=^https:\/\/acs\.m\.goofish\.com\/gw\/mtop\.taobao\.idle\.local\.flow\.plat\.section, script-path=https://raw.githubusercontent.com/ishowshu/qx/refs/heads/main/script/goofish.js, requires-body=1
 香蕉是一种水果 = type=http-response, pattern=^https?:\/\/.+?\.(pipi|fuli|xiang(jiao|xiang))apps\.com\/(ucp\/index|getGlobalData|(\/|)vod\/reqplay\/), script-path=https://raw.githubusercontent.com/NobyDa/Script/master/QuantumultX/File/xjsp.js, requires-body=1, timeout=60
-小红书搜索页 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/search\/(banner|hot)_list, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书搜索页 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/search\/(hint|trending)\?, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书搜索页 = type=http-response, pattern=^https?:\/\/(so|edith)\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/search\/notes\?, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书开屏广告 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/system_service\/config\?, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书开屏广告 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/system_service\/splash_config, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书详情页 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/note\/widgets, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书图片视频水印 = type=http-response, pattern=^https?:\/\/(edith|rec|www)\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/note\/(imagefeed|live_photo\/save), script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书图片视频水印 = type=http-response, pattern=^https?:\/\/(edith|rec|www)\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/(followfeed|homefeed)\?, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书图片视频水印 = type=http-response, pattern=^https?:\/\/(edith|rec|www)\.(xiaohongshu|rnote)\.com\/api\/sns\/(v2\/note\/feed|v3\/note\/videofeed)\?, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书图片视频水印 = type=http-response, pattern=^https?:\/\/(edith|rec|www)\.(xiaohongshu|rnote)\.com\/api\/sns\/(v4\/note\/videofeed|v10\/note\/video\/save)\?, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书评论区去水印存储 = type=http-response, pattern=^https:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/(v5\/note\/comment\/list|v3\/note\/comment\/sub_comments)\?, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
-小红书评论区去水印下载 = type=http-response, pattern=^https:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v1\/interaction\/comment\/video\/download\?, script-path=https://github.com/fmz200/wool_scripts/raw/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书搜索页 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/search\/(banner|hot)_list, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书搜索页 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/search\/(hint|trending)\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书搜索页 = type=http-response, pattern=^https?:\/\/(so|edith)\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/search\/notes\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书开屏广告 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/system_service\/config\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书开屏广告 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/system_service\/splash_config, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书详情页 = type=http-response, pattern=^https?:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/note\/widgets, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书图片视频水印 = type=http-response, pattern=^https?:\/\/(edith|rec|www)\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/note\/(imagefeed|live_photo\/save), script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书图片视频水印 = type=http-response, pattern=^https?:\/\/(edith|rec|www)\.(xiaohongshu|rnote)\.com\/api\/sns\/v\d+\/(followfeed|homefeed)\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书图片视频水印 = type=http-response, pattern=^https?:\/\/(edith|rec|www)\.(xiaohongshu|rnote)\.com\/api\/sns\/(v2\/note\/feed|v3\/note\/videofeed)\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书图片视频水印 = type=http-response, pattern=^https?:\/\/(edith|rec|www)\.(xiaohongshu|rnote)\.com\/api\/sns\/(v4\/note\/videofeed|v10\/note\/video\/save)\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书评论区去水印存储 = type=http-response, pattern=^https:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/(v5\/note\/comment\/list|v3\/note\/comment\/sub_comments)\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
+小红书评论区去水印下载 = type=http-response, pattern=^https:\/\/edith\.(xiaohongshu|rnote)\.com\/api\/sns\/v1\/interaction\/comment\/video\/download\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaohongshu/xiaohongshu.js, requires-body=1, timeout=60
 小芒APP主页广告 = type=http-response, pattern=https://mgesq.api.mgtv.com/dsl/index.+, script-path=https://raw.githubusercontent.com/Sliverkiss/QuantumultX/main/AdBlock/xmApp/xmApp.js, requires-body=1, timeout=60
 小米商城 = type=http-response, pattern=^https?:\/\/api\.m\.mi\.com\/v1\/app\/start, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/myBlockAds.js, requires-body=1, timeout=60
 小兔充充 = type=http-response, pattern=^https?:\/\/mapi\.xiaotucc\.com\/(mall\/main|main_page\/index\/getActivity), script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/xiaotucc.js, requires-body=1, timeout=60
