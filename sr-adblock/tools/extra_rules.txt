@@ -77,6 +77,6 @@ DOMAIN,sdkaction.biz.weibo.com,REJECT
 # 知乎信息流 / 详情页广告：上游只删 type==="feed_advert"，
 # 实测还有「广告」「XX的广告」角标的卡片（携程、京东），用增强脚本按角标兜底
 [Script]
-知乎信息流增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/(?:moments_v3|topstory\/hot-lists\/total|topstory\/recommend), script-path=https://cdn.jsdelivr.net/gh/zkmydgth/customize@main/sr-adblock/scripts/zhihu-feed-v5.js, requires-body=1, max-size=-1, timeout=20
-知乎详情页增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/next-(?:bff|data|render), script-path=https://cdn.jsdelivr.net/gh/zkmydgth/customize@main/sr-adblock/scripts/zhihu-feed-v5.js, requires-body=1, max-size=-1, timeout=20
-知乎回答页增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/answers\/v2\/\d+, script-path=https://cdn.jsdelivr.net/gh/zkmydgth/customize@main/sr-adblock/scripts/zhihu-feed-v5.js, requires-body=1, max-size=-1, timeout=20
+知乎信息流增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/(?:moments_v3|topstory\/hot-lists\/total|topstory\/recommend), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-feed-v5.js, requires-body=1, max-size=-1, timeout=20
+知乎详情页增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/next-(?:bff|data|render), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-feed-v5.js, requires-body=1, max-size=-1, timeout=20
+知乎回答页增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/answers\/v2\/\d+, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-feed-v5.js, requires-body=1, max-size=-1, timeout=20
