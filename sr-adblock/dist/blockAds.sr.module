@@ -12,7 +12,7 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  保留: Rule 2970 / URL Rewrite 619 / Map Local 709 / Script 218 / MITM 939 hosts
+#  保留统计: Rule 2861 / URL Rewrite 618 / Map Local 711 / Script 314 / MITM 944 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
 #  已剔除 [General] 1 条（SR 不支持）
@@ -20,6 +20,49 @@
 
 
 [Rule]
+DOMAIN-SUFFIX,ad-delivery.net,REJECT
+DOMAIN-SUFFIX,spot.im,REJECT
+DOMAIN-SUFFIX,revjet.com,REJECT
+DOMAIN-SUFFIX,dotomi.com,REJECT
+DOMAIN-SUFFIX,intentiq.com,REJECT
+DOMAIN-SUFFIX,adsafeprotected.com,REJECT
+DOMAIN-SUFFIX,optable.co,REJECT
+DOMAIN-SUFFIX,stackadapt.com,REJECT
+DOMAIN-SUFFIX,gumgum.com,REJECT
+DOMAIN-SUFFIX,kargo.com,REJECT
+DOMAIN-SUFFIX,a-mo.net,REJECT
+DOMAIN-SUFFIX,3lift.com,REJECT
+DOMAIN-SUFFIX,bidswitch.net,REJECT
+DOMAIN-SUFFIX,ninthdecimal.com,REJECT
+DOMAIN-SUFFIX,turn.com,REJECT
+DOMAIN-SUFFIX,33across.com,REJECT
+DOMAIN-SUFFIX,aidemsrv.com,REJECT
+DOMAIN-SUFFIX,js7k.com,REJECT
+DOMAIN-SUFFIX,sharethrough.com,REJECT
+DOMAIN-SUFFIX,1rx.io,REJECT
+DOMAIN-SUFFIX,tynt.com,REJECT
+DOMAIN-SUFFIX,a47b.com,REJECT
+DOMAIN-SUFFIX,teads.tv,REJECT
+DOMAIN-SUFFIX,logger.adthrive.com,REJECT
+DOMAIN-SUFFIX,ads.stickyadstv.com,REJECT
+DOMAIN-SUFFIX,adnxs.com,REJECT
+DOMAIN-SUFFIX,presage.io,REJECT
+DOMAIN-SUFFIX,mradx.net,REJECT
+DOMAIN-SUFFIX,bdtongfei.cn,REJECT
+DOMAIN-SUFFIX,ecma.bdimg.com,REJECT
+DOMAIN-SUFFIX,ecmb.bdimg.com,REJECT
+DOMAIN-SUFFIX,ecmc.bdimg.com,REJECT
+DOMAIN-SUFFIX,pups.bdimg.com,REJECT
+DOMAIN-SUFFIX,su.bdimg.com,REJECT
+DOMAIN-SUFFIX,mipcache.bdstatic.com,REJECT
+DOMAIN-SUFFIX,su.bdstatic.com,REJECT
+DOMAIN-SUFFIX,zz.bdstatic.com,REJECT
+DOMAIN-SUFFIX,beacon.qq.com,REJECT
+DOMAIN,ads-img-al.xhscdn.com,REJECT
+DOMAIN-SUFFIX,ad-sign.byteimg.com,REJECT
+DOMAIN-SUFFIX,tos.pstatp.com,REJECT
+DOMAIN-SUFFIX,pangolin.snssdk.com,REJECT
+DOMAIN-SUFFIX,video-cn.snssdk.com,REJECT
 DOMAIN,sq.bls.mdt.qq.com,REJECT
 DOMAIN,h-adashx4bc.ut.taobao.com,REJECT
 DOMAIN,datahub.zhihu.com,REJECT
@@ -3695,49 +3738,6 @@ DOMAIN-SUFFIX,bu02.zybang.com,REJECT
 DOMAIN-SUFFIX,adm.myzaker.com,REJECT
 DOMAIN-SUFFIX,ggs.myzaker.com,REJECT
 DOMAIN-SUFFIX,push-android.myzaker.com,REJECT
-DOMAIN-SUFFIX,ad-delivery.net,REJECT
-DOMAIN-SUFFIX,spot.im,REJECT
-DOMAIN-SUFFIX,revjet.com,REJECT
-DOMAIN-SUFFIX,dotomi.com,REJECT
-DOMAIN-SUFFIX,intentiq.com,REJECT
-DOMAIN-SUFFIX,adsafeprotected.com,REJECT
-DOMAIN-SUFFIX,optable.co,REJECT
-DOMAIN-SUFFIX,stackadapt.com,REJECT
-DOMAIN-SUFFIX,gumgum.com,REJECT
-DOMAIN-SUFFIX,kargo.com,REJECT
-DOMAIN-SUFFIX,a-mo.net,REJECT
-DOMAIN-SUFFIX,3lift.com,REJECT
-DOMAIN-SUFFIX,bidswitch.net,REJECT
-DOMAIN-SUFFIX,ninthdecimal.com,REJECT
-DOMAIN-SUFFIX,turn.com,REJECT
-DOMAIN-SUFFIX,33across.com,REJECT
-DOMAIN-SUFFIX,aidemsrv.com,REJECT
-DOMAIN-SUFFIX,js7k.com,REJECT
-DOMAIN-SUFFIX,sharethrough.com,REJECT
-DOMAIN-SUFFIX,1rx.io,REJECT
-DOMAIN-SUFFIX,tynt.com,REJECT
-DOMAIN-SUFFIX,a47b.com,REJECT
-DOMAIN-SUFFIX,teads.tv,REJECT
-DOMAIN-SUFFIX,logger.adthrive.com,REJECT
-DOMAIN-SUFFIX,ads.stickyadstv.com,REJECT
-DOMAIN-SUFFIX,adnxs.com,REJECT
-DOMAIN-SUFFIX,presage.io,REJECT
-DOMAIN-SUFFIX,mradx.net,REJECT
-DOMAIN-SUFFIX,bdtongfei.cn,REJECT
-DOMAIN-SUFFIX,ecma.bdimg.com,REJECT
-DOMAIN-SUFFIX,ecmb.bdimg.com,REJECT
-DOMAIN-SUFFIX,ecmc.bdimg.com,REJECT
-DOMAIN-SUFFIX,pups.bdimg.com,REJECT
-DOMAIN-SUFFIX,su.bdimg.com,REJECT
-DOMAIN-SUFFIX,mipcache.bdstatic.com,REJECT
-DOMAIN-SUFFIX,su.bdstatic.com,REJECT
-DOMAIN-SUFFIX,zz.bdstatic.com,REJECT
-DOMAIN-SUFFIX,beacon.qq.com,REJECT
-DOMAIN,ads-img-al.xhscdn.com,REJECT
-DOMAIN-SUFFIX,ad-sign.byteimg.com,REJECT
-DOMAIN-SUFFIX,tos.pstatp.com,REJECT
-DOMAIN-SUFFIX,pangolin.snssdk.com,REJECT
-DOMAIN-SUFFIX,video-cn.snssdk.com,REJECT
 
 
 
@@ -7930,9 +7930,9 @@ myBlockAds = type=http-response, pattern=^https:\/\/poplayer\.template\.alibaba\
 薄荷健康 = type=http-response, pattern=^https:\/\/api\.boohee\.com\/meta-interface\/v1\/index\/plaza\?, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/bohe/bohe_ads.js, requires-body=1, timeout=60
 薄荷健康 = type=http-response, pattern=^https:\/\/api\.boohee\.com\/open-interface\/v1\/string\/market_page\?title=metabolism_config$, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/bohe/bohe_ads.js, requires-body=1, timeout=60
 bilibili.airborne = type=http-request, pattern=^https:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.community\.service\.dm\.v1\.DM\/DmSegMobile$, script-path=https://raw.githubusercontent.com/kokoryh/Sparkle/refs/heads/master/dist/bilibili.protobuf.request.js, requires-body=1, binary-body-mode=true, timeout=10
-bilibili.request = type=http-request, pattern=^https:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.(app\.viewunite\.v1\.View\/View|main\.community\.reply\.v1\.Reply\/MainList)$, script-path=https://raw.githubusercontent.com/kokoryh/Sparkle/refs/heads/master/dist/bilibili.protobuf.request.js, requires-body=1, binary-body-mode=true, timeout=10, {{{logLevel}}}]"
+bilibili.request = type=http-request, pattern=^https:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.(app\.viewunite\.v1\.View\/View|main\.community\.reply\.v1\.Reply\/MainList)$, script-path=https://raw.githubusercontent.com/kokoryh/Sparkle/refs/heads/master/dist/bilibili.protobuf.request.js, requires-body=1, binary-body-mode=true, timeout=10
 bilibili.live = type=http-response, pattern=^https:\/\/api\.live\.bilibili\.com\/xlive\/(app-interface\/v2\/index\/feed|app-room\/v1\/index\/getInfoBy(Room|User))\?, script-path=https://raw.githubusercontent.com/kokoryh/Sparkle/refs/heads/master/dist/bilibili.json.js, requires-body=1
-bilibili.protobuf = type=http-response, pattern=^https:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.(app\.(show\.v1\.Popular\/Index|dynamic\.v2\.Dynamic\/DynAll|view(unite)?\.v1\.View\/(View|ViewProgress|RelatesFeed)|playurl\.v1\.PlayURL\/PlayView|playerunite\.v1\.Player\/PlayViewUnite)|polymer\.app\.search\.v1\.Search\/SearchAll|community\.service\.dm\.v1\.DM\/DmView|main\.community\.reply\.v1\.Reply\/MainList|pgc\.gateway\.player\.v2\.PlayURL\/PlayView)$, script-path=https://raw.githubusercontent.com/kokoryh/Sparkle/refs/heads/master/dist/bilibili.protobuf.response.js, requires-body=1, binary-body-mode=true, {purifyComment}, {{{sponsorBlock}}}, {{{logLevel}}}]"
+bilibili.protobuf = type=http-response, pattern=^https:\/\/(grpc\.biliapi\.net|app\.bilibili\.com)\/bilibili\.(app\.(show\.v1\.Popular\/Index|dynamic\.v2\.Dynamic\/DynAll|view(unite)?\.v1\.View\/(View|ViewProgress|RelatesFeed)|playurl\.v1\.PlayURL\/PlayView|playerunite\.v1\.Player\/PlayViewUnite)|polymer\.app\.search\.v1\.Search\/SearchAll|community\.service\.dm\.v1\.DM\/DmView|main\.community\.reply\.v1\.Reply\/MainList|pgc\.gateway\.player\.v2\.PlayURL\/PlayView)$, script-path=https://raw.githubusercontent.com/kokoryh/Sparkle/refs/heads/master/dist/bilibili.protobuf.response.js, requires-body=1, binary-body-mode=true
 哔哩哔哩漫画 = type=http-response, pattern=^https?:\/\/manga\.bilibili\.com\/twirp\/user\.v\d\.User\/UCenterConf, script-path=https://raw.githubusercontent.com/zirawell/R-Store/main/Res/Scripts/AntiAd/bilibiliManga.js, requires-body=1, timeout=60
 哔哩哔哩漫画 = type=http-response, pattern=^https?:\/\/manga\.bilibili\.com\/twirp\/user\.v\d\.User\/GetInitInfo, script-path=https://raw.githubusercontent.com/zirawell/R-Store/main/Res/Scripts/AntiAd/bilibiliManga.js, requires-body=1, timeout=60
 哔哩哔哩漫画 = type=http-response, pattern=^https?:\/\/manga\.bilibili\.com\/twirp\/comic\.v\d\.Home\/HomeFeed, script-path=https://raw.githubusercontent.com/zirawell/R-Store/main/Res/Scripts/AntiAd/bilibiliManga.js, requires-body=1, timeout=60
@@ -8054,7 +8054,7 @@ soul_ads = type=http-response, pattern=^https?:\/\/post\.soulapp\.cn\/v\d\/post\
 soul_ads = type=http-response, pattern=^https?:\/\/chat-live\.soulapp\.cn\/chatroom\/chatClassifyRoomList, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/soul/soul_ads.js, requires-body=1, timeout=60
 soul_ads = type=http-response, pattern=^https?:\/\/gateway-mobile-gray\.soulapp\.cn\/mobile\/app\/version\/queryIos, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/soul/soul_ads.js, requires-body=1, timeout=60
 soul_ads = type=http-response, pattern=^https?:\/\/47\.110\.187\.87\/winterfell\/v2\/getIpByDomain, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/soul/soul_ads.js, requires-body=1, timeout=60
-Protobuf = type=http-response, pattern=^https:\/\/(?:\w+-spclient|spclient\.wg)\.spotify\.com(?::443)?\/(?:bootstrap|user-customization-service), script-path=https://raw.githubusercontent.com/001ProMax/Surge/refs/heads/main/Script/Spotify.Crack.Dev.js, requires-body=1, binary-body-mode=true, timeout=3,{{{useractivity}}}]"
+Protobuf = type=http-response, pattern=^https:\/\/(?:\w+-spclient|spclient\.wg)\.spotify\.com(?::443)?\/(?:bootstrap|user-customization-service), script-path=https://raw.githubusercontent.com/001ProMax/Surge/refs/heads/main/Script/Spotify.Crack.Dev.js, requires-body=1, binary-body-mode=true, timeout=3
 淘宝 = type=http-response, pattern=^https?:\/\/guide-acs\.m\.taobao\.com\/gw\/mtop\.taobao\.(cloudvideo\.video\.query|wireless\.home\.splash\.awesome\.get), script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/myBlockAds.js, requires-body=1, timeout=60
 淘宝 = type=http-response, pattern=^https?:\/\/poplayer\.template\.alibaba\.com\/\w+\.json, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/myBlockAds.js, requires-body=1, timeout=60
 腾讯新闻 = type=http-response, pattern=^https?:\/\/(news\.ssp\.qq\.com\/app|r\.inews\.qq\.com\/(get(QQNewsUnreadList|TagFeedList)|gw\/page\/event_detail|news_feed\/hot_module_list)), script-path=https://raw.githubusercontent.com/app2smile/rules/master/js/qq-news.js, requires-body=1, timeout=60
@@ -8064,8 +8064,8 @@ Protobuf = type=http-response, pattern=^https:\/\/(?:\w+-spclient|spclient\.wg)\
 vgTime = type=http-response, pattern=^https?:\/\/app02\.vgtime\.com:8080\/vgtime-app\/api\/v2\/init\/ad\.json, script-path=https://raw.githubusercontent.com/app2smile/rules/master/js/vgtime.js, requires-body=1, timeout=60
 网易有道词典 = type=http-response, pattern=^https?:\/\/dict\.youdao\.com\/(homepage\/promotion|course\/tab\/home|homepage\/tile), script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/youdao/dict-youdao-ad.js, requires-body=1, timeout=60
 NetEaseCloudMusic_mian = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/(batch|v\d\/resource\/comment\/floor\/get), script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
-NetEaseCloudMusic_tab = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/link\/home\/framework\/tab, script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20,{{{DT}}},{{{FX}}}]"
-NetEaseCloudMusic_home = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/(homepage\/block\/page|link\/page\/rcmd\/(resource\/show|block\/resource\/multi\/refresh)), script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20,{PRRK},{PRDRD},{PRSCVPT},{PRST},{PRRR},{HMPR},{PRMST},{PRCN}]"
+NetEaseCloudMusic_tab = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/link\/home\/framework\/tab, script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
+NetEaseCloudMusic_home = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/(homepage\/block\/page|link\/page\/rcmd\/(resource\/show|block\/resource\/multi\/refresh)), script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
 NetEaseCloudMusic_fx = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/link\/page\/discovery\/resource\/show, script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
 NetEaseCloudMusic_mybarad = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/link\/position\/show\/resource, script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
 NetEaseCloudMusic_foll = type=http-response, pattern=^https?:\/\/(ipv4|interface\d?)\.music\.163\.com\/e?api\/user\/follow\/users\/mixed\/get, script-path=https://raw.githubusercontent.com/Keywos/rule/main/script/wy/js/wyres.js, requires-body=1, binary-body-mode=true, timeout=20
@@ -8174,7 +8174,7 @@ body-rewrite-050 = type=http-response, pattern=^https:\/\/beta-luna\.douyin\.com
 body-rewrite-051 = type=http-response, pattern=^https?:\/\/capi\.lkcoffee\.com\/resource\/m\/sys\/app\/adposNew, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/body-rewrite.js, requires-body=1, max-size=-1, timeout=20
 body-rewrite-052 = type=http-response, pattern=^https?:\/\/m\.lkcoffee\.com\/ecapi\/resource\/m\/member\/exchange\/page, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/body-rewrite.js, requires-body=1, max-size=-1, timeout=20
 body-rewrite-053 = type=http-response, pattern=^https?:\/\/m\.lkcoffee\.com\/capi\/resource\/m\/growUp\/main, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/body-rewrite.js, requires-body=1, max-size=-1, timeout=20
-body-rewrite-054 = type=http-response, pattern=^https?:\/\/dyncdn\.me\/static\/\d{0,2}\/js\/showads\.js$, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/body-rewrite.js, requires-body=1, max-size=-1, timeout=20
+body-rewrite-054 = type=http-response, pattern=^https?:\/\/dyncdn\.me\/static\/(?:\d)?(?:\d)?\/js\/showads\.js$, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/body-rewrite.js, requires-body=1, max-size=-1, timeout=20
 body-rewrite-055 = type=http-response, pattern=^https://www\.tailgdd\.com/v8/smart/app/config/get$, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/body-rewrite.js, requires-body=1, max-size=-1, timeout=20
 body-rewrite-056 = type=http-response, pattern=^https?:\/\/tft-app\.cdtft\.cn\/gateway-customer\/tftapp\/tft-ams\/api\/appAd, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/body-rewrite.js, requires-body=1, max-size=-1, timeout=20
 body-rewrite-057 = type=http-response, pattern=^https?:\/\/chl\.tf\.cn\/channelmg\/sys\/socso\/order\/queryOrderInfo, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/body-rewrite.js, requires-body=1, max-size=-1, timeout=20
