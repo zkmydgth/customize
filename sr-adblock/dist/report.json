@@ -44,6 +44,7 @@
     "动作后缀错位修正 2 条（xxx-NO-DROP -> REJECT-NO-DROP）",
     "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）",
     "并入本地补充 [Map Local] 4 条",
+    "本地补充 [Script] 3 条（置顶）",
     "URL Rewrite/Map Local/Script 去重 3 条（1/2/0）"
   ],
   "unknown_sections": {},
@@ -53,8 +54,9 @@
     "动作后缀错位": 2,
     "协议笔误": 19,
     "本地补充(Map Local)": 4,
+    "本地补充(Script)": 3,
     "其它段去重": 3
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 401564
+  "output_bytes": 402355
 }
