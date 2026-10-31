@@ -12,7 +12,7 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  保留统计: Rule 10700 / URL Rewrite 617 / Map Local 711 / Script 314 / MITM 944 hosts
+#  保留统计: Rule 10694 / URL Rewrite 617 / Map Local 711 / Script 314 / MITM 944 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
 #  已剔除 [General] 1 条（SR 不支持）
@@ -1229,7 +1229,6 @@ DOMAIN-SUFFIX,atanx2.alicdn.com,REJECT
 DOMAIN-SUFFIX,baichuan-sdk.alicdn.com,REJECT
 DOMAIN-SUFFIX,dorangesource.alicdn.com,REJECT
 DOMAIN-SUFFIX,gma.alicdn.com,REJECT
-DOMAIN-SUFFIX,httpdns.alicdn.com,REJECT
 DOMAIN-SUFFIX,ilce.alicdn.com,REJECT
 DOMAIN-SUFFIX,nbsdk-baichuan.alicdn.com,REJECT
 DOMAIN-SUFFIX,tce.alicdn.com,REJECT
@@ -1473,7 +1472,6 @@ DOMAIN-SUFFIX,gsp1.baidu.com,REJECT
 DOMAIN-SUFFIX,h2tcbox.baidu.com,REJECT
 DOMAIN-SUFFIX,hectorstatic.baidu.com,REJECT
 DOMAIN-SUFFIX,hijack.baidu.com,REJECT
-DOMAIN-SUFFIX,httpdns.baidu.com,REJECT
 DOMAIN-SUFFIX,httpsdns.baidu.com,REJECT
 DOMAIN-SUFFIX,imgstat.baidu.com,REJECT
 DOMAIN-SUFFIX,itsdata.map.baidu.com,REJECT
@@ -4389,7 +4387,6 @@ DOMAIN-SUFFIX,sentry.meitu-int.com,REJECT
 DOMAIN-SUFFIX,sentry-26.meitu.com,REJECT
 DOMAIN-SUFFIX,adgame.waimai.meituan.com,REJECT
 DOMAIN-SUFFIX,hreport.meituan.com,REJECT
-DOMAIN-SUFFIX,httpdns.meituan.com,REJECT
 DOMAIN-SUFFIX,impdsp.meituan.com,REJECT
 DOMAIN-SUFFIX,cloudcollect.meitudata.com,REJECT
 DOMAIN-SUFFIX,my-material.zone1.meitudata.com,REJECT
@@ -5243,7 +5240,6 @@ DOMAIN-SUFFIX,adsmind.gdtimg.com.tcdn.qq.com,REJECT
 DOMAIN-SUFFIX,adsmind.ugdtimg.com.tcdn.qq.com,REJECT
 DOMAIN-SUFFIX,adsrich.qq.com,REJECT
 DOMAIN-SUFFIX,advert-prod.hyrz.qq.com,REJECT
-DOMAIN-SUFFIX,aedns.weixin.qq.com,REJECT
 DOMAIN-SUFFIX,aegis.qq.com,REJECT
 DOMAIN-SUFFIX,analytics.map.qq.com,REJECT
 DOMAIN-SUFFIX,api.youtu.qq.com,REJECT
@@ -5268,7 +5264,6 @@ DOMAIN-SUFFIX,crashsight.qq.com,REJECT
 DOMAIN-SUFFIX,d3g.qq.com,REJECT
 DOMAIN-SUFFIX,dmplog.qq.com,REJECT
 DOMAIN-SUFFIX,dnet.mb.qq.com,REJECT
-DOMAIN-SUFFIX,dns.weixin.qq.com,REJECT
 DOMAIN-SUFFIX,dp3.qq.com,REJECT
 DOMAIN-SUFFIX,file.daihuo.qq.com,REJECT
 DOMAIN-SUFFIX,fodder.qq.com,REJECT
@@ -5399,7 +5394,6 @@ DOMAIN-SUFFIX,wxsnsdy.wxs.qq.com,REJECT
 DOMAIN-SUFFIX,xmaterial.tu.qq.com,REJECT
 DOMAIN-SUFFIX,ysdk.qq.com,REJECT
 DOMAIN-SUFFIX,yun-hl.3g.qq.com,REJECT
-DOMAIN-SUFFIX,dns.weixin.qq.com.cn,REJECT
 DOMAIN-SUFFIX,wxaintpcos.wxqcloud.qq.com.cn,REJECT
 DOMAIN-SUFFIX,qq2tdd0xx.com,REJECT
 DOMAIN-SUFFIX,sdk-ab-config.qquanquan.com,REJECT

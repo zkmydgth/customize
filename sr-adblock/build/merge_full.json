@@ -1,10 +1,16 @@
 {
-  "added": 7839,
+  "added": 7833,
   "skipped_duplicate": 571,
   "skipped_major_site": [],
   "skipped_too_broad": [
+    "httpdns.alicdn.com",
+    "httpdns.baidu.com",
+    "httpdns.meituan.com",
+    "aedns.weixin.qq.com",
+    "dns.weixin.qq.com",
     "l.qq.com",
-    "trace.qq.com"
+    "trace.qq.com",
+    "dns.weixin.qq.com.cn"
   ],
   "skipped_short": 68
 }
