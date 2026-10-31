@@ -1,0 +1,132 @@
+name: Test SR Adblock Converter
+
+# 只在改动转换器/脚本模板时跑：快速反馈，不提交任何文件
+on:
+  push:
+    paths:
+      - "sr-adblock/tools/**"
+      - "sr-adblock/scripts/**"
+      - ".github/workflows/test-sr-adblock.yml"
+  pull_request:
+    paths:
+      - "sr-adblock/tools/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-sr-adblock-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq >/dev/null
+          echo "node $(node --version) / $(jq --version)"
+
+      - name: Lint (ruff, 版本与本地一致)
+        working-directory: sr-adblock
+        run: |
+          pip install -q "ruff==0.7.4"
+          ruff --version
+          ruff check tools/ --select F,B,SIM,RET,PIE,C9 --output-format concise
+
+      - name: Privacy scan (0 命中，只输出位置不输出内容)
+        working-directory: sr-adblock
+        run: python3 tools/privacy_scan.py --all
+
+      - name: Fetch upstream (read-only)
+        run: |
+          set -euo pipefail
+          mkdir -p .cache
+          URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/blockAds.module"
+          for i in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o .cache/upstream.module "$URL"; then break; fi
+            echo "retry $i"; sleep 10
+          done
+          test -s .cache/upstream.module
+
+      - name: Test upstream adaptation (新段/新规则类型/坏语法)
+        working-directory: sr-adblock
+        run: python3 tools/test_adapt.py
+
+      - name: Patch upstream zhihu script (item -> i)
+        working-directory: sr-adblock
+        run: |
+          set -euo pipefail
+          URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js"
+          for i in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o /tmp/zhihu.upstream.js "$URL"; then break; fi
+            echo "retry $i"; sleep 10
+          done
+          test -s /tmp/zhihu.upstream.js
+          python3 tools/patch_zhihu.py --src /tmp/zhihu.upstream.js --out scripts/zhihu.js
+
+      - name: Build into /tmp (never commit)
+        working-directory: sr-adblock
+        run: |
+          set -euo pipefail
+          python3 tools/extract_body.py ../.cache/upstream.module /tmp/bodyrewrite.json
+          python3 tools/convert.py ../.cache/upstream.module /tmp/blockAds.sr.module \
+            --raw-url https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/dist/blockAds.sr.module \
+            --report /tmp/report.json
+          python3 tools/gen_scripts.py
+          python3 tools/assemble.py --module /tmp/blockAds.sr.module \
+            --rules build/body-rewrite.rules \
+            --script-url https://example.invalid/body-rewrite.js \
+            --report /tmp/assemble.json
+
+      - name: Test jq differential (jq CLI vs JS runtime)
+        working-directory: sr-adblock
+        run: python3 tools/test_equiv.py --inputs 6
+
+      - name: Test script end-to-end
+        working-directory: sr-adblock
+        run: node tools/test_script.js
+
+      - name: Test module structure
+        working-directory: sr-adblock
+        run: |
+          python3 tools/check_structure.py --module /tmp/blockAds.sr.module
+          python3 tools/check_extra.py --module /tmp/blockAds.sr.module
+          # 知乎脚本必须已被重定向到本仓库（防止上游 URL 变动 / 忘传 --raw-url 时静默退化）
+          UPZ=$(grep -c 'fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js' /tmp/blockAds.sr.module || true)
+          [ "$UPZ" -eq 0 ] || { echo "::error::知乎脚本仍指向上游 $UPZ 条，重定向失效"; exit 1; }
+          LOCZ=$(grep -c 'sr-adblock/scripts/zhihu.js' /tmp/blockAds.sr.module || true)
+          [ "$LOCZ" -ge 10 ] || { echo "::error::知乎脚本重定向条数异常（$LOCZ 条）"; exit 1; }
+          echo "知乎脚本重定向：$LOCZ 条"
+
+      - name: Test mutation (0 escaped / 0 skipped)
+        working-directory: sr-adblock
+        env:
+          UPSTREAM: ../.cache/upstream.module
+        run: python3 tools/mutation.py
+
+      - name: Legacy structure stats
+        run: |
+          set -euo pipefail
+          F=/tmp/blockAds.sr.module
+          R=$(awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
+          S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
+          B=$(grep -c 'body-rewrite-[0-9][0-9][0-9] = ' "$F" || true)
+          echo "Rule=$R Script=$S BodyRewriteScripts=$B"
+          [ "$R" -gt 2000 ] || { echo "::error::Rule 数异常"; exit 1; }
+          [ "$S" -gt 300 ]  || { echo "::error::Script 数异常"; exit 1; }
+          [ "$B" -eq 96 ]   || { echo "::error::Body Rewrite 编译不完整 ($B/96)"; exit 1; }
+          if grep -q '^\[Body Rewrite\]' "$F"; then echo "::error::含不支持的段"; exit 1; fi
+          {
+            echo "### 转换器测试通过"
+            echo ""
+            echo "| 项 | 值 |"
+            echo "|---|---|"
+            echo "| Rule | $R |"
+            echo "| Script | $S |"
+            echo "| Body Rewrite 编译 | $B/96 |"
+          } >> "$GITHUB_STEP_SUMMARY"
