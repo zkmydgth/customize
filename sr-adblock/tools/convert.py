@@ -206,6 +206,8 @@ def main():  # noqa: C901
     ap.add_argument("src")
     ap.add_argument("dst")
     ap.add_argument("--raw-url", default="")
+    ap.add_argument("--min-rules", type=int, default=100,
+                    help="产出的 [Rule] 少于该值即失败（0=不检查，供测试用）")
     ap.add_argument("--mitm-keep", default="")
     ap.add_argument("--report", default="")
     args = ap.parse_args()
@@ -512,9 +514,9 @@ def main():  # noqa: C901
     # 统计必须用「去重 / 置顶 / 补充之后」的最终列表重算：
     # 旧实现取的是处理前的数字，与产物实际段内条数四项全不符
     _nrule = len(eff(rule_lines))
-    if _nrule < 100:
-        raise SystemExit("ERROR: 产物 [Rule] 仅 %d 条（阈值 100），疑似上游结构变化或输入异常；"
-                         "拒绝生成近乎空的模块" % _nrule)
+    if args.min_rules and _nrule < args.min_rules:
+        raise SystemExit("ERROR: 产物 [Rule] 仅 %d 条（阈值 %d），疑似上游结构变化或输入异常；"
+                         "拒绝生成近乎空的模块" % (_nrule, args.min_rules))
     _stats = "Rule %d / URL Rewrite %d / Map Local %d / Script %d / MITM %d hosts" % (
         len(eff(rule_lines)), len(eff(url_rewrite)), len(eff(map_local)),
         len(eff(scripts)), len(hosts))

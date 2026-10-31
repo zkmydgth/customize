@@ -60,7 +60,7 @@ def main():  # noqa: C901
         out = os.path.join(td, "out.module")
         rep = os.path.join(td, "report.json")
 
-        p = run([sys.executable, "tools/convert.py", src, out, "--report", rep])
+        p = run([sys.executable, "tools/convert.py", src, out, "--report", rep, "--min-rules", "0"])
         if p.returncode != 0:
             fails.append("convert 崩溃: " + (p.stderr or "")[-300:])
         else:
