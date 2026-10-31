@@ -55,6 +55,14 @@ def main():
     need(all("script-path=" in l for l in body_rules), "有脚本行缺 script-path")
     need(all("requires-body=1" in l for l in body_rules), "有脚本行缺 requires-body=1")
 
+    # Script 行内语法：删 argument= 时若按逗号截断，会残留 "…{{{x}}}]" 这类垃圾，
+    # 条数仍然正确、所有计数检查都过，但该条脚本在 SR 里加载失败 → 静默失效
+    junk = [l for l in secs.get("Script", []) if "}}" in l]
+    need(not junk, "Script 段含 argument= 残留垃圾: %d 条，例: ...%s"
+         % (len(junk), junk[0][-48:] if junk else ""))
+    malformed = [l for l in secs.get("Script", []) if not re.match(r"^[^=]+ = .+$", l)]
+    need(not malformed, "Script 段行格式异常: %d 条" % len(malformed))
+
     mitm = " ".join(secs.get("MITM", []))
     need("hostname" in mitm, "MITM 缺 hostname")
     need("%append%" not in mitm.lower(), "MITM 仍含 Surge 专有 %APPEND%")
