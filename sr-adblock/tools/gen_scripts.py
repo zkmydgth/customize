@@ -22,49 +22,54 @@ OUT_ROOT = sys.argv[2] if len(sys.argv) > 2 else None
 RT = os.path.join(HERE, "jq_runtime.js")
 
 
-def split_last2(s):
-    """从右往左取最后两个参数（引号字符串或非空白串）"""
-    s = s.rstrip()
-    parts, i = [], len(s)
-    while i > 0 and len(parts) < 2:
-        while i > 0 and s[i - 1].isspace():
-            i -= 1
-        if i == 0:
-            break
-        if s[i - 1] == '"':
-            j = i - 2
-            while j >= 0:
-                if s[j] == '"' and (j == 0 or s[j - 1] != "\\"):
-                    break
-                j -= 1
-            parts.insert(0, s[j:i])
-            i = j
-        else:
-            j = i
-            while j > 0 and not s[j - 1].isspace():
-                j -= 1
-            parts.insert(0, s[j:i])
-            i = j
-    return parts
+QUANT_RE = re.compile(r"(\\.|[^\\{}()\[\]|*+?,])\{(\d+),(\d+)\}")
+
+
+def decomma_pattern(p):
+    r"""[Script] 行是逗号分隔，pattern 里不能有裸逗号。
+
+    量词 `X{m,n}` 含逗号，会把这行切坏（2026-10-31 审计发现 dyncdn 那条）。
+    这里把它展开成等价写法：X{0,2} -> (?:\d)?(?:\d)?
+    展开不了又仍含逗号的，返回 (原样, False) 由调用方记 unhandled。
+    """
+    if "," not in p:
+        return p, True
+
+    def _repl(m):
+        atom, lo, hi = m.group(1), int(m.group(2)), int(m.group(3))
+        out = atom * lo
+        if hi > lo:
+            out += ("(?:%s)?" % atom) * (hi - lo)
+        return out
+
+    new = QUANT_RE.sub(_repl, p)
+    return new, "," not in new
 
 
 def parse_replace(raw):
+    """解析 `http-response <url> <search> <replace>`
+
+    2026-10-31 审计修复：
+      1. 旧实现用引号感知切分，遇到 `"popTitle":".+?"` 这种「引号内再含引号」会切错，
+         把 search 截成 `"popTitle":`、replace 截成空串 → 响应体被写成非法 JSON。
+      2. 实测上游 24 条 replace 规则**全部恰好 4 段**、search/replace 内不含空白，
+         所以正确做法就是按空白切分。
+      3. 不剥外层引号：`"TAG_AD_INFO"` 的引号是内容的一部分（要匹配 JSON 里的键名）。
+    """
     m = re.match(r"^http-response\s+(\S+)\s+(.*)$", raw)
     if not m:
         return None
     pat, rest = m.group(1), m.group(2).strip()
-    toks = split_last2(rest)
-    if len(toks) < 2:
-        return None
-
-    def unq(t):
-        if len(t) >= 2 and t[0] == '"' and t[-1] == '"':
-            return t[1:-1].replace('\\"', '"').replace("\\\\", "\\")
-        return t
-    return pat, unq(toks[0]), unq(toks[1])
+    parts = rest.split()
+    if len(parts) != 2:
+        return None          # 结构不符（可能含空格参数）→ 由调用方记 unhandled
+    search, rep = parts
+    if not search:
+        return None          # 空 search 会让 split("") 把 body 撕碎
+    return pat, search, rep
 
 
-def main():
+def main():  # noqa: C901
     with open(SRC, encoding="utf-8") as f:
         data = json.load(f)
     rules, stats = [], {"jq": 0, "replace": 0, "failed": 0}
@@ -83,6 +88,12 @@ def main():
             pat2, ch1, _ = repair.fix_scheme(item["pattern"])
             if ch1:
                 stats["scheme_fixed"] = stats.get("scheme_fixed", 0) + 1
+            pat2, ok = decomma_pattern(pat2)
+            if not ok:
+                unhandled.append({"name": name, "pattern": pat2[:160],
+                                  "reason": "pattern 含逗号且量词无法展开（[Script] 行会被截断）"})
+                stats["failed"] += 1
+                continue
             if not repair.pattern_compiles(pat2):
                 unhandled.append({"name": name, "pattern": pat2[:160], "reason": "pattern 无法编译"})
                 stats["failed"] += 1
@@ -93,11 +104,23 @@ def main():
             pr = parse_replace(item["raw"])
             if not pr:
                 stats["failed"] += 1
+                unhandled.append({"name": name, "pattern": item.get("raw", "")[:120],
+                                  "reason": "字符串替换参数无法解析（期望 4 段且 search 非空）"})
                 continue
             pat, search, rep = pr
             pat2, ch1, _ = repair.fix_scheme(pat)
             if ch1:
                 stats["scheme_fixed"] = stats.get("scheme_fixed", 0) + 1
+            pat2, ok = decomma_pattern(pat2)
+            if not ok:
+                unhandled.append({"name": name, "pattern": pat2[:160],
+                                  "reason": "pattern 含逗号且量词无法展开"})
+                stats["failed"] += 1
+                continue
+            if not repair.pattern_compiles(pat2):
+                unhandled.append({"name": name, "pattern": pat2[:160], "reason": "pattern 无法编译"})
+                stats["failed"] += 1
+                continue
             rules.append({"n": name, "re": pat2, "rep": [search, rep]})
             stats["replace"] += 1
 
@@ -136,8 +159,14 @@ for (var __i = 0; __i < __RULES__.length; __i++) __RE__.push(__rx(__RULES__[__i]
   var obj = undefined;   // undefined=未解析 / null=解析失败
   for (var k = 0; k < matched.length; k++) {
     var r = matched[k];
-    if (r.r) {                                  // 字符串替换
-      if (r.r[0]) body = body.split(r.r[0]).join(r.r[1]);
+    if (r.r) {                                  // 字符串替换（上游 http-response 的 search 是正则）
+      if (r.r[0]) {
+        try {
+          body = body.replace(new RegExp(r.r[0], 'g'), function () { return r.r[1]; });
+        } catch (e) {
+          body = body.split(r.r[0]).join(r.r[1]);   // 正则非法时退回字面量
+        }
+      }
       obj = undefined;                          // 字符串已变，需重新解析
       continue;
     }
