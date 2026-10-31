@@ -26,9 +26,9 @@
       "http-request": 5,
       "http-response": 213
     },
-    "MITM.hostnames": 939,
+    "MITM.hostnames": 940,
     "Host": 0,
-    "final": "Rule 2818 / URL Rewrite 617 / Map Local 711 / Script 218 / MITM 939 hosts"
+    "final": "Rule 2819 / URL Rewrite 617 / Map Local 712 / Script 218 / MITM 940 hosts"
   },
   "dropped": {
     "Header Rewrite": 1,
@@ -43,25 +43,27 @@
     "剔除 URL Rewrite 段中的 hostname 行 1 条",
     "脚本地址 github.com -> raw 直链 13 条",
     "知乎脚本改指向本地修补版 12 条",
-    "本地补充 [Rule] 18 条已置顶（避免被父域 DIRECT 抢先）",
+    "本地补充 [MITM] 1 个域名",
+    "本地补充 [Rule] 19 条已置顶（避免被父域 DIRECT 抢先）",
     "规则去重 168 条（完全相同 166 / 同域名多动作 2）",
     "剔除范围过宽规则 2 条: DOMAIN-KEYWORD,trace.qq.com,REJECT, DOMAIN-SUFFIX,l.qq.com,REJECT",
     "动作后缀错位修正 2 条（xxx-NO-DROP -> REJECT-NO-DROP）",
     "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）",
-    "并入本地补充 [Map Local] 4 条",
+    "并入本地补充 [Map Local] 5 条",
     "URL Rewrite/Map Local/Script 去重 3 条（1/2/0）"
   ],
   "unknown_sections": {},
   "fixes": {
     "脚本地址改直链": 13,
     "知乎脚本重定向": 12,
-    "本地补充(Rule)": 18,
+    "本地补充(MITM)": 1,
+    "本地补充(Rule)": 19,
     "规则去重": 168,
     "动作后缀错位": 2,
     "协议笔误": 19,
-    "本地补充(Map Local)": 4,
+    "本地补充(Map Local)": 5,
     "其它段去重": 3
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 401649
+  "output_bytes": 401778
 }
