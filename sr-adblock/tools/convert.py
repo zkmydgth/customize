@@ -104,9 +104,41 @@ def build_mitm(lines):
     return uniq
 
 
+def strip_argument(line):
+    """删掉 argument= 字段（SR 无模块参数）。
+
+    值可能是 [..] 或 ".."，内部含逗号（如 `"[{purifyComment}, {{{logLevel}}}]"`），
+    不能按逗号切 —— 2026-10-31 审计发现旧实现 `[^,]*` 会在第一个逗号处截断，
+    残留 `, {{{logLevel}}}]"` 这类垃圾，导致 5 行 Script 语法损坏且不报错。
+    """
+    m = re.search(r",?\s*argument=", line)
+    if not m:
+        return line
+    rest = line[m.end():]
+    if rest[:1] in ("[", '"'):
+        op = rest[0]
+        cl = "]" if op == "[" else '"'
+        depth, i = 0, 0
+        while i < len(rest):
+            if rest[i] == op:
+                depth += 1
+            elif rest[i] == cl:
+                depth -= 1
+                if depth == 0:
+                    i += 1
+                    break
+            i += 1
+        tail = rest[i:]
+        # 若值后面还跟字段（", xxx="），保留；否则整段删掉
+        return line[:m.start()] + tail if re.match(r"\s*,\s*[a-zA-Z-]+=", tail) else line[:m.start()]
+    # 普通值：删到下一个字段或行尾
+    nxt = re.search(r",\s*[a-zA-Z-]+=", rest)
+    return line[:m.start()] + (rest[nxt.start():] if nxt else "")
+
+
 def clean_script_line(line):
     """SR 适配：删掉 argument= 字段；requires-body 归一为 1/0"""
-    line = re.sub(r",?\s*argument=[^,]*", "", line)
+    line = strip_argument(line)
     line = re.sub(r"requires-body=(true|1)\b", "requires-body=1", line, flags=re.I)
     return re.sub(r"requires-body=(false|0)\b", "requires-body=0", line, flags=re.I)
 
@@ -147,10 +179,14 @@ def process_maplocal(lines):
 
 
 def load_extra(path):
-    """解析 tools/extra_rules.txt（支持 [Rule] / [Map Local] / [MITM] 分段）"""
+    """解析 tools/extra_rules.txt（支持 [Rule] / [Map Local] / [MITM] 分段）
+
+    文件缺失必须直接失败：本地补充规则全部丢失却照样生成产物，
+    是 2026-10-30 "少 7 条仍 success" 事故的复现路径。
+    """
     out, cur = {}, None
     if not os.path.exists(path):
-        return out
+        raise SystemExit("ERROR: 补充规则文件缺失: %s（拒绝在丢失补充规则的情况下构建）" % path)
     with open(path, encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -303,8 +339,7 @@ def main():  # noqa: C901
     out.append("# ============================================================")
     out.append("#  Shadowrocket 适配版 · 自动生成，请勿手工修改")
     out.append("#  上游日期: %s" % (meta.get("date") or "unknown"))
-    out.append("#  保留: Rule %d / URL Rewrite %d / Map Local %d / Script %d / MITM %d hosts"
-               % (len(rule_eff), len(urw_eff), len(eff(ml_clean)), len(sc_clean), len(hosts)))
+    out.append("#  保留统计: __STATS__")
     for k, v in dropped.items():
         if v:
             out.append("#  已剔除 [%s] %d 条（SR 不支持）" % (k, v))
@@ -455,6 +490,14 @@ def main():  # noqa: C901
         # SR 对多行 hostname 的合并行为不稳定，统一输出为单行（上游也是单行）
         out.append("hostname = " + ",".join(hosts))
         out.append("")
+
+    # 统计必须用「去重 / 置顶 / 补充之后」的最终列表重算：
+    # 旧实现取的是处理前的数字，与产物实际段内条数四项全不符
+    _stats = "Rule %d / URL Rewrite %d / Map Local %d / Script %d / MITM %d hosts" % (
+        len(eff(rule_lines)), len(eff(url_rewrite)), len(eff(map_local)),
+        len(eff(scripts)), len(hosts))
+    out = [l.replace("__STATS__", _stats) if "__STATS__" in l else l for l in out]
+    report["kept"]["final"] = _stats
 
     os.makedirs(os.path.dirname(os.path.abspath(args.dst)), exist_ok=True)
     with open(args.dst, "w", encoding="utf-8", newline="\n") as f:
