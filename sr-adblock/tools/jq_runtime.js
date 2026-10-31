@@ -125,7 +125,11 @@ var JQRT = (function () {
         case 'not': return [!truthy(v)];
         case 'type': return [v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v === 'object' ? 'object' : typeof v];
         case 'tostring': return [typeof v === 'string' ? v : JSON.stringify(v)];
-        case 'tonumber': return [typeof v === 'number' ? v : parseFloat(v)];
+        case 'tonumber': {
+          if (typeof v === 'number') return [v];
+          if (typeof v === 'string' && /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(v.trim())) return [Number(v)];
+          throw new Error('tonumber');
+        }
         case 'tojson': return [JSON.stringify(v)];
         case 'fromjson': return [JSON.parse(v)];
         case 'add': return [Array.isArray(v) ? v.reduce(function (a, b) { return a === null ? b : (typeof a === 'number' ? a + b : Array.isArray(a) ? a.concat(b) : a + b); }, null) : v];
@@ -167,7 +171,8 @@ var JQRT = (function () {
         case 'setpath': return [sp(v, av(0) || [], av(1))];
         case 'with_entries': {
           var ent;
-          if (Array.isArray(v)) ent = [];
+          // jq：空数组返回 {}，非空数组报错（Cannot use number as object key）
+          if (Array.isArray(v)) { if (v.length) throw new Error('with_entries: array'); ent = []; }
           else if (isObj(v)) ent = Object.keys(v).map(function (k) { return { key: k, value: v[k] }; });
           else throw new Error('with_entries');
           var m = [];
@@ -177,9 +182,13 @@ var JQRT = (function () {
           return [r];
         }
         case 'IN': { var vals = ev(A[0], v); return [vals.some(function (x) { return eq(x, v); })]; }
-        case 'test': return [new RegExp(av(0)).test(String(v))];
-        case 'startswith': return [String(v).indexOf(String(av(0))) === 0];
-        case 'endswith': return [String(v).indexOf(String(av(0)), String(v).length - String(av(0)).length) !== -1];
+        case 'test': {
+          if (typeof v !== 'string') throw new Error('test');
+          var _fl = A.length > 1 ? String(av(1)).replace(/[^gimsuy]/g, '') : '';
+          return [new RegExp(String(av(0)), _fl).test(v)];
+        }
+        case 'startswith': if (typeof v !== 'string' || typeof av(0) !== 'string') throw new Error('startswith'); return [v.indexOf(av(0)) === 0];
+        case 'endswith': if (typeof v !== 'string' || typeof av(0) !== 'string') throw new Error('endswith'); return [v.indexOf(av(0), v.length - String(av(0)).length) !== -1];
         case 'contains': return [Array.isArray(v) ? v.some(function (x) { return eq(x, av(0)); }) : String(v).indexOf(String(av(0))) !== -1];
         case 'split': return [String(v).split(String(av(0)))];
         case 'join': return [(v || []).join(av(0))];
