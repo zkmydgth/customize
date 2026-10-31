@@ -156,7 +156,7 @@ for (var __i = 0; __i < __RULES__.length; __i++) __RE__.push(__rx(__RULES__[__i]
   }
   if (!matched.length) { $done({}); return; }
 
-  var obj = undefined;   // undefined=未解析 / null=解析失败
+  var obj, parsed = false, parseOk = false;   // 独立标记：区分「未解析 / 解析失败 / 结果就是 null」
   for (var k = 0; k < matched.length; k++) {
     var r = matched[k];
     if (r.r) {                                  // 字符串替换（上游 http-response 的 search 是正则）
@@ -167,20 +167,21 @@ for (var __i = 0; __i < __RULES__.length; __i++) __RE__.push(__rx(__RULES__[__i]
           body = body.split(r.r[0]).join(r.r[1]);   // 正则非法时退回字面量
         }
       }
-      obj = undefined;                          // 字符串已变，需重新解析
+      parsed = false;                           // 字符串已变，需重新解析
       continue;
     }
     if (!r.j) continue;
-    if (obj === undefined) {
-      try { obj = JSON.parse(body); } catch (e) { obj = null; }
+    if (!parsed) {
+      try { obj = JSON.parse(body); parseOk = true; } catch (e) { parseOk = false; }
+      parsed = true;
     }
-    if (obj === null) continue;
+    if (!parseOk) continue;
     try {
       var out = JQRT.make(r.j)(obj);
       if (out.length && out[0] !== undefined) obj = out[0];
     } catch (e) { /* 单条失败不影响其他规则 */ }
   }
-  if (obj !== undefined && obj !== null) body = JSON.stringify(obj);
+  if (parsed && parseOk) body = JSON.stringify(obj);
   $done({ body: body });
 })();
 """)

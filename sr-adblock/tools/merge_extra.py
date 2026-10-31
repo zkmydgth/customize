@@ -143,9 +143,11 @@ def main():  # noqa: C901
                 text[i] = "#!raw-url=" + args.set_raw_url
 
     if added and rule_idx:
-        # 置顶：Rule 是顺序匹配、首条命中即停。插在段尾时，一旦上游出现
-        # 父域 DIRECT/PROXY，这些规则会整批永不命中（2026-10-31 审计）
-        pos = rule_idx[0]
+        # 顺序：本地补充（最优先）→ 本步骤合并的规则 → 上游。
+        # 插在 __LOCAL_EXTRA_END__ 标记之后；没有标记（无本地补充）时插段首。
+        marker = next((i for i, l in enumerate(text)
+                       if l.strip() == "# __LOCAL_EXTRA_END__"), None)
+        pos = (marker + 1) if marker is not None else rule_idx[0]
         text = text[:pos] + added + text[pos:]
 
     # 合并会改变 Rule 条数，头部统计行要跟着更新（否则与实际不符）

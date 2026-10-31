@@ -47,6 +47,10 @@ def unescape(s):  # noqa: C901
         c = s[i]
         if c == "\\":
             n = s[i + 1]
+            if n == "(":
+                # jq 的字符串插值 "\(...)" 未实现。静默当普通字符会写出坏数据，
+                # 宁可不支持直接报错（2026-10-31 审计）
+                raise JQError("不支持字符串插值 \\(...)")
             if n == "u":
                 out.append(chr(int(s[i + 2:i + 6], 16)))
                 i += 6

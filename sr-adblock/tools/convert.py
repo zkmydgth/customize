@@ -413,7 +413,8 @@ def main():  # noqa: C901
         front = [l for l in extra["Rule"] if l not in seen]
         if front:
             # 必须放最前：父域常被判 DIRECT，Rule 顺序匹配下放末尾永远轮不到
-            rule_lines = front + rule_lines
+            # 末尾留一个标记，供 merge_extra 把外部规则插在「本地补充之后、上游之前」
+            rule_lines = front + ["# __LOCAL_EXTRA_END__"] + rule_lines
             seen.update(front)
             report["fixes"]["本地补充(Rule)"] = len(front)
             report["notes"].append("本地补充 [Rule] %d 条已置顶（避免被父域 DIRECT 抢先）" % len(front))

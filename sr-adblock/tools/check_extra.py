@@ -51,6 +51,25 @@ def sections(path):
     return d
 
 
+def ordered_section(path, name, stop=None):
+    """按出现顺序返回某段的规则行；遇到 stop 行即停止"""
+    out, cur = [], None
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            t = line.strip()
+            m = SEC_RE.match(t)
+            if m:
+                cur = m.group(1)
+                continue
+            if cur != name:
+                continue
+            if stop and t == stop:
+                break
+            if t and not t.startswith("#"):
+                out.append(t)
+    return out
+
+
 def main():  # noqa: C901
     ap = argparse.ArgumentParser()
     ap.add_argument("--module", default=os.path.join(ROOT, "dist/blockAds.sr.module"))
@@ -83,6 +102,20 @@ def main():  # noqa: C901
         for r in rules:
             if r not in target:
                 missing.append((sec, r))
+
+    # 顺序断言：Rule / Map Local 都是首条命中即停，本地补充必须在最前面
+    for sec, stop in (("Rule", "# __LOCAL_EXTRA_END__"), ("Map Local", None)):
+        want = extra.get(sec) or []
+        if not want:
+            continue
+        head = ordered_section(a.module, sec, stop=stop)
+        if head[:len(want)] != want:
+            bad = [x for x in want if x not in head[:len(want)]]
+            print("EXTRA FAIL: [%s] 本地补充规则未置顶或顺序错位（%d 条不在置顶区）"
+                  % (sec, len(bad)))
+            for x in bad[:3]:
+                print("   ", x[:100])
+            return 1
 
     if missing:
         print("EXTRA FAIL: %d 条补充规则未出现在产物中" % len(missing))
