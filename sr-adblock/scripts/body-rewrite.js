@@ -3,12 +3,34 @@
 var JQRT = (function () {
   function isObj(v) { return v !== null && typeof v === 'object' && !Array.isArray(v); }
   function truthy(v) { return v !== false && v !== null && v !== undefined; }
-  function eq(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+  function eq(a, b) {
+    if (a === b) return true;
+    if (a === null || b === null || a === undefined || b === undefined) return a === b;
+    if (typeof a !== typeof b) return false;
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    if (Array.isArray(a)) {
+      if (a.length !== b.length) return false;
+      for (var i = 0; i < a.length; i++) if (!eq(a[i], b[i])) return false;
+      return true;
+    }
+    if (typeof a === 'object') {
+      var ka = Object.keys(a).sort(), kb = Object.keys(b).sort();
+      if (ka.length !== kb.length) return false;
+      for (var j = 0; j < ka.length; j++) {
+        if (ka[j] !== kb[j]) return false;
+        if (!eq(a[ka[j]], b[kb[j]])) return false;
+      }
+      return true;
+    }
+    return a === b;
+  }
   function clone(o) { return o === undefined ? null : JSON.parse(JSON.stringify(o)); }
   function gp(v, p) {
     for (var i = 0; i < p.length; i++) {
       if (v === null || v === undefined) return null;
-      v = v[p[i]];
+      var k = p[i];
+      if (typeof k === 'number' && Array.isArray(v) && k < 0) k = v.length + k;
+      v = v[k];
     }
     return v === undefined ? null : v;
   }
@@ -32,6 +54,19 @@ var JQRT = (function () {
     base[k] = dp(base[k], p.slice(1));
     return base;
   }
+  function jqadd(a, b) {
+    if (a === null || a === undefined) return b;
+    if (b === null || b === undefined) return a;
+    if (typeof a === 'number' && typeof b === 'number') return a + b;
+    if (typeof a === 'string' && typeof b === 'string') return a + b;
+    if (Array.isArray(a) && Array.isArray(b)) return a.concat(b);
+    if (isObj(a) && isObj(b)) {
+      var r = clone(a);
+      Object.keys(b).forEach(function (k) { r[k] = b[k]; });
+      return r;
+    }
+    throw new Error('add: type mismatch');
+  }
   function cmpv(a, b) {
     function rank(x) {
       if (x === null) return 0; if (x === false) return 1; if (x === true) return 2;
@@ -40,8 +75,18 @@ var JQRT = (function () {
     }
     if (rank(a) !== rank(b)) return rank(a) - rank(b);
     if (typeof a === 'number' || typeof a === 'string') return a < b ? -1 : (a > b ? 1 : 0);
-    var sa = JSON.stringify(a), sb = JSON.stringify(b);
-    return sa < sb ? -1 : (sa > sb ? 1 : 0);
+    if (Array.isArray(a)) {
+      var n = Math.min(a.length, b.length);
+      for (var i = 0; i < n; i++) { var c = cmpv(a[i], b[i]); if (c) return c; }
+      return a.length - b.length;
+    }
+    var ka = Object.keys(a).sort(), kb = Object.keys(b).sort();
+    var m = Math.min(ka.length, kb.length);
+    for (var j = 0; j < m; j++) {
+      if (ka[j] !== kb[j]) return ka[j] < kb[j] ? -1 : 1;
+      var c2 = cmpv(a[ka[j]], b[kb[j]]); if (c2) return c2;
+    }
+    return ka.length - kb.length;
   }
 
   function make(AST) {
@@ -118,7 +163,8 @@ var JQRT = (function () {
           if (v === null) return [0];
           if (typeof v === 'string' || Array.isArray(v)) return [v.length];
           if (isObj(v)) return [Object.keys(v).length];
-          return [Math.abs(v)];
+          if (typeof v === 'number') return [Math.abs(v)];
+          throw new Error('length');
         case 'keys': return [Array.isArray(v) ? v.map(function (_, i) { return i; }) : Object.keys(v)];
         case 'empty': return [];
         case 'not': return [!truthy(v)];
@@ -131,7 +177,7 @@ var JQRT = (function () {
         }
         case 'tojson': return [JSON.stringify(v)];
         case 'fromjson': return [JSON.parse(v)];
-        case 'add': return [Array.isArray(v) ? v.reduce(function (a, b) { return a === null ? b : (typeof a === 'number' ? a + b : Array.isArray(a) ? a.concat(b) : a + b); }, null) : v];
+        case 'add': return [Array.isArray(v) ? v.reduce(function (a, b) { return jqadd(a, b); }, null) : v];
         case 'sort': return [clone(v).sort(cmpv)];
         case 'unique': { var s = clone(v).sort(cmpv), u = []; s.forEach(function (x) { if (!u.length || !eq(u[u.length - 1], x)) u.push(x); }); return [u]; }
         case 'reverse': return [clone(v).reverse()];
@@ -146,10 +192,24 @@ var JQRT = (function () {
           else throw new Error('map');
           return [o];
         }
-        case 'select': return ev(A[0], v).some(truthy) ? [v] : [];
+        case 'select': {
+          var _so = [];
+          ev(A[0], v).forEach(function (x) { if (truthy(x)) _so.push(v); });
+          return _so;
+        }
         case 'del': {
           var ps = pths(A[0], v, true), out = v;
-          ps.sort(function (a, b) { return b.length - a.length; });
+          // 同一父级下的数组下标必须降序删，否则前一次删除会让后一次错位
+          ps.sort(function (a, b) {
+            var n = Math.min(a.length, b.length);
+            for (var i = 0; i < n; i++) {
+              if (a[i] !== b[i]) {
+                return (typeof a[i] === 'number' && typeof b[i] === 'number')
+                  ? b[i] - a[i] : (a[i] < b[i] ? -1 : 1);
+              }
+            }
+            return b.length - a.length;
+          });
           ps.forEach(function (p) { out = dp(out, p); });
           return [out];
         }
@@ -214,7 +274,7 @@ var JQRT = (function () {
         if (!rv.length) { out = dp(out, p); return; }
         var nv = rv[0];
         if (n.op === '|=') out = sp(out, p, nv);
-        else if (n.op === '+=') out = sp(out, p, (typeof old === 'number' ? old + nv : old === null ? nv : old + nv));
+        else if (n.op === '+=') out = sp(out, p, jqadd(old === undefined ? null : old, nv));
         else if (n.op === '-=') out = sp(out, p, old - nv);
         else if (n.op === '*=') out = sp(out, p, old * nv);
         else if (n.op === '/=') out = sp(out, p, old / nv);
@@ -300,7 +360,7 @@ for (var __i = 0; __i < __RULES__.length; __i++) __RE__.push(__rx(__RULES__[__i]
   }
   if (!matched.length) { $done({}); return; }
 
-  var obj = undefined;   // undefined=未解析 / null=解析失败
+  var obj, parsed = false, parseOk = false;   // 独立标记：区分「未解析 / 解析失败 / 结果就是 null」
   for (var k = 0; k < matched.length; k++) {
     var r = matched[k];
     if (r.r) {                                  // 字符串替换（上游 http-response 的 search 是正则）
@@ -311,19 +371,20 @@ for (var __i = 0; __i < __RULES__.length; __i++) __RE__.push(__rx(__RULES__[__i]
           body = body.split(r.r[0]).join(r.r[1]);   // 正则非法时退回字面量
         }
       }
-      obj = undefined;                          // 字符串已变，需重新解析
+      parsed = false;                           // 字符串已变，需重新解析
       continue;
     }
     if (!r.j) continue;
-    if (obj === undefined) {
-      try { obj = JSON.parse(body); } catch (e) { obj = null; }
+    if (!parsed) {
+      try { obj = JSON.parse(body); parseOk = true; } catch (e) { parseOk = false; }
+      parsed = true;
     }
-    if (obj === null) continue;
+    if (!parseOk) continue;
     try {
       var out = JQRT.make(r.j)(obj);
       if (out.length && out[0] !== undefined) obj = out[0];
     } catch (e) { /* 单条失败不影响其他规则 */ }
   }
-  if (obj !== undefined && obj !== null) body = JSON.stringify(obj);
+  if (parsed && parseOk) body = JSON.stringify(obj);
   $done({ body: body });
 })();

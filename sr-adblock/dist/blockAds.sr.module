@@ -20,6 +20,25 @@
 
 
 [Rule]
+DOMAIN,sq.bls.mdt.qq.com,REJECT
+DOMAIN,h-adashx4bc.ut.taobao.com,REJECT
+DOMAIN,datahub.zhihu.com,REJECT
+DOMAIN,amonsul.douban.com,REJECT
+DOMAIN,iosqqdata.ab.qq.com,REJECT
+DOMAIN-SUFFIX,reyun.com,REJECT
+DOMAIN-SUFFIX,sensorsdata.cn,REJECT
+DOMAIN-SUFFIX,thinkingdata.cn,REJECT
+DOMAIN-SUFFIX,tingyun.com,REJECT
+DOMAIN-SUFFIX,sentry.io,REJECT
+DOMAIN-SUFFIX,mintegral.com,REJECT
+DOMAIN-SUFFIX,ogury.com,REJECT
+DOMAIN,tanx-creative.taobao.com,REJECT
+DOMAIN,adstrategy.biz.weibo.com,REJECT
+DOMAIN,brandvideo.biz.weibo.com,REJECT
+DOMAIN,kadmimage.biz.weibo.com,REJECT
+DOMAIN,sdkclick.biz.weibo.com,REJECT
+DOMAIN,sdkaction.biz.weibo.com,REJECT
+# __LOCAL_EXTRA_END__
 DOMAIN-SUFFIX,ad-delivery.net,REJECT
 DOMAIN-SUFFIX,spot.im,REJECT
 DOMAIN-SUFFIX,revjet.com,REJECT
@@ -63,24 +82,6 @@ DOMAIN-SUFFIX,ad-sign.byteimg.com,REJECT
 DOMAIN-SUFFIX,tos.pstatp.com,REJECT
 DOMAIN-SUFFIX,pangolin.snssdk.com,REJECT
 DOMAIN-SUFFIX,video-cn.snssdk.com,REJECT
-DOMAIN,sq.bls.mdt.qq.com,REJECT
-DOMAIN,h-adashx4bc.ut.taobao.com,REJECT
-DOMAIN,datahub.zhihu.com,REJECT
-DOMAIN,amonsul.douban.com,REJECT
-DOMAIN,iosqqdata.ab.qq.com,REJECT
-DOMAIN-SUFFIX,reyun.com,REJECT
-DOMAIN-SUFFIX,sensorsdata.cn,REJECT
-DOMAIN-SUFFIX,thinkingdata.cn,REJECT
-DOMAIN-SUFFIX,tingyun.com,REJECT
-DOMAIN-SUFFIX,sentry.io,REJECT
-DOMAIN-SUFFIX,mintegral.com,REJECT
-DOMAIN-SUFFIX,ogury.com,REJECT
-DOMAIN,tanx-creative.taobao.com,REJECT
-DOMAIN,adstrategy.biz.weibo.com,REJECT
-DOMAIN,brandvideo.biz.weibo.com,REJECT
-DOMAIN,kadmimage.biz.weibo.com,REJECT
-DOMAIN,sdkclick.biz.weibo.com,REJECT
-DOMAIN,sdkaction.biz.weibo.com,REJECT
 # >>>>>>>>>>>>>>> ✅ !! ✅ <<<<<<<<<<<<<<
 
 # > 广告联盟
