@@ -256,6 +256,13 @@ def main():  # noqa: C901
 
     # URL Rewrite
     urw = kept.get("URL Rewrite", []) + ml_extra_rw
+    # 上游偶有把 MITM 行误写进 URL Rewrite 段（例：`hostname - reject`），
+    # SR 会把它当正则匹配任意含 "hostname" 的 URL → 误伤
+    _junk = [l for l in urw if re.match(r"^\s*hostname\s", l, re.I)]
+    if _junk:
+        urw = [l for l in urw if l not in _junk]
+        report["dropped"]["URL Rewrite 垃圾行"] = len(_junk)
+        report["notes"].append("剔除 URL Rewrite 段中的 hostname 行 %d 条" % len(_junk))
     urw_eff = eff(urw)
     actions = {}
     for l in urw_eff:
@@ -271,6 +278,16 @@ def main():  # noqa: C901
     sc = kept.get("Script", [])
     sc_eff = eff(sc)
     sc_clean = [clean_script_line(l) for l in sc_eff]
+    # 脚本地址统一成 raw 直链（github.com/.../raw/... 会 302 跳转）
+    _u = 0
+    for _i, _l in enumerate(sc_clean):
+        _n, _ch, _ = repair.fix_script_url(_l)
+        if _ch:
+            sc_clean[_i] = _n
+            _u += 1
+    if _u:
+        report["fixes"]["脚本地址改直链"] = _u
+        report["notes"].append("脚本地址 github.com -> raw 直链 %d 条" % _u)
     # 知乎脚本改指向本地修补版（上游版本有 item 未定义的崩溃 bug）
     if args.raw_url and "/dist/" in args.raw_url:
         _scripts_base = args.raw_url.rsplit("/dist/", 1)[0] + "/scripts/"
@@ -494,6 +511,10 @@ def main():  # noqa: C901
 
     # 统计必须用「去重 / 置顶 / 补充之后」的最终列表重算：
     # 旧实现取的是处理前的数字，与产物实际段内条数四项全不符
+    _nrule = len(eff(rule_lines))
+    if _nrule < 100:
+        raise SystemExit("ERROR: 产物 [Rule] 仅 %d 条（阈值 100），疑似上游结构变化或输入异常；"
+                         "拒绝生成近乎空的模块" % _nrule)
     _stats = "Rule %d / URL Rewrite %d / Map Local %d / Script %d / MITM %d hosts" % (
         len(eff(rule_lines)), len(eff(url_rewrite)), len(eff(map_local)),
         len(eff(scripts)), len(hosts))

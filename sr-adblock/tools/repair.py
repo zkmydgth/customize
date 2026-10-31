@@ -30,6 +30,23 @@ def strip_inline_flags(pattern):
     return pattern[m.end():], m.group(1).replace("x", ""), True
 
 
+GITHUB_RAW_RE = re.compile(
+    r"https://github\.com/([^/]+)/([^/]+)/(?:raw|refs/heads)/(?:(main|master)/)?(.+?)(?=[,\s]|$)")
+
+
+def fix_script_url(line):
+    """github.com/<o>/<r>/raw/... 与 refs/heads/main/... 统一改成 raw 直链。
+
+    前者会 302 跳转；SR 是否跟随重定向不确定，直链最稳。
+    """
+    def _sub(m):
+        owner, repo, branch, rest = m.groups()
+        return "https://raw.githubusercontent.com/%s/%s/%s/%s" % (
+            owner, repo, branch or "main", rest)
+    new = GITHUB_RAW_RE.sub(_sub, line)
+    return new, new != line, "脚本地址改直链"
+
+
 def fix_hostname(h):
     """MITM hostname 规范化：去 %APPEND%/%INSERT%、空白、大小写、重复点"""
     raw = h
