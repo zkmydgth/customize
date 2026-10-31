@@ -115,3 +115,43 @@ if __name__ == "__main__":
         print(p, "->", strip_inline_flags(p))
     for h in ["  %APPEND% Ad.Example.COM ", "a..b.com"]:
         print(repr(h), "->", fix_hostname(h)[0])
+
+
+def _expand(s, limit=128):
+    """展开 (a|b)? 形式，返回具体域名列表"""
+    s = s.replace("(?:", "(")
+    res = [s]
+    while True:
+        changed = False
+        nxt = []
+        for cur in res:
+            m = re.search(r"\(([^()]*)\)(\?)?", cur)
+            if not m:
+                nxt.append(cur)
+                continue
+            changed = True
+            opts = m.group(1).split("|")
+            if m.group(2):
+                opts.append("")
+            for o in opts:
+                nxt.append(cur[:m.start()] + o + cur[m.end():])
+        res = nxt
+        if not changed or len(res) > limit:
+            break
+    return [x for x in res if not re.search(r"[()?|]", x)]
+
+
+def hosts_of_pattern(pat):
+    m = re.search(r"https\??:?\\?/\\?/((?:[A-Za-z0-9_.()|?:\\-]|\\.)+)", pat)
+    if not m:
+        return []
+    raw = m.group(1).replace("\\", "")
+    raw = raw.split("/")[0].strip(".")
+    if not raw:
+        return []
+    out = []
+    for h in _expand(raw):
+        h = h.strip(".")
+        if re.fullmatch(r"[A-Za-z0-9.-]+\.[A-Za-z0-9-]+", h) or re.fullmatch(r"\d+\.\d+\.\d+\.\d+", h):
+            out.append(h)
+    return out
