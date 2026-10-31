@@ -1,0 +1,9 @@
+#!name=禁用 IPv6（强制走 IPv4）
+#!desc=拦截全部 IPv6 连接，让 App 回退到 IPv4。知乎等 App 拿到 AAAA 后会直连 IPv6，此时 Shadowrocket 只能看到 IP、无法按域名解密，Map Local 与脚本全部失效；本模块用于强制走 IPv4。仅在你确认需要时启用。
+#!author=sr-adblock
+#!system=ios
+#!category=工具
+#!tag=IPv6,网络
+
+[Rule]
+IP-CIDR6,::/0,REJECT

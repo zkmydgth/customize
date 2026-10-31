@@ -77,3 +77,15 @@ DOMAIN,sdkaction.biz.weibo.com,REJECT
 # 注：知乎信息流不走这里，改由上游 Scripts/zhihu/zhihu.js（12 条规则）处理，
 # 经 tools/patch_zhihu.py 打补丁后托管在本仓库，convert.py 自动重定向。
 
+# 2026-10-31 日志：知乎开屏启动瞬间（17:00:01 / 17:00:08）出现
+# open.kuaishouzt.com（快手联盟）。日志显示它被其他配置判 DIRECT 且未解密，
+# 所以 Rule 层可能被抢先 —— 同时给 MITM + Map Local 双保险。
+# 注意：kuaishouzt.com 是快手「联盟/广告」域，不是快手主 App（kuaishou.com）。
+[Rule]
+DOMAIN,open.kuaishouzt.com,REJECT
+
+[MITM]
+open.kuaishouzt.com
+
+[Map Local]
+^https?:\/\/open\.kuaishouzt\.com\/ data-type=text data="" status-code=404
