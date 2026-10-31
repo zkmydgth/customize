@@ -12,7 +12,7 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  保留统计: Rule 2862 / URL Rewrite 617 / Map Local 712 / Script 315 / MITM 979 hosts
+#  保留统计: Rule 2862 / URL Rewrite 617 / Map Local 712 / Script 314 / MITM 979 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
 #  已剔除 [General] 1 条（SR 不支持）
@@ -7904,7 +7904,6 @@ https://.+\.gamersky.com/v1/statisticAd data-type=text data="{}" status-code=200
 # >>>>>>>>>>>>>>> 🟣 <<<<<<<<<<<<<<
 
 [Script]
-知乎诊断(临时) = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/topstory\/recommend, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-debug.js, requires-body=1, max-size=-1, timeout=20
 12306 = type=http-request, pattern=^https?:\/\/ad\.12306\.cn\/ad\/ser\/getAdList, script-path=https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js, requires-body=1, timeout=60
 51信用卡管家 = type=http-response, pattern=^https?:\/\/api\.u51\.com\/liabilitygateway\/api\/v\d\/homepage\/liabilityline, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/51card.js, requires-body=1, timeout=60
 51信用卡管家 = type=http-response, pattern=^https?:\/\/api\.u51\.com\/generic-config-gateway\/api\/v\d\/guanjia\/me-tab2\/config, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/51card.js, requires-body=1, timeout=60
