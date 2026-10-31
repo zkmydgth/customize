@@ -226,6 +226,13 @@ def constrained_leaves(constraints):
 
 
 LEAVES = [
+    # 万能元素：把常见字段一次给全，让 `select(.title | test(...))` 这类
+    # 「字段缺失即报错」的规则也能成功执行（否则全程 bothfail，等于没测）
+    [{"title": "直播", "type": "ad", "id": "1", "ad": 1, "ad_info": None,
+      "bizType": "x", "card_goto": "vertical_ad_a", "key": "show",
+      "item": {"list": [{"bizType": "x"}]},
+      "itemList": [{"title": "直播"}],
+      "module_data": {"items": [{"a": 1}]}}],
     [{"a": 1}, {"a": 2}],                                        # 普通数组
     [{"ad": 1}, {"a": 2}],                                       # select(.ad | not)
     [{"ad_info": None, "card_goto": "vertical_ad_a"}, {"a": 1}],  # 条件命中
