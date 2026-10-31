@@ -1,0 +1,199 @@
+name: Sync Shadowrocket Ad Module
+
+on:
+  schedule:
+    # 每天 20:00 UTC = 北京 04:00
+    - cron: "0 20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-sr-adblock
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq >/dev/null
+          node --version && jq --version
+
+      - name: Fetch upstream Surge module
+        run: |
+          set -euo pipefail
+          mkdir -p .cache
+          URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/Surge/module/blockAds.module"
+          for i in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o .cache/upstream.module "$URL"; then break; fi
+            echo "retry $i"; sleep 15
+          done
+          test -s .cache/upstream.module
+          echo "upstream: $(wc -c < .cache/upstream.module) bytes"
+
+      - name: Patch upstream zhihu script (item -> i)
+        working-directory: sr-adblock
+        run: |
+          set -euo pipefail
+          URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js"
+          for i in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o /tmp/zhihu.upstream.js "$URL"; then break; fi
+            echo "retry $i"; sleep 15
+          done
+          test -s /tmp/zhihu.upstream.js
+          python3 tools/patch_zhihu.py --src /tmp/zhihu.upstream.js \
+            --out scripts/zhihu.js --report build/patch_zhihu.json
+
+      - name: Extract Body Rewrite
+        working-directory: sr-adblock
+        run: python3 tools/extract_body.py ../.cache/upstream.module /tmp/bodyrewrite.json
+
+      - name: Convert (rules / rewrite / map local)
+        working-directory: sr-adblock
+        env:
+          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
+        run: |
+          set -euo pipefail
+          python3 tools/convert.py ../.cache/upstream.module dist/blockAds.sr.module \
+            --raw-url "$RAW/dist/blockAds.sr.module" --report dist/report.json
+
+      - name: Compile Body Rewrite -> JS
+        working-directory: sr-adblock
+        run: python3 tools/gen_scripts.py
+
+      - name: Assemble final module
+        working-directory: sr-adblock
+        env:
+          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
+        run: |
+          python3 tools/assemble.py --module dist/blockAds.sr.module \
+            --rules build/body-rewrite.rules \
+            --script-url "$RAW/scripts/body-rewrite.js" \
+            --report build/assemble.json
+
+      - name: Merge extra ad rules (best-effort, 上游 QX 规则集)
+        working-directory: sr-adblock
+        env:
+          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
+        run: |
+          set -euo pipefail
+          URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/QuantumultX/filter/filter.list"
+          if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o /tmp/qx_filter.list "$URL" && [ -s /tmp/qx_filter.list ]; then
+            python3 tools/merge_extra.py --module dist/blockAds.sr.module \
+              --source /tmp/qx_filter.list \
+              --set-name "SR 去广告&净化（精简版）" \
+              --set-raw-url "$RAW/dist/blockAds.sr.module" \
+              --report build/merge.json
+          else
+            echo "::warning::QX 规则源拉取失败，本次跳过"
+          fi
+
+          # 增强版：再叠加 217heidai 的 Shadowrocket lite（长尾广告域名）
+          HURL="https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockshadowrocketlite.sgmodule"
+          cp dist/blockAds.sr.module dist/blockAds.full.srmodule
+          if curl -fsSL --retry 3 --retry-delay 5 --max-time 90 -o /tmp/heidai_lite.sgmodule "$HURL" && [ -s /tmp/heidai_lite.sgmodule ]; then
+            python3 tools/merge_extra.py --module dist/blockAds.full.srmodule \
+              --source /tmp/heidai_lite.sgmodule --min-len 7 --action REJECT \
+              --set-name "SR 去广告&净化（增强版）" \
+              --set-raw-url "$RAW/dist/blockAds.full.srmodule" \
+              --report build/merge_full.json
+          else
+            echo "::warning::增强规则源拉取失败，本次增强版=精简版"
+          fi
+
+      - name: Verify (jq differential + script smoke test + structure)
+        working-directory: sr-adblock
+        run: |
+          set -euo pipefail
+          F=dist/blockAds.sr.module
+          python3 tools/test_equiv.py --inputs 6
+          node tools/test_script.js
+          python3 tools/check_structure.py --module "$F"
+          python3 tools/check_extra.py --module "$F"
+          UN=$(python3 -c "import json;d=json.load(open('build/report.json'));print(len(d.get('unhandled',[])))")
+          TOT=$(python3 -c "import json;d=json.load(open('build/report.json'));print(d.get('jq',0)+d.get('replace',0)+len(d.get('unhandled',[])))")
+          echo "unhandled=$UN / total=$TOT"
+          # 自适配：个别条目处理不了不阻断；超过 20% 说明上游大改，停止提交
+          if [ "$UN" -gt 0 ] && [ $((UN * 5)) -gt "$TOT" ]; then
+            echo "::error::unhandled 占比超过 20%（$UN/$TOT），疑似上游结构大改，已停止提交"
+            exit 1
+          fi
+          R=$(awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
+          S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$F" | grep -vcE '^\s*(#|$)' || true)
+          echo "Rule=$R Script=$S"
+          REJ=$(grep -cE ',(REJECT|REJECT-DROP|REJECT-NO-DROP)(,|$)' "$F" || true)
+          RATIO=$(( REJ * 100 / R ))
+          echo "拦截类规则 $REJ / $R = ${RATIO}%"
+          if [ "$RATIO" -lt 90 ]; then
+            echo "::error::拦截规则占比骤降至 ${RATIO}%（阈值 90%），疑似上游把 REJECT 改成了 DIRECT"
+            exit 1
+          fi
+          [ "$R" -gt 2000 ] || { echo "::error::规则数异常 $R"; exit 1; }
+          [ "$S" -gt 300 ]  || { echo "::error::脚本数异常 $S"; exit 1; }
+          grep -q '^\[MITM\]' "$F" || { echo "::error::缺 MITM"; exit 1; }
+          if grep -q '^\[Body Rewrite\]' "$F"; then echo "::error::含不受支持的段"; exit 1; fi
+          {
+            echo "### 模块同步结果"
+            echo ""
+            echo "- Rule: $R / Script: $S"
+            echo "- Body Rewrite 已编译: $(grep -c 'body-rewrite-[0-9][0-9][0-9] = ' "$F")"
+            echo "- 未能处理（unhandled）: $UN 条"
+            if [ -f build/merge.json ]; then
+              echo "- 额外合并: $(python3 -c "import json;d=json.load(open('build/merge.json'));print('%d 条（去重跳过 %d，风险主站跳过 %d）'%(d['added'],d['skipped_duplicate'],len(d['skipped_major_site'])))")"
+            fi
+            echo "- 上游日期: $(grep -m1 '^#!date' ../.cache/upstream.module || true)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '自动同步失败：Shadowrocket 去广告模块';
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'auto-sync', per_page: 10
+            });
+            const body = [
+              `运行: ${context.runId}`,
+              `提交: ${context.sha.slice(0, 8)}`,
+              `链接: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              '',
+              '本次**未提交任何文件**（Verify/Commit 已被跳过），线上产物保持上一版。'
+            ].join('\n');
+            if (issues.length) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: issues[0].number, body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ['auto-sync']
+              });
+            }
+
+      - name: Commit & push
+        run: |
+          set -euo pipefail
+          MOD=sr-adblock/dist/blockAds.sr.module
+          count(){ awk '/^\[Rule\]/{f=1;next} /^\[/{f=0} f' "$1" 2>/dev/null | grep -vcE '^\s*(#|$)' || echo 0; }
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sr-adblock/dist sr-adblock/scripts sr-adblock/build
+          if git diff --staged --quiet; then echo "上游无变化"; exit 0; fi
+          git show "HEAD:$MOD" > /tmp/old.module 2>/dev/null || : > /tmp/old.module
+          OLD=$(count /tmp/old.module); NEW=$(count "$MOD")
+          DELTA=$(( NEW - OLD )); [ "$DELTA" -ge 0 ] && SIGN="+" || SIGN=""
+          S=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' "$MOD" | grep -vcE '^\s*(#|$)' || echo 0)
+          H=$(awk '/^\[MITM\]/{getline; print}' "$MOD" | tr ',' '\n' | wc -l)
+          git commit -m "chore: sync upstream $(date -u +%Y-%m-%d)" \
+            -m "Rule ${OLD} -> ${NEW} (${SIGN}${DELTA}) ｜ Script ${S} ｜ MITM ${H}"
+          git push
