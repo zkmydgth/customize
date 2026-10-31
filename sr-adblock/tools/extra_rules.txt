@@ -73,10 +73,3 @@ DOMAIN,sdkaction.biz.weibo.com,REJECT
 # 清缓存后仍有广告，改用 404 让请求真正失败。置于最前（Map Local 顺序匹配）。
 [Map Local]
 ^https?:\/\/api\.douban\.com\/v\d\/app_ads\/ data-type=text data="" status-code=404
-
-# 知乎信息流广告：上游脚本只删 type==="feed_advert"，知乎已新增多种伪装卡片
-# 增强脚本基于上游 zhihu.js 改造，保留全部原有逻辑，额外按标记过滤
-[Script]
-知乎信息流增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/(?:moments_v3|topstory\/hot-lists\/total|topstory\/recommend), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-feed-v2.js, requires-body=1, max-size=-1, timeout=20
-知乎详情页增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/next-(?:bff|data|render), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-feed-v2.js, requires-body=1, max-size=-1, timeout=20
-知乎回答页增强 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/answers\/v2\/\d+, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-feed-v2.js, requires-body=1, max-size=-1, timeout=20
