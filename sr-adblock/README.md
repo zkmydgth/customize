@@ -123,6 +123,17 @@ node tools/test_script.js
 - `IP-CIDR` 只覆盖 IPv4；域名规则不受 IPv6 影响
 - 上游若写出语法错误，`test_equiv.py` 会失败并阻止提交
 
+## 推送与 CI 约定
+
+同一批改动请**合并成一次提交**。逐个文件推送会产生多个 commit，每个都触发一次
+`test-sr-adblock`；该 workflow 设了 `cancel-in-progress: true`，新的会把旧的取消，
+于是中间 commit 上会留下 `test: cancelled` 标记 —— 那**不是失败**，但容易误读成报错。
+
+批量提交走 Git Data API（blob → tree → commit → 更新 ref），一次提交、一次 CI。
+
+> `combined status` 显示 `pending` 属正常：仓库只用 Actions 的 check-runs，
+> 不写旧式 status API；分支未启用保护规则，不影响合并。
+
 ## 版权
 
 规则与脚本版权归 fmz200 及各原作者，本仓库只做格式适配与自动同步，不修改规则语义
