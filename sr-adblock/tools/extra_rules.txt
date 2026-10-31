@@ -89,8 +89,3 @@ open.kuaishouzt.com
 
 [Map Local]
 ^https?:\/\/open\.kuaishouzt\.com\/ data-type=text data="" status-code=404
-
-# ===== 临时诊断（验证完即删）=====
-# 挂在信息流接口上，只读不改，弹通知显示卡片 type 分布
-[Script]
-知乎诊断(临时) = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/topstory\/recommend, script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-debug.js, requires-body=1, max-size=-1, timeout=20
