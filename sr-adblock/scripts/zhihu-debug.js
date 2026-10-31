@@ -1,27 +1,19 @@
-// 知乎信息流诊断（临时）：只读不写，把卡片类型分布弹通知
-// 验证点：1) 脚本是否被执行 2) 广告卡片的真实 type 3) 上游脚本是否已删除广告
+// 知乎信息流诊断（临时）：把 data 清空
+// 判据：刷新后信息流「空白」= 脚本已执行；「仍有内容」= 脚本没执行
 const url = $request.url;
-let msg = "";
+let info = "";
 try {
-  const body = JSON.parse($response.body);
-  const data = (body && body.data) || [];
+  const b = JSON.parse($response.body);
+  const d = (b && b.data) || [];
   const types = {};
-  data.forEach(function (i) {
-    const t = (i && i.type) || "(no-type)";
-    types[t] = (types[t] || 0) + 1;
-  });
-  const ad = data.filter(function (i) { return i && i.type === "feed_advert"; }).length;
-  const keys = Object.keys(types).sort(function (a, b) { return types[b] - types[a]; });
-  msg = "共 " + data.length + " 条 | feed_advert=" + ad + "\n" +
-        keys.slice(0, 5).map(function (k) { return k + "×" + types[k]; }).join(" ");
-  // 抽查第一条，看有哪些字段能用于判定
-  if (data[0]) {
-    msg += "\n#1 字段: " + Object.keys(data[0]).slice(0, 8).join(",");
-  }
+  d.forEach(function (i) { const t = (i && i.type) || "?"; types[t] = (types[t] || 0) + 1; });
+  info = "共 " + d.length + " 条 | feed_advert=" +
+         d.filter(function (i) { return i && i.type === "feed_advert"; }).length +
+         " | " + Object.keys(types).slice(0, 4).join(",");
+  b.data = [];
+  try { $notification.post("知乎诊断", "脚本已执行，信息流已清空", info.slice(0, 200)); } catch (e) {}
+  $done({ body: JSON.stringify(b) });
 } catch (e) {
-  msg = "解析失败: " + e.message;
+  try { $notification.post("知乎诊断", "解析失败", e.message); } catch (e2) {}
+  $done({});
 }
-try {
-  $notification.post("知乎信息流诊断", String(url).slice(8, 60), msg.slice(0, 300));
-} catch (e) {}
-$done({});
