@@ -25,8 +25,11 @@ const cases = [
     JSON.stringify({ data: { show: [1], other: [2] } }), { data: { show: [], other: [2] } }],
   ['字符串替换 false->true', 'https://adservice.sigmob.cn/extconfig?x=1',
     '{"enable": false}', { raw: '{"enable": true}' }],
-  ['字符串替换（字面量不匹配则原样）', 'https://mobile.yangkeduo.com/proxy/api/api/express/post/waybill/red_packet/goods_list',
-    '{"list":[1,2,3]}', { raw: '{"list":[1,2,3]}' }],
+  ['字符串替换（正则匹配）', 'https://mobile.yangkeduo.com/proxy/api/api/express/post/waybill/red_packet/goods_list',
+    '{"list":[1,2,3]}', { raw: '{"list":[]}' }],
+  // 2026-10-31 审计：search 是正则且可能含引号嵌套，切分错会把 body 写成非法 JSON
+  ['字符串替换（引号嵌套不写坏 JSON）', 'https://m.lkcoffee.com/capi/resource/m/growUp/main',
+    '{"popTitle":"广告","keep":1}', { raw: '{"popTitle":"","keep":1}' }],
   // ---- 审计补充：同一 URL 命中多条规则必须全部生效 ----
   ['重复pattern×14 快递100 全字段', 'https://p.kuaidi100.com/mobile/mobileapi.do',
     JSON.stringify({adsplash:1,adbanner:2,adposition:3,adShowAgainTime:4,index_banner:5,keep:9}),
