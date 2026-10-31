@@ -117,6 +117,13 @@ jobs:
           node tools/test_script.js
           python3 tools/check_structure.py --module "$F"
           python3 tools/check_extra.py --module "$F"
+          # 知乎脚本必须指向本仓库的修补版：上游版本有 item 未定义的崩溃 bug，
+          # 若重定向没生效（URL 变动 / 忘传 --raw-url），产物会静默退回有 bug 的版本
+          UPZ=$(grep -c 'fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js' "$F" || true)
+          [ "$UPZ" -eq 0 ] || { echo "::error::知乎脚本仍指向上游 $UPZ 条，重定向失效"; exit 1; }
+          LOCZ=$(grep -c 'sr-adblock/scripts/zhihu.js' "$F" || true)
+          [ "$LOCZ" -ge 10 ] || { echo "::error::知乎脚本重定向条数异常（$LOCZ 条，预期 ≥10）"; exit 1; }
+          echo "知乎脚本：本地指向 $LOCZ 条 / 上游残留 $UPZ 条"
           UN=$(python3 -c "import json;d=json.load(open('build/report.json'));print(len(d.get('unhandled',[])))")
           TOT=$(python3 -c "import json;d=json.load(open('build/report.json'));print(d.get('jq',0)+d.get('replace',0)+len(d.get('unhandled',[])))")
           echo "unhandled=$UN / total=$TOT"
