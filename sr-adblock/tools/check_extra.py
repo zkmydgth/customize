@@ -58,8 +58,10 @@ def main():  # noqa: C901
 
     extra = load_extra()
     if not extra:
-        print("EXTRA PASS: 无补充规则")
-        return 0
+        # 文件缺失/为空时不能 PASS —— 那等于"没有补充规则要核对"，
+        # 而真实情况往往是文件丢了，产物里的补充规则整批消失
+        print("EXTRA FAIL: tools/extra_rules.txt 缺失或为空")
+        return 1
 
     secs = sections(a.module)
     # MITM 段在产物里是单行 hostname=a,b,c，需单独解析
