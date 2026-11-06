@@ -11,7 +11,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: sync-sr-adblock
+  group: sr-sync
   cancel-in-progress: false
 
 jobs:
@@ -216,4 +216,10 @@ jobs:
           H=$(awk '/^\[MITM\]/{getline; print}' "$MOD" | tr ',' '\n' | wc -l)
           git commit -m "chore: sync upstream $(date -u +%Y-%m-%d)" \
             -m "Rule ${OLD} -> ${NEW} (${SIGN}${DELTA}) ｜ Script ${S} ｜ MITM ${H}"
-          git push
+          # 另一条流水线可能刚推过：先 rebase 再重试，避免非快进失败
+          for i in 1 2 3; do
+            if git push; then break; fi
+            echo "push 失败，尝试 rebase 重试 ($i)"
+            git pull --rebase --autostash || true
+            sleep 8
+          done

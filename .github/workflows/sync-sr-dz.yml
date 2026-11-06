@@ -11,7 +11,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: sync-sr-dz
+  group: sr-sync
   cancel-in-progress: false
 
 jobs:
