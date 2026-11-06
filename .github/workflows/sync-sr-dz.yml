@@ -47,6 +47,7 @@ jobs:
             --report build/dz_unlock.json
           python3 tools/dz_check.py --module dist/unlock.srmodule \
             --min-rule 0 --min-urw 0 --min-script 100 --min-mitm 100
+          python3 tools/health_check.py --module dist/unlock.srmodule --network --sample 5
 
       - name: Open issue on failure
         if: failure()

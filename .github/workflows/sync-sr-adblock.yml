@@ -130,6 +130,8 @@ jobs:
           node tools/test_script.js
           python3 tools/check_structure.py --module "$F"
           python3 tools/check_extra.py --module "$F"
+          # 产物健康检查：正则编译 / MITM 合法性 / 脚本抽样可达性（404 仅告警）
+          python3 tools/health_check.py --module "$F" --network --sample 5
           # 知乎脚本必须指向本仓库的修补版：上游版本有 item 未定义的崩溃 bug，
           # 若重定向没生效（URL 变动 / 忘传 --raw-url），产物会静默退回有 bug 的版本
           UPZ=$(grep -c 'fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js' "$F" || true)
