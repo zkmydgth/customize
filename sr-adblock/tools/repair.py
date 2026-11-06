@@ -34,6 +34,16 @@ GITHUB_RAW_RE = re.compile(
     r"https://github\.com/([^/]+)/([^/]+)/(?:raw|refs/heads)/(?:(main|master)/)?(.+?)(?=[,\s]|$)")
 
 
+def fix_atomic_group(line):
+    """`(?>...)` 原子分组是 PCRE 语法，JS 与部分引擎不支持。
+
+    上游 20 条都是简单枚举 `(?>a|b|c)`，改成 `(?:a|b|c)` 语义等价。
+    """
+    if "(?>" not in line:
+        return line, False
+    return line.replace("(?>", "(?:"), True
+
+
 def fix_script_url(line):
     """github.com/<o>/<r>/raw/... 与 refs/heads/main/... 统一改成 raw 直链。
 

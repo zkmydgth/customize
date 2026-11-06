@@ -79,7 +79,7 @@ def parse_header(header):
     return meta
 
 
-def build_mitm(lines):
+def build_mitm(lines):  # noqa: C901
     hosts, fixes = [], {}
     for line in eff(lines):
         if not line.lower().startswith("hostname"):
@@ -93,8 +93,16 @@ def build_mitm(lines):
             h, changed, _ = repair.fix_hostname(h)
             if changed:
                 fixes["hostname 规范化"] = fixes.get("hostname 规范化", 0) + 1
-            if h:
-                hosts.append(h)
+            if not h:
+                continue
+            # SR 不认的写法：- 排除项、:0 端口、纯 IP 带端口（无法按域名解密）
+            if h.startswith("-"):
+                fixes["MITM 负号排除项"] = fixes.get("MITM 负号排除项", 0) + 1
+                continue
+            if re.search(r":0$", h):
+                fixes["MITM 端口非法"] = fixes.get("MITM 端口非法", 0) + 1
+                continue
+            hosts.append(h)
     seen, uniq = set(), []
     for h in hosts:
         k = h.lower()
@@ -275,6 +283,15 @@ def main():  # noqa: C901
     report["kept"]["URL Rewrite.actions"] = actions
 
     report["kept"]["Map Local"] = len(eff(ml_clean))
+
+    def _atomic(lines):
+        n = 0
+        for i, l in enumerate(lines):
+            nl, ch = repair.fix_atomic_group(l)
+            if ch:
+                lines[i] = nl
+                n += 1
+        return n
 
     # Script
     sc = kept.get("Script", [])
@@ -508,6 +525,12 @@ def main():  # noqa: C901
         report["fixes"]["其它段去重"] = extra_dropped
         report["notes"].append("URL Rewrite/Map Local/Script 去重 %d 条（%d/%d/%d）"
                                % (extra_dropped, d1, d2, d3))
+
+    # 原子分组 (?>..) -> (?:..)，提高引擎兼容性（上游 20 条简单枚举）
+    _at = _atomic(rule_lines) + _atomic(url_rewrite) + _atomic(map_local) + _atomic(scripts)
+    if _at:
+        report["fixes"]["原子分组转换"] = _at
+        report["notes"].append("(?>) 原子分组转 (?:) %d 条" % _at)
 
     def block(title, lines):
         if not eff(lines):
