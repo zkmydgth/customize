@@ -1,0 +1,23 @@
+{
+  "modules": 17,
+  "filter": "ad",
+  "kinds": {
+    "unlock": 223,
+    "ad": 17,
+    "other": 47
+  },
+  "rule": 31,
+  "url_rewrite": 543,
+  "map_local": 0,
+  "script": 68,
+  "mitm": 357,
+  "dropped_lines": 0,
+  "script_without_path": 10,
+  "mitm_negated_ignored": 3,
+  "urw_script_url_dropped": 1,
+  "urw_unparsable_dropped": 1,
+  "urw_redirect_dropped": 0,
+  "legacy_script_converted": 6,
+  "unknown_sections": [],
+  "bytes": 61583
+}

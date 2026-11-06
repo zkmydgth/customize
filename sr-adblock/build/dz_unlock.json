@@ -1,0 +1,23 @@
+{
+  "modules": 223,
+  "filter": "unlock",
+  "kinds": {
+    "unlock": 223,
+    "ad": 17,
+    "other": 47
+  },
+  "rule": 0,
+  "url_rewrite": 8,
+  "map_local": 0,
+  "script": 228,
+  "mitm": 178,
+  "dropped_lines": 0,
+  "script_without_path": 0,
+  "mitm_negated_ignored": 0,
+  "urw_script_url_dropped": 0,
+  "urw_unparsable_dropped": 0,
+  "urw_redirect_dropped": 0,
+  "legacy_script_converted": 1,
+  "unknown_sections": [],
+  "bytes": 51143
+}
