@@ -1,0 +1,17 @@
+{
+  "rule": 13,
+  "url_rewrite": 538,
+  "script": 52,
+  "script_skipped_same_pattern": 16,
+  "map_local": 0,
+  "mitm_added": 102,
+  "mitm_total": 1081,
+  "bytes": 481451,
+  "counts": {
+    "Rule": 2875,
+    "URL Rewrite": 1155,
+    "Map Local": 712,
+    "Script": 366,
+    "MITM": 1
+  }
+}
