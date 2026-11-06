@@ -38,6 +38,19 @@ jobs:
           test -s .cache/upstream.module
           echo "upstream: $(wc -c < .cache/upstream.module) bytes"
 
+      - name: Patch upstream zhihu script (item -> i)
+        working-directory: sr-adblock
+        run: |
+          set -euo pipefail
+          URL="https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js"
+          for i in 1 2 3 4 5; do
+            if curl -fsSL --retry 3 --retry-delay 5 --max-time 60 -o /tmp/zhihu.upstream.js "$URL"; then break; fi
+            echo "retry $i"; sleep 15
+          done
+          test -s /tmp/zhihu.upstream.js
+          python3 tools/patch_zhihu.py --src /tmp/zhihu.upstream.js \
+            --out scripts/zhihu.js --report build/patch_zhihu.json
+
       - name: Extract Body Rewrite
         working-directory: sr-adblock
         run: python3 tools/extract_body.py ../.cache/upstream.module /tmp/bodyrewrite.json
@@ -82,6 +95,19 @@ jobs:
             echo "::warning::QX 规则源拉取失败，本次跳过"
           fi
 
+          # 合并 deezertidal 的去广告部分（解锁类不并入，见 sync-sr-dz.yml）
+          if curl -fsSL --retry 3 --retry-delay 5 --max-time 180 -o /tmp/dz.zip \
+               "https://github.com/deezertidal/shadowrocket-rules/archive/refs/heads/master.zip" \
+             && unzip -q -o /tmp/dz.zip -d /tmp/dz; then
+            MODS=$(ls -d /tmp/dz/*/modules)
+            python3 tools/dz_convert.py "$MODS" /tmp/dz_ad.srmodule \
+              --filter ad --report build/dz_ad.json
+            python3 tools/merge_module.py --main dist/blockAds.sr.module \
+              --add /tmp/dz_ad.srmodule --report build/merge_dz.json
+          else
+            echo "::warning::deezertidal 拉取失败，本次跳过去广告合并"
+          fi
+
           # 增强版：再叠加 217heidai 的 Shadowrocket lite（长尾广告域名）
           HURL="https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockshadowrocketlite.sgmodule"
           cp dist/blockAds.sr.module dist/blockAds.full.srmodule
@@ -104,6 +130,13 @@ jobs:
           node tools/test_script.js
           python3 tools/check_structure.py --module "$F"
           python3 tools/check_extra.py --module "$F"
+          # 知乎脚本必须指向本仓库的修补版：上游版本有 item 未定义的崩溃 bug，
+          # 若重定向没生效（URL 变动 / 忘传 --raw-url），产物会静默退回有 bug 的版本
+          UPZ=$(grep -c 'fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js' "$F" || true)
+          [ "$UPZ" -eq 0 ] || { echo "::error::知乎脚本仍指向上游 $UPZ 条，重定向失效"; exit 1; }
+          LOCZ=$(grep -c 'sr-adblock/scripts/zhihu.js' "$F" || true)
+          [ "$LOCZ" -ge 10 ] || { echo "::error::知乎脚本重定向条数异常（$LOCZ 条，预期 ≥10）"; exit 1; }
+          echo "知乎脚本：本地指向 $LOCZ 条 / 上游残留 $UPZ 条"
           UN=$(python3 -c "import json;d=json.load(open('build/report.json'));print(len(d.get('unhandled',[])))")
           TOT=$(python3 -c "import json;d=json.load(open('build/report.json'));print(d.get('jq',0)+d.get('replace',0)+len(d.get('unhandled',[])))")
           echo "unhandled=$UN / total=$TOT"

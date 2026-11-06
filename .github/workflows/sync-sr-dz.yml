@@ -48,19 +48,6 @@ jobs:
           python3 tools/dz_check.py --module dist/unlock.srmodule \
             --min-rule 0 --min-urw 0 --min-script 100 --min-mitm 100
 
-      - name: Convert - ad（去广告）
-        working-directory: sr-adblock
-        env:
-          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
-        run: |
-          set -euo pipefail
-          MODS=$(ls -d /tmp/dz/*/modules)
-          python3 tools/dz_convert.py "$MODS" dist/dz-adblock.srmodule \
-            --filter ad --raw-url "$RAW/dist/dz-adblock.srmodule" \
-            --report build/dz_ad.json
-          python3 tools/dz_check.py --module dist/dz-adblock.srmodule \
-            --min-rule 20 --min-urw 400 --min-script 40 --min-mitm 200
-
       - name: Open issue on failure
         if: failure()
         uses: actions/github-script@v7
@@ -97,7 +84,6 @@ jobs:
           git add sr-adblock/dist sr-adblock/build
           if git diff --staged --quiet; then echo "上游无变化"; exit 0; fi
           U=$(python3 -c "import json;d=json.load(open('sr-adblock/build/dz_unlock.json'));print(d['script'],d['mitm'])")
-          A=$(python3 -c "import json;d=json.load(open('sr-adblock/build/dz_ad.json'));print(d['script'],d['url_rewrite'])")
           git commit -m "chore: sync deezertidal unlock $(date -u +%Y-%m-%d)" \
-            -m "解锁: 脚本 ${U%% *} / MITM ${U##* } ｜ 去广告: 脚本 ${A%% *} / 改写 ${A##* }"
+            -m "解锁: 脚本 ${U%% *} / MITM ${U##* }"
           git push
