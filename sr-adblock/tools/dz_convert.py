@@ -51,6 +51,8 @@ SEC_NAME = {"rule": "Rule", "url rewrite": "URL Rewrite", "map local": "Map Loca
 
 
 def clean_script(line):
+    # 规范「名称=type」为「名称 = type」（上游有 biliad=type=... 这种写法）
+    line = re.sub(r"^([^=\s]+)\s*=\s*", r"\1 = ", line, count=1)
     line = re.sub(r",?\s*script-update-interval=[^,]*", "", line)
     line = re.sub(r",?\s*argument=[^,]*", "", line)
     line = re.sub(r"requires-body=(true|1)\b", "requires-body=1", line, flags=re.I)
