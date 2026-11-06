@@ -149,6 +149,9 @@ def parse(path, out, stats):  # noqa: C901
                     continue
                 if " " in h or "=" in h:
                     continue
+                if re.search(r":0$", h):
+                    stats["mitm_port0"] += 1
+                    continue
                 out["mitm"].append(h)
             stats["modules"] += 1
         elif cur == "script":
@@ -187,7 +190,7 @@ def main():  # noqa: C901
     stats = {"modules": 0, "dropped": 0, "script_no_path": 0,
              "mitm_negated": [], "unknown_sections": set(),
              "urw_script_url": 0, "urw_bad": 0, "urw_redirect_dropped": 0,
-             "legacy_script_converted": 0, "legacy_idx": 0}
+             "legacy_script_converted": 0, "legacy_idx": 0, "mitm_port0": 0}
 
     if not files:
         raise SystemExit("ERROR: %s 里没有任何 .module/.sgmodule" % a.srcdir)
@@ -272,6 +275,7 @@ def main():  # noqa: C901
            "urw_unparsable_dropped": stats["urw_bad"],
            "urw_redirect_dropped": stats["urw_redirect_dropped"],
            "legacy_script_converted": stats["legacy_script_converted"],
+           "mitm_port0_dropped": stats["mitm_port0"],
            "unknown_sections": sorted(stats["unknown_sections"]),
            "bytes": os.path.getsize(a.dst)}
     print(json.dumps(rep, ensure_ascii=False, indent=1))
