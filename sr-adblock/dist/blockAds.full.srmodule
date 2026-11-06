@@ -19,8 +19,6 @@
 #  已剔除 [URL Rewrite 垃圾行] 1 条（SR 不支持）
 # ============================================================
 
-
-
 [Rule]
 DOMAIN,sq.bls.mdt.qq.com,REJECT
 DOMAIN,h-adashx4bc.ut.taobao.com,REJECT
@@ -11584,7 +11582,6 @@ DOMAIN-SUFFIX,push-android.myzaker.com,REJECT
 
 # >>>>>>>>>>>>>>> 🟣 <<<<<<<<<<<<<<
 
-
 [URL Rewrite]
 # >>>>>>>>>>>>>>> ✅ !! ✅ <<<<<<<<<<<<<<
 
@@ -16280,7 +16277,6 @@ https://.+\.gamersky.com/v1/statisticAd data-type=text data="{}" status-code=200
 
 
 # >>>>>>>>>>>>>>> 🟣 <<<<<<<<<<<<<<
-
 
 [Script]
 12306 = type=http-request, pattern=^https?:\/\/ad\.12306\.cn\/ad\/ser\/getAdList, script-path=https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js, requires-body=1, timeout=60

@@ -141,18 +141,29 @@ def main():  # noqa: C901
             break
 
     order = ["Rule", "Host", "URL Rewrite", "Map Local", "Script", "MITM"]
+    def trim_tail(body):
+        while body and not body[-1].strip():
+            body = body[:-1]
+        return body
+
     for s in order:
-        if s not in ms or not ms[s]:
+        if s not in ms or not real(ms[s]):
             continue
+        body = trim_tail(ms[s])
+        while out and not out[-1].strip():
+            out.pop()
         out.append("")
         out.append("[%s]" % s)
-        out.extend(ms[s])
+        out.extend(body)
     for s in ms:
-        if s in order:
+        if s in order or not real(ms[s]):
             continue
+        body = trim_tail(ms[s])
+        while out and not out[-1].strip():
+            out.pop()
         out.append("")
         out.append("[%s]" % s)
-        out.extend(ms[s])
+        out.extend(body)
 
     with open(a.main, "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(out).rstrip() + "\n")
