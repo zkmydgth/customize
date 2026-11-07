@@ -104,6 +104,12 @@ jobs:
               --filter ad --report build/dz_ad.json
             python3 tools/merge_module.py --main dist/blockAds.sr.module \
               --add /tmp/dz_ad.srmodule --report build/merge_dz.json
+            # 同一次拉取顺便生成解锁模块，避免它依赖另一条流水线
+            python3 tools/dz_convert.py "$MODS" dist/unlock.srmodule \
+              --filter unlock --raw-url "$RAW/dist/unlock.srmodule" \
+              --report build/dz_unlock.json
+            python3 tools/dz_check.py --module dist/unlock.srmodule \
+              --min-rule 0 --min-urw 0 --min-script 100 --min-mitm 100
           else
             echo "::warning::deezertidal 拉取失败，本次跳过去广告合并"
           fi
@@ -121,6 +127,26 @@ jobs:
             echo "::warning::增强规则源拉取失败，本次增强版=精简版"
           fi
 
+      - name: Build all-in-one（去广告 + 解锁）
+        working-directory: sr-adblock
+        env:
+          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
+        run: |
+          set -euo pipefail
+          if [ ! -f dist/unlock.srmodule ]; then
+            echo "::error::dist/unlock.srmodule 未生成（上一步 deezertidal 拉取或转换失败）"
+            exit 1
+          fi
+          python3 tools/make_allinone.py \
+            --ad dist/blockAds.sr.module --unlock dist/unlock.srmodule \
+            --out dist/all-in-one.srmodule \
+            --raw-url "$RAW/dist/all-in-one.srmodule" \
+            --report build/allinone.json
+          # 断言：合并后必须真的包含解锁内容
+          A=$(python3 -c "import json;print(json.load(open('build/allinone.json'))['script'])")
+          B=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' dist/blockAds.sr.module | grep -vcE '^\s*(#|$)' || echo 0)
+          [ "$A" -gt "$B" ] || { echo "::error::all-in-one 的脚本数($A)没有超过去广告模块($B)，解锁未并入"; exit 1; }
+
       - name: Verify (jq differential + script smoke test + structure)
         working-directory: sr-adblock
         run: |
@@ -132,6 +158,8 @@ jobs:
           python3 tools/check_extra.py --module "$F"
           # 产物健康检查：正则编译 / MITM 合法性 / 脚本抽样可达性（404 仅告警）
           python3 tools/health_check.py --module "$F" --network --sample 5
+          python3 tools/health_check.py --module dist/all-in-one.srmodule
+          python3 tools/health_check.py --module dist/unlock.srmodule
           # 知乎脚本必须指向本仓库的修补版：上游版本有 item 未定义的崩溃 bug，
           # 若重定向没生效（URL 变动 / 忘传 --raw-url），产物会静默退回有 bug 的版本
           UPZ=$(grep -c 'fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js' "$F" || true)
@@ -218,10 +246,15 @@ jobs:
           H=$(awk '/^\[MITM\]/{getline; print}' "$MOD" | tr ',' '\n' | wc -l)
           git commit -m "chore: sync upstream $(date -u +%Y-%m-%d)" \
             -m "Rule ${OLD} -> ${NEW} (${SIGN}${DELTA}) ｜ Script ${S} ｜ MITM ${H}"
-          # 另一条流水线可能刚推过：先 rebase 再重试，避免非快进失败
+          # 推送重试：失败必须让整个 job 失败，否则"CI 绿但线上没更新"
+          PUSHED=0
           for i in 1 2 3; do
-            if git push; then break; fi
+            if git push; then PUSHED=1; break; fi
             echo "push 失败，尝试 rebase 重试 ($i)"
             git pull --rebase --autostash || true
             sleep 8
           done
+          if [ "$PUSHED" != "1" ]; then
+            echo "::error::推送失败（3 次重试均未成功），线上产物未更新"
+            exit 1
+          fi
