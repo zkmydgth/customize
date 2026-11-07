@@ -49,6 +49,23 @@ jobs:
             --min-rule 0 --min-urw 0 --min-script 100 --min-mitm 100
           python3 tools/health_check.py --module dist/unlock.srmodule --network --sample 5
 
+      - name: Build all-in-one（去广告 + 解锁合并）
+        working-directory: sr-adblock
+        env:
+          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
+        run: |
+          set -euo pipefail
+          if [ -f dist/blockAds.sr.module ]; then
+            python3 tools/make_allinone.py \
+              --ad dist/blockAds.sr.module --unlock dist/unlock.srmodule \
+              --out dist/all-in-one.srmodule \
+              --raw-url "$RAW/dist/all-in-one.srmodule" \
+              --report build/allinone.json
+            python3 tools/health_check.py --module dist/all-in-one.srmodule || true
+          else
+            echo "::warning::dist/blockAds.sr.module 不存在，本次跳过 all-in-one"
+          fi
+
       - name: Open issue on failure
         if: failure()
         uses: actions/github-script@v7
