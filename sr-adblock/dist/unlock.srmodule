@@ -172,7 +172,7 @@ proKnockout = type=http-response,pattern=https://buy.itunes.apple.com/verifyRece
 七猫小说 = type=http-response,pattern=^https?:\/\/(api-\w+|xiaoshuo)\.wtzw\.com\/api\/v\d\/,requires-body=1,script-path=https://raw.githubusercontent.com/I-am-R-E/QuantumultX/main/JavaScript/QiMaoXiaoShuo.js
 青柠海报 = type=http-response,pattern=^https:\/\/api\.qingning6\.com\/api\/user\/getUserInfo ,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/qnhb.js
 Relens大光圈单反相机 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Relens.js
-legacy-00 = type=http-response, pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt, requires-body = 1, script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Retake.js
+legacy-00 = type=http-response, pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt, requires-body=1, script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Retake.js
 如期会员 = type=http-response,pattern=^https:\/\/www\.freshhome\.top\/mngruqi,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/main/rq.js
 日杂相机 = type=http-response,pattern=^https:\/\/rzres86api\.imendon\.com\/v2\/purchase\/vip\/verification,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/rzxj.js
 色采 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/sc.js

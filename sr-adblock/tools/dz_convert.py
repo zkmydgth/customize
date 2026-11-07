@@ -51,6 +51,11 @@ SEC_NAME = {"rule": "Rule", "url rewrite": "URL Rewrite", "map local": "Map Loca
 
 
 def clean_script(line):
+    # 旧版位置参数格式（`http-response <pattern> requires-body=1,...`）没有名称段，
+    # 不能走下面的「名称=type」规范化——否则会把 `requires-body=1` 改成
+    # `requires-body = 1`，SR 解析失败（2026-11-07 实测 6 条微博脚本受影响）
+    if re.match(r"^http-(request|response)\s", line.strip()):
+        return line
     # 规范「名称=type」为「名称 = type」
     # 注意名称可能含空格（如 `AI Remove Background-Collart=type=...`），
     # 所以不能要求名称无空格，只需匹配到第一个 `=`
