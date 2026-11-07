@@ -102,6 +102,14 @@ def build_mitm(lines):  # noqa: C901
             if re.search(r":0$", h):
                 fixes["MITM 端口非法"] = fixes.get("MITM 端口非法", 0) + 1
                 continue
+            # 上游拼接错误：`cupid.51job*.comhostname` 这种两条粘一起
+            if re.search(r"hostname", h, re.I):
+                fixes["MITM 拼接错误"] = fixes.get("MITM 拼接错误", 0) + 1
+                continue
+            # SR 的 hostname 不支持 ? 通配
+            if "?" in h:
+                fixes["MITM 问号通配"] = fixes.get("MITM 问号通配", 0) + 1
+                continue
             hosts.append(h)
     seen, uniq = set(), []
     for h in hosts:
