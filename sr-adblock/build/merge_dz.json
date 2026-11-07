@@ -7,7 +7,7 @@
   "mitm_added": 91,
   "mitm_total": 1143,
   "mitm_coverage_added": 38,
-  "bytes": 483301,
+  "bytes": 483310,
   "counts": {
     "Rule": 2875,
     "URL Rewrite": 1155,
