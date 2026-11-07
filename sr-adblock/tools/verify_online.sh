@@ -59,7 +59,10 @@ if [ "$NO_CMP" = "0" ]; then
               "dist/all-in-one.srmodule:$TMP/all-in-one.srmodule"; do
     L=${pair%%:*}; R=${pair##*:}
     [ -f "$L" ] || { echo "  - $L 不存在，跳过"; continue; }
-    if cmp -s "$L" "$R"; then
+    # 「生成时间」行每次构建都不同，比较前剔除，避免误报不一致
+    grep -v '#  生成时间:' "$L" > "$TMP/l.f" 2>/dev/null || : > "$TMP/l.f"
+    grep -v '#  生成时间:' "$R" > "$TMP/r.f" 2>/dev/null || : > "$TMP/r.f"
+    if cmp -s "$TMP/l.f" "$TMP/r.f"; then
       echo "  ✓ $(basename "$L") 字节一致"
     else
       echo "  ! $(basename "$L") 不一致（本地 $(wc -c < "$L") B / 线上 $(wc -c < "$R") B）"

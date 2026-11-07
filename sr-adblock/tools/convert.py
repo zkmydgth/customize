@@ -429,6 +429,12 @@ def main():  # noqa: C901
     out.append("# ============================================================")
     out.append("#  Shadowrocket 适配版 · 自动生成，请勿手工修改")
     out.append("#  上游日期: %s" % (meta.get("date") or "unknown"))
+    # 生成时间：CI 通过 BUILD_TIME 传入（同一 run 内所有产物一致），
+    # 本地不设则用当前 UTC。它只作溯源线索，不参与"构建可重复"判断—— 
+    # tools/verify_online.sh 比较时会忽略这一行。
+    _bt = os.environ.get("BUILD_TIME") or datetime.datetime.now(
+        datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    out.append("#  生成时间: %s UTC" % _bt)
     out.append("#  保留统计: __STATS__")
     for k, v in dropped.items():
         if v:
