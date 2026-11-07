@@ -83,8 +83,16 @@ def main():  # noqa: C901
             if "reject-tinygif" not in txt:
                 fails.append("tiny-gif 未转换")
             mitm = [l for l in txt.split("\n") if l.lower().startswith("hostname")]
-            if not mitm or any("%APPEND%" in l for l in mitm):
-                fails.append("MITM 的 %%APPEND%% 未清理: " + repr(mitm))
+            # 现在要求 MITM 行必须以 %APPEND% 开头（SR 模块合并到全局 MITM 需要它），
+            # 且只能出现一次（2026-11-07 曾因重复累加出过 bug）
+            if not mitm:
+                fails.append("MITM 段缺失: " + repr(mitm))
+            else:
+                head = mitm[0]
+                if not head.startswith("hostname = %APPEND% "):
+                    fails.append("MITM 未以 %%APPEND%% 开头: " + head[:60])
+                elif head.count("%APPEND%") != 1:
+                    fails.append("MITM 里 %%APPEND%% 出现 %d 次（应为 1）" % head.count("%APPEND%"))
             if r"https?:\/\/rw2" not in txt:
                 fails.append("http:// 笔误未修正")
 
