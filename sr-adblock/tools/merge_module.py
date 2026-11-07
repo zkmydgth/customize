@@ -92,15 +92,23 @@ def main():  # noqa: C901
     ms.setdefault("URL Rewrite", []).extend(add_u)
     stats["url_rewrite"] = len(add_u)
 
-    # ---- Script（pattern 去重，主模块优先） ----
-    have = {pattern_of(l) for l in real(ms.get("Script", []))}
+    # ---- Script ----
+    # 去重键用「名称 + pattern」而不是单纯的 pattern：
+    # 解锁模块里有大量「多个 App 共用同一个 pattern」的情况
+    # （例如 RevenueCat 的 8 个订阅校验脚本共用 v1/(receipts|subscribers)/*），
+    # 只按 pattern 去重会把其中 7 个 App 的解锁脚本整批丢掉。
+    def script_key(line):
+        name = line.split("=", 1)[0].strip()
+        return (name, pattern_of(line) or line)
+
+    have = {script_key(l) for l in real(ms.get("Script", []))}
     add_s, skipped_s = [], 0
     for l in real(als.get("Script", [])):
-        p = pattern_of(l) or l
-        if p in have:
+        k = script_key(l)
+        if k in have:
             skipped_s += 1
             continue
-        have.add(p)
+        have.add(k)
         add_s.append(l)
     ms.setdefault("Script", []).extend(add_s)
     stats["script"] = len(add_s)

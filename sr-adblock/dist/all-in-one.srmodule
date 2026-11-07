@@ -12,7 +12,7 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  保留统计: Rule 2875 / URL Rewrite 1163 / Map Local 712 / Script 548 / MITM 1356 hosts
+#  保留统计: Rule 2875 / URL Rewrite 1163 / Map Local 712 / Script 593 / MITM 1356 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
 #  已剔除 [General] 1 条（SR 不支持）
@@ -8852,6 +8852,7 @@ B612咔叽 = type=http-response,pattern=https://user-kaji-api.b612kaji.com/v1/pu
 白描 = type=http-response,pattern=^https?:\/\/baimiao\.uzero\.cn\/api\/v\d\.user\/appLaunchWithUser$,requires-body=1,script-path=https://raw.githubusercontent.com/iEwha/Profiles/master/Script/baimiao.js
 bazaart会员解锁 = type=http-response,pattern=https://buy.itunes.apple.com/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/bazaart.js
 百度文库 = type=http-response,pattern=^https:\/\/appwk\.baidu\.com\/naapi\/user\/getinfo,requires-body=1,script-path=https://github.com/deezertidal/private/raw/master/js-backup/Crack/baidulibrary.js
+助眠风扇 = type=http-response,pattern=https://api.revenuecat.com/v1/(receipts|subscribers)/* ,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/bedtimeFan.js,requires-body=1,max-size=0
 博商小麦 = type=http-response,pattern=http:\/\/yyy\.bosum\.com\/enterprise,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/boshangxiaomai.js
 财新会员 = type=http-request,pattern=^https?:\/\/gateway\.caixin\.com\/api\/app\-api\/auth\/(validate|validateAudioAuth),requires-body=0,script-path=https://raw.githubusercontent.com/deezertidal/shadowrocket-rules/main/js/caixin.js
 计算器HD = type=http-response,pattern=^https?:\/\/www\.40sishi\.com\/(list|currency|calculator)\/user\/profile$,script-path=https://raw.githubusercontent.com/yqc007/QuantumultX/master/CalculatorHDProCrack.js,requires-body=1
@@ -8860,6 +8861,7 @@ caml解锁 = type=http-response,pattern=https://api.calm.com/(me|device|ios/rece
 充电助手 = type=http-response,pattern=^https:\/\/api\.yonekura\.cn\/3\.7\.0\/uicommon\/getuser,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/cdzs.js
 CEO周课 = type=http-response,pattern=^https:\/\/user\.xiaozaoapp\.com\/app\/ceouser\/loginAuto ,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/ceo.js
 Chic = type=http-response,pattern=^https:\/\/api-sub\.meitu\.com\/v2\/user\/vip_info\.json,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Chic.js
+Collart = type=http-response,pattern=^https:\/\/iap\.etm\.tech\/receipts,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Collart.js
 菜谱大全&香哈菜谱1 = type=http-response,pattern=^https?:\/\/apiios\.xiangha\.com\/main\d+\/,requires-body=1,script-path=https://raw.githubusercontent.com/I-am-R-E/QuantumultX/main/JavaScript/XiangHaCaiPu.js
 菜谱大全&香哈菜谱2 = type=http-response,pattern=^https?:\/\/apiios_dq\.xiangha\.com\/v\d\/,requires-body=1,script-path=https://raw.githubusercontent.com/I-am-R-E/QuantumultX/main/JavaScript/CaiPuDaQuan.js
 菜谱大全&香哈菜谱3 = type=http-response,pattern=^https?:\/\/appweb_dq\.xiangha\.com\/center\/pay\/home,requires-body=1,script-path=https://raw.githubusercontent.com/I-am-R-E/QuantumultX/main/JavaScript/CaiPuDaQuan.js
@@ -8883,8 +8885,10 @@ Ego Reader=type=http-response,pattern=^https?:\/\/api\.pxmage\.com\/egoreader\/u
 Emmo = type=http-response,pattern=^http://106.54.2.168/emmoDiary/user/getUser,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/master/js-backup/Crack/emmo.js
 Emote = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Emote.js
 Endel = type=http-response,pattern=^https:\/\/api-production\.endel\.io\/v4\/call,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Endel.js
+FabulousPremium = type=http-response,pattern=https://buy.itunes.apple.com/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/fabulous.js
 FainTV解锁会员去广告 = type=http-response,pattern=^http:\/\/ftvn\.hawsing\.com\.tw:3000\/client\/login,requires-body=1,script-path=https://raw.githubusercontent.com/sngxmini/crack/master/s7aa.cn/fatv.js
 Fantastical = type=http-response,pattern=^https:\/\/api\.flexibits\.com\/(v1\/auth\/device|v1\/account\/details),requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/master/js-backup/Crack/fantastical.js
+Fileball会员 = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/fileball.js
 Flomo = type=http-response,pattern=^https:\/\/flomoapp\.com\/api\/v1\/user\/me,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/flomo.js
 FitnessView = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/FitnessView.js
 FoMz = type=http-response,pattern=^https:\/\/fz68resapi\.imendon\.com\/v2\/purchase\/vip\/verification,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/FoMz.js
@@ -8898,10 +8902,12 @@ Grow = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v\d\/receipt
 汉堡儿童故事 = type=http-response,pattern=^http[s]?:\/\/www.babybooks.top\/v0\/profile,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/hbetgs.js
 海报工厂 = type=http-response,pattern=^https:\/\/api-sub\.meitu\.com\/v2\/user\/vip_info_by_group\.json,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/hbgc.js
 烘焙小屋 = type=http-response,pattern=^https?:\/\/apiios_dq\.xiangha\.com\/v4\/(dish\/info|User\/getUserData)$,script-path=https://raw.githubusercontent.com/yqc007/QuantumultX/master/XiangHaBakeProCrack.js,requires-body=1
+好事发生 = type=http-response,pattern=https://api.revenuecat.com/v1/(receipts|subscribers)/*,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/hsfs.js
 海豚记账本 = type=http-response,pattern=https:\/\/book\.haitunwallet\.com\/app\/vip\/status,requires-body=1 ,script-path=https://raw.githubusercontent.com/deezertidal/shadowrocket-rules/main/js/htjzb.js
 Https抓包 = type=http-response,pattern=^https?:\/\/buy\.itunes\.apple\.com\/verifyReceipt$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/https.js
 幻休 = type=http-response,pattern=^https:\/\/api\.shaolinzen\.com\/user\/v1\/info,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/HX.js
 HyperWeb = type=http-response,pattern=^https://zy6kcqa01a.execute-api.us-east-2.amazonaws.com/prod/verifyReceipt,requires-body=1,script-path=https://github.com/deezertidal/private/raw/master/js-backup/Crack/hyperweb.js
+幻影相册 = type=http-response,pattern=^https?:\/\/buy\.itunes\.apple\.com\/verifyReceipt$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/hyxc.js
 黄油相机 = type=http-response,pattern=https:\/\/api4\.bybutter\.com\/v4\/*,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/hy.js
 绘影字幕 = type=http-response,pattern=^https:\/\/api\.bluepulse\.cn\/bluepulse-caption-server-front\/api\/v1\/\/user\/app-vip-info,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/hyzm.js
 汇中考 = type=http-response,pattern=^http[s]?:\/\/www.zhongkao66.com,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/hzk.js
@@ -8919,22 +8925,31 @@ keep = type=http-response,pattern=^https:\/\/api\.gotokeep\.com,requires-body=1,
 可拍 = type=http-response,pattern=http:\/\/fxshot-api\.afunapp\.com\/order_api\/apple_query,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/kp.js
 kika解锁 = type=http-response,pattern=https://api.kikakeyboard.com/v1/ios/subscription/check/user,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/kika.js
 看理想 = type=http-response,pattern=^https:\/\/api\.vistopia\.com\.cn\/api,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/shadowrocket-rules/main/js/klx.js
+卡片日记 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/kprj.js
 酷我音乐完美解锁 = type=http-response,pattern=^https?:\/\/.*\.(kuwo|lrts)\.(cn|me)\/(a\.p|music\.pay|(vip\/(v2|enc)\/(theme|user\/vip))|(EcomResource|(Mobile)?Ad)Serv(er|ice)).*,requires-body=1,script-path=https://raw.githubusercontent.com/nameking77/Qx/main/rewrite/kw.js
 酷我年费会员 = type=http-response,pattern=^https?:\/\/vip1\.kuwo\.cn\/(vip\/v2\/user\/vip|vip\/spi/mservice),requires-body=1,script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/Kuwo.js
+咖映 = type=http-response,pattern=^https:\/\/gw\.aoscdn\.com\/base\/vip\/client\/authorizations,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/yk.js
 灵敢足迹 = type=http-response,pattern=^https:\/\/footprint-api\.quthing\.com\/vip\/state,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/lgzj.js
+Lifeviewer = type=http-response,pattern=^https:\/\/api\.apphud\.com\/v1\/subscriptions,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Lifeviewer.js
 LightRoom = type=http-response,pattern=^https:\/\/photos\.adobe\.io\/v2\/accounts*,requires-body=1,script-path=https://raw.githubusercontent.com/litieyin/AD_VIP/main/Script/lightroom.js
 Lingokids = type=http-response,pattern=^https:\/\/api\.lingokids\.com\/v1\/renovate_session,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Lingokids.js
 莉景天气 = type=http-response,pattern=^https:\/\/ljwapi\.baichuan\.tech,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/ljtq.js
 螺畤大语文 = type=http-response,pattern=^https?:\/\/api8\.luosijiaoyu\.com\/api\/(HZLSJY20200817Controller\/selectFMVideoById\.html|LsjyMyContoller\/selectUserInfo\.html),requires-body=1,script-path=https://raw.githubusercontent.com/lutqhysky/quantumultx/mylove/luosidayuwen/Script/luosidayuwen.js
 来音智能陪练 = type=http-response,pattern=^https:\/\/partner-ai-api\.quthing\.com\/ai\/vip\/state,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/ly.js
+目标地图 = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/mbdt.js
 免耽漫画 = type=http-response,pattern=https://app.lalaldc.cn/api/lifan-customer/customer/info,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/mdmanga.js,requires-body=1,max-size=0
+谜底时钟 = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/mdsz.js
 美篇 = type=http-response,pattern=^https:\//poster.meipian.cn\/5.3\/user\/info,requires-body=1,script-path=https://raw.githubusercontent.com/litieyin/AD_VIP/main/Script/meipian.js
 MeisterTask = type=http-response,pattern=https://www.mindmeister.com/api/v2/licenses/meistertask,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/master/js-backup/Crack/meistertask.js
 Memrise = type=http-response,pattern=^https:\/\/api\.memrise\.com\/v1\.18,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Memrise.js
 漫画台小程序 = type=http-response,pattern=^https?:\/\/comic\.321mh\.com\/app_api\/v\d\/getcomicinfo_body,requires-body=1,script-path=https://github.com/deezertidal/private/raw/master/js-backup/Crack/manhuatailite.js
 马卡龙玩图 = type=http-response,pattern=https://app.api.versa-ai.com/pay/order/iap/check,requires-body=1 ,script-path=https://raw.githubusercontent.com/deezertidal/shadowrocket-rules/main/js/mklwt.js
+米克锁屏 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/mksp.js
+MOJO会员解锁 = type=http-response,pattern=https://api.revenuecat.com/v1/(receipts|subscribers)/*,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/mojo.js
 Molycam = type=http-response,pattern=https:\/\/pay\.wecut\.com\/apple\/(iosVerifyReceipt|iosAppVerifyReceipt)\.php,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/master/js-backup/Crack/mv.js
 Mondly = type=http-response,pattern=^https:\/\/api\.mondlylanguages\.com\/v3\/ios\/user\/sync,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Mondly.js
+MoneyThings = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/MoneyThings.js
+Motivation = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Motivation.js
 猫头鹰文件 = type=http-response,pattern=^https:\/\/www\.skyjos\.cn:58080\/ws\/loadaccountinfo,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/mtywj.js
 Musixmatch解锁 = type=http-response,pattern=https://apic.musixmatch.com/ws/1.1/config.get,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/musixmatch.js
 My Plate=type=http-response,pattern=https://www.livestrong.com/service/user/profile/*,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/myPlate.js,requires-body=1,max-size=0
@@ -8943,28 +8958,44 @@ Nomocam = type=http-request,pattern=^https?:\/\/nomo\.dafork\.com\/api\/.+ ,requ
 Notability = type=http-response,pattern=^https://notability.com/subscriptions,requires-body=1,script-path=https://raw.githubusercontent.com/litieyin/AD_VIP/main/Script/notability.js
 Notboring天气+闹钟+习惯解锁 = type=http-response,pattern=^https?:\/\/api-weather\.andy\.works\/v\d\/\w{18}$,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/lutqhysky/quantumultx/mylove/NotBoring/Script/NotBoring.js
 now冥想会员 = type=http-response,pattern=https://nowapi.navoinfo.cn/h2/user/*,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/nowPonder.js
+乃糖小组件 = type=http-response,pattern=^https:\/\/awvp\.aoscdn\.com\/base\/vip\/client\/authorizations,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/ltXzj.js
 奶由壁纸会员 = type=http-response,pattern=https://nz-api.duitang.com/account/me,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/naiyou.js
+OldRoll = type=http-response,pattern=^https?:\/\/buy\.itunes\.apple\.com\/verifyReceipt$,requires-body=1,script-path=https://raw.githubusercontent.com/yqc007/QuantumultX/master/OldRollFVIPCrack.js
+Panda widget=type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/pandavip.js
+Pandora订阅管理 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Pandora.js
 PDF Viewer=type=http-response,pattern=^https:\/\/api\.revenuecat\.com\/v1\/subscribers.+,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/PDFViewer.js
 Peak = type=http-response,pattern=^https:\/\/billing\.peakcloud\.org\/billing\/2\/user\/me?,requires-body=1 ,script-path=https://raw.githubusercontent.com/deezertidal/shadowrocket-rules/main/js/peak.js
 配音 = type=http-response,pattern=^http[s]?:\/\/xihongshi.dicallapp.com,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/dicallapp.js
 配音秀 = type=http-response,pattern=^https?:\/\/iosapi.peiyinxiu.com,requires-body=1,script-path=https://raw.githubusercontent.com/lutqhysky/quantumultx/mylove/peiyinxiu/Script/peiyinxiu.js
+Percento = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/percento.js
 Photomath = type=http-response,pattern=https://lapi.photomath.net/v4/me,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/master/js-backup/Crack/poh.js
 PhotoshopExpress = type=http-response,pattern=^https:\/\/lcs-mobile-cops\.adobe\.io\/mobile_profile,requires-body=1,script-path=https://raw.githubusercontent.com/litieyin/AD_VIP/main/Script/photoshop.js
 Piccollage解锁 = type=http-response,pattern=https://piccollage.com/api/graphql,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/picCollage.js
 Picsart = type=http-response,pattern=https:\/\/api\.(picsart|meiease)\.c(n|om)\/users\/show\/me\.json,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/NobyDa/Script/master/Surge/JS/PicsArt.js
 Pillow = type=http-response,pattern=https:\/\/api\.revenuecat\.com\/v1\/(subscribers|receipts),requires-body=1 ,script-path=https://raw.githubusercontent.com/deezertidal/shadowrocket-rules/main/js/pillow.js
+Pixelance = type=http-response,pattern=^https:\/\/iap\.etm\.tech\/receipts,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Pixelance.js
+Pixelcut解锁 = type=http-response,pattern=https://api.revenuecat.com/v1/(receipts|subscribers)/*,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/pixelcut.js
+Planny = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Planny.js
 Pocket Lists=type=http-response,pattern=^https:\/\/pocketlists\.com\/api\/v1\/pocketlists.me.get,requires-body=1 ,script-path=https://raw.githubusercontent.com/deezertidal/private/main/pocketlists.js
+PrettyUp = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/upp.js
+proKnockout = type=http-response,pattern=https://buy.itunes.apple.com/verifyReceipt,requires-body=1,max-size=0,script-path= https://raw.githubusercontent.com/deezertidal/shadowrocket-rules/main/js/proKnockout.js
+拼图酱 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/ptj.js
 钱迹 = type=http-response,pattern=^https:\/\/qianji\.xxoojoke\.com\/vip\/configios,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/qj.js
 七猫小说 = type=http-response,pattern=^https?:\/\/(api-\w+|xiaoshuo)\.wtzw\.com\/api\/v\d\/,requires-body=1,script-path=https://raw.githubusercontent.com/I-am-R-E/QuantumultX/main/JavaScript/QiMaoXiaoShuo.js
 青柠海报 = type=http-response,pattern=^https:\/\/api\.qingning6\.com\/api\/user\/getUserInfo ,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/qnhb.js
+Relens大光圈单反相机 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Relens.js
+legacy-00 = type=http-response, pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt, requires-body=1, script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Retake.js
 如期会员 = type=http-response,pattern=^https:\/\/www\.freshhome\.top\/mngruqi,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/main/rq.js
 日杂相机 = type=http-response,pattern=^https:\/\/rzres86api\.imendon\.com\/v2\/purchase\/vip\/verification,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/rzxj.js
+色采 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/sc.js
 7分钟HIIT运动 = type=http-response,pattern=^https:\/\/api\.sevenworkouts\.com\/api\/v(\d)\/(verify-purchases|account/verify-purchases),requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Seven.js
 时光手账解锁 = type=http-response,pattern=https://api.shouzhang.com/memcenterlk/member,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/timebook.js
+ShadowLinkVPN解锁会员节点 = type=http-response,pattern=https://buy.itunes.apple.com/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/shadowlink.js
 手机扫描仪 = type=http-response,pattern=^https?:\/\/saomiao\.34354\.com\/api\/open\/member\/level$,requires-body=1,script-path= https://raw.githubusercontent.com/lutqhysky/quantumultx/mylove/yidondsaomianyi/Script/jdsmy.js
 Smallpdf解锁 = type=http-response,pattern=https://pro.smallpdf.com/pro/account,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/smallpdf.js
 闪萌表情 = type=http-response,pattern=^https:\/\/hi\.weshine\.im\/v3\.0\/account\/profile,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/smbq.js
 石墨文档 = type=http-response,pattern=^https:\//shimo.im\/lizard-api\/users\/me,requires-body=1,script-path=https://raw.githubusercontent.com/litieyin/AD_VIP/main/Script/shimo.js
+私密相册管家 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/smxcgj.js
 少年得到 = type=http-response,pattern=^https?:\/\/igetcool-gateway\.igetcool\.com\/(app-api-user-server\/oath\/user\/info\.json|app-api-product-server\/option\/course\/audios\.json|app-api-product-server\/white\/course\/videos\.json),requires-body=1,script-path=https://raw.githubusercontent.com/lutqhysky/quantumultx/mylove/shaomiandedao/Script/shaoniandedao.js
 Sorted = type=http-response,pattern=^https:\/\/api\.sortedapp\.com\/receipts\/verify,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Sorted.js
 spotify-proto = type=http-response,pattern=^https:\/\/spclient\.wg\.spotify\.com\/(bootstrap\/v1\/bootstrap|user-customization-service\/v1\/customize)$,requires-body=1,binary-body-mode=1,max-size=0,script-path=https://raw.githubusercontent.com/app2smile/rules/master/js/spotify-proto.js
@@ -8972,9 +9003,14 @@ SSA丝社 = type=http-response,pattern= ^https?:\/\/www\.ssalegs\.store\/cms\/Ap
 搜图神器 = type=http-response,pattern=http:\/\/wallpaper\.soutushenqi\.com\/api\/v1\/account\/token,requires-body=1,script-path=https://raw.githubusercontent.com/Alex0510/Eric/master/surge/Script/SearchArtifact.js
 iScreen = type=http-response,pattern=^https:\/\/api-aidraw\.3dmoxiu\.com\/v4\/aidraw\/user\/userInfo\/getUserInfoByToken,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/StyleArt.js
 Sub-Store = type=http-request,pattern=^https?:\/\/sub\.store,script-path=https://raw.githubusercontent.com/Peng-YM/Sub-Store/master/backend/sub-store.min.js,requires-body=1,timeout=120,max-size=131072
+Tangerine解锁 = type=http-response,pattern=https://api.revenuecat.com/v1/(receipts|subscribers)/*,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/tangerine.js
 10percent解锁 = type=http-response,pattern=https://api.changecollective.com/api/v3/user,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/tenPercent.js
 迅雷会员 = type=http-response,pattern=https://xluser-ssl.xunlei.com/xluser.core.login/v3/getuserinfo,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/xunlei.js
 Todo清单 = type=http-response,pattern=^https:\/\/www\.evestudio\.cn\/todoList\/getDetailUser,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Todo.js[MITM]
+TOKCAM = type=http-response,pattern=^https?:\/\/buy\.itunes\.apple\.com\/verifyReceipt$,script-path=https://raw.githubusercontent.com/yqc007/QuantumultX/master/TokCamFProCrack.js,requires-body=1
+天天豆 = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/ttd.js
+图图记账 = type=http-response,pattern=^https?:\/\/api\.revenuecat\.com\/v1\/(receipts|subscribers\/\$RCAnonymousID%3A\w{32})$,script-path=https://raw.githubusercontent.com/yqc007/QuantumultX/master/ToToWalletFProCrack.js,requires-body=1
+Usage = type=http-response,pattern=^https:\/\/api\.revenuecat\.com\/v1\/subscribers.+,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Usage.js
 Varlens = type=http-response,pattern=^https:\/\/mid\.zineapi\.com\/@varlens\/api\/user\/info\/,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Varlens.js
 VCUS = type=http-response,pattern=^https:\/\/sdk\.api\.appwheel\.com\/v1\/order\/restore,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/VCUS.js
 Vista看天下 = type=http-response,pattern=^https?:\/\/open3\.vistastory\.com\/v\d\/api\/(article\/article_detail|vip\/get_vip|my\/home\/get_home_center),require-body=1,script-path=https://github.com/deezertidal/private/raw/master/js-backup/Crack/ktx.js
@@ -8982,10 +9018,15 @@ Vivacut = type=http-response,pattern=^https:\/\/medi\.dxzzy321\.top\/api\/rest\/
 VSCO = type=http-request,pattern=^https?:\/\/api\.revenuecat\.com\/v\d\/subscribers\/,script-path=https://raw.githubusercontent.com/NobyDa/Script/master/QuantumultX/File/vsco.js
 WallCraft = type=http-response,pattern=^https?:\/\/billing-ios\.wallpaperscraft\.com\/verify_receipt\/remove_ads$,script-path=https://raw.githubusercontent.com/yqc007/QuantumultX/master/WallCraftFProCrack.js,requires-body=1
 Watchout = type=http-response,pattern=^https:\/\/api\.pengranapp\.com\/1\.1\/classes\/UserInfo,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/Watchoutc.js
+我的番茄 = type=http-response,pattern=https://api.revenuecat.com/v1/(receipts|subscribers)/*,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/wdfq.js
 豌豆清单 = type=http-response,pattern=^https:\/\/www\.40sishi\.com\/list\/user\/profile$,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/master/js-backup/Crack/wdqd.js
+WorkoutForWomen解锁 = type=http-response,pattern=https://buy.itunes.apple.com/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/workoutForWomen.js
+无痕去水印 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/whqsy.js
+Widgetsmith解锁 = type=http-response,pattern=https://api.revenuecat.com/v1/(receipts|subscribers)/*,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/widgetSmith.js
 万能变声器解锁 = type=http-response,pattern=https://www.40sishi.com/voice/user/profile,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/voiceChanger.js
 网易蜗牛读书 = type=http-response,pattern=^https?:\/\/p\.du\.163\.com\/gain\/readtime\/info\.json,requires-body=1 ,script-path=https://raw.githubusercontent.com/deezertidal/private/main/wnds.js
 WPS = type=http-response,pattern=^https?:\/\/.*?account\.wps\.(com|cn)(:\d+)?\/api\/users\/\w+\/overview$,script-path=https://raw.githubusercontent.com/I-am-R-E/Functional-Store-Hub/Master/WPSOffice/Script/WPS.js, requires-body=1, timeout=10
+网速测试大师 = type=http-response,pattern=^https:\/\/iap\.etm\.tech\/receipts,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/wscsds.js
 网速管家 = type=http-response,pattern=^https:\/\/api-v3\.speedtest\.cn\/user\/info,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/wsgj.js
 微信读书 = type=http-response,pattern=^https:\/\/i\.weread\.qq\.com\/pay\/memberCardSummary,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/txwxds.js
 微信听书解锁vip = type=http-response,pattern=^https:\/\/i\.at\.qq\.com\/pay\/memberinfo,requires-body=1,script-path=https://raw.githubusercontent.com/sngxmini/crack/master/wxts/wxts.js
@@ -8997,6 +9038,7 @@ Xmind思维导图 = type=http-response,pattern=https?:\/\/www\.xmind\.(cn|net|ap
 小习惯 = type=http-response,pattern=https://xianbeikeji.com/daily/app/user/query,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/master/js-backup/Crack/mzjz.js
 小小优趣 = type=http-response,pattern=^https?:\/\/prod\.ukids\.cn\/uch5\/getUser,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/lutqhysky/quantumultx/mylove/xiaoxiaoyouqu/Script/xxyq.js
 新语听书 = type=http-response,pattern=^https?:\/\/i\.xinyulib\.com\.cn\/api\/querytoken.+,script-path=https://raw.githubusercontent.com/yqc007/QuantumultX/master/XinYuLibraryProCrack.js,requires-body=1,tag=新语听书解锁会员
+熊掌记 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/xzj.js
 小组件盒子 = type=http-response,pattern=^https:\/\/widget-box-api\.codefuture\.top\/v1\/users\/me,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/xzjhz.js
 一寸证件照 = type=http-response,pattern=^http[s]?:\/\/idp2api.netpock.com\/api\/user_info,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/yczjz.js
 有道词典 = type=http-response,pattern=^https:\/\/dict\.youdao\.com\/vip\/user\/status,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/wyydcd.js
@@ -9006,6 +9048,7 @@ Xmind思维导图 = type=http-response,pattern=https?:\/\/www\.xmind\.(cn|net|ap
 一言 = type=http-response,pattern=^https:\/\/app\.yiyan\.art\/yiyan\/,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/master/js-backup/Crack/yiyan.js
 一键换脸 = type=http-response,pattern=^https:\/\/c-api\.wjpaa\.cn\/capi\/wxRegisterLogin,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/yjhl.js
 一木记账 = type=http-response,pattern=^https?:\/\/yimuapp\.com(:8082)?\/bookkeeping\/user\/getUser\/,requires-body=1,script-path=https://raw.githubusercontent.com/I-am-R-E/QuantumultX/main/JavaScript/YiMuJiZhang.js
+音频剪辑 = type=http-response,pattern=^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/ypjj.js
 一书一课 = type=http-response,pattern=^https:\/\/api\.chiyue365\.com,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/ysyk.js
 云听 = type=http-response,pattern=http://getway.radio.cn/app*,requires-body=1,script-path=https://raw.githubusercontent.com/deezertidal/private/master/js-backup/Crack/yt.js
 语文趣配音 = type=http-response,pattern=^https?:\/\/cnapi\.qupeiyin\.com\/(user\/memberData|member|top\/showTop),requires-body=1,script-path=https://raw.githubusercontent.com/lutqhysky/quantumultx/mylove/wenyuqupeiyin/Script/yuwenqupeiyin.js
@@ -9014,6 +9057,8 @@ Xmind思维导图 = type=http-response,pattern=https?:\/\/www\.xmind\.(cn|net|ap
 中华诗词库 = type=http-response,pattern=http:\/\/api\.chuangqi\.store\/,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/zhsck.js
 指尖笔记 = type=http-response,pattern=http:\/\/data\.ufbae\.com\/User\/GetUser,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/zjbj.js
 指尖时光解锁 = type=http-response,pattern=https://integral.dasyibalang.com/User,requires-body=1,script-path=https://raw.githubusercontent.com/Marol62926/MarScrpt/main/fingertime.js
+佐糖 = type=http-response,pattern=^https:\/\/awvp\.aoscdn\.com\/base\/vip\/client\/authorizations,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/zt.js
+字体册 = type=http-response,pattern=^https:\/\/api\.yonekura\.cn\/3\.7\.0\/uicommon\/getuser,requires-body=1,script-path=https://raw.githubusercontent.com/89996462/Quantumult-X/main/ycdz/ztc.js
 知音漫客 = type=http-response,pattern=^https:\/\/apigate\.zymk\.cn\/(zymk-getuserinfo-api\/v1\/getuserinfo|zymk-userpurchased-api\/v1\/userpurchased\/paychapters)\/,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/NobyDa/Script/master/QuantumultX/File/Zymh.js
 
 [MITM]
