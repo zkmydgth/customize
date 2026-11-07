@@ -117,11 +117,13 @@ def main():  # noqa: C901
         out = []
         for l in lines:
             if l.strip().lower().startswith("hostname") and "=" in l:
-                out += [h.strip() for h in l.split("=", 1)[1].split(",") if h.strip()]
+                out += [re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I)
+                    for h in l.split("=", 1)[1].split(",")
+                    if h.strip() and re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I)]
         return out
 
     h_main, h_add = hosts(ms.get("MITM", [])), hosts(als.get("MITM", []))
-    merged = sorted({h.lower() for h in h_main + h_add}, key=str.lower)
+    merged = sorted({h.lower() for h in h_main + h_add if "append" not in h.lower() and "insert" not in h.lower()}, key=str.lower)
     stats["mitm_added"] = len(merged) - len({h.lower() for h in h_main})
     stats["mitm_total"] = len(merged)
     # 合并进来的规则引用到的域名也必须进 MITM（dz 的模块自身 MITM 常不全）

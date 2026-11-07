@@ -94,11 +94,14 @@ console.log(JSON.stringify({hard,soft}));
         return [["node", "调用异常", str(e)[:120]]], []
 
 
-def check_mitm(secs):
+def check_mitm(secs):  # noqa: C901
     hosts = []
     for l in secs.get("MITM", []):
         if l.lower().startswith("hostname") and "=" in l:
-            hosts += [h.strip() for h in l.split("=", 1)[1].split(",") if h.strip()]
+            for h in l.split("=", 1)[1].split(","):
+                h = re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I)
+                if h:
+                    hosts.append(h)
     errs = []
     if not hosts:
         return errs, 0
@@ -155,7 +158,10 @@ def check_mitm_coverage(secs):  # noqa: C901
     enabled = set()
     for l in secs.get("MITM", []):
         if l.lower().startswith("hostname") and "=" in l:
-            enabled |= {h.strip().lower() for h in l.split("=", 1)[1].split(",") if h.strip()}
+            for h in l.split("=", 1)[1].split(","):
+                h = re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I)
+                if h:
+                    enabled.add(h.lower())
 
     def covered(h):
         h = h.lower()

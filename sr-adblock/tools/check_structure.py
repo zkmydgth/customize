@@ -70,7 +70,9 @@ def main():
     hosts = []
     for l in secs.get("MITM", []):
         if l.lower().startswith("hostname"):
-            hosts = [h.strip() for h in l.split("=", 1)[1].split(",") if h.strip()]
+            hosts = [re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I)
+                     for h in l.split("=", 1)[1].split(",") if h.strip()]
+            hosts = [h for h in hosts if h]
     need(len(hosts) > 800, "MITM hostname 过少: %d" % len(hosts))
     need(len(set(hosts)) == len(hosts), "MITM hostname 有重复")
     need(not any(" " in h for h in hosts), "MITM hostname 含空格（解析失败）")

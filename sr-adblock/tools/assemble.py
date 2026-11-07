@@ -54,7 +54,9 @@ def main():  # noqa: C901
     hosts = []
     for l in mitm:
         if l.strip().lower().startswith("hostname"):
-            hosts = [h.strip() for h in l.split("=", 1)[1].split(",") if h.strip()]
+            hosts = [re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I)
+                     for h in l.split("=", 1)[1].split(",")
+                     if h.strip() and re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I)]
     pats = []
     for l in rules:
         # 不要求 pattern 后紧跟 script-path：字段顺序变更时旧写法会静默变成 0 条
