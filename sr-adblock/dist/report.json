@@ -26,9 +26,9 @@
       "http-request": 5,
       "http-response": 213
     },
-    "MITM.hostnames": 972,
+    "MITM.hostnames": 1049,
     "Host": 0,
-    "final": "Rule 2819 / URL Rewrite 617 / Map Local 712 / Script 218 / MITM 972 hosts"
+    "final": "Rule 2819 / URL Rewrite 617 / Map Local 712 / Script 218 / MITM 1049 hosts"
   },
   "dropped": {
     "Header Rewrite": 1,
@@ -52,6 +52,7 @@
     "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）",
     "并入本地补充 [Map Local] 5 条",
     "URL Rewrite/Map Local/Script 去重 3 条（1/2/0）",
+    "为 URL Rewrite/Map Local 补全 MITM 域名 77 个",
     "(?>) 原子分组转 (?:) 20 条"
   ],
   "unknown_sections": {},
@@ -66,8 +67,9 @@
     "协议笔误": 19,
     "本地补充(Map Local)": 5,
     "其它段去重": 3,
+    "MITM 补全(改写域名)": 77,
     "原子分组转换": 20
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 402349
+  "output_bytes": 403793
 }

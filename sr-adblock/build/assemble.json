@@ -3,9 +3,8 @@
   "mitm_added": [
     "az2-api-js.ksapisrv.com",
     "az2-api-idc.gifshow.com",
-    "az2-api.gifshow.com",
-    "dili.sqcosmos.com"
+    "az2-api.gifshow.com"
   ],
-  "mitm_total": 976,
-  "bytes": 428077
+  "mitm_total": 1052,
+  "bytes": 429503
 }
