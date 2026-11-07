@@ -18,6 +18,7 @@
   "urw_unparsable_dropped": 0,
   "urw_redirect_dropped": 0,
   "legacy_script_converted": 1,
+  "mitm_port0_dropped": 0,
   "unknown_sections": [],
   "bytes": 51573
 }
