@@ -12,8 +12,8 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  生成时间: 2026-11-07 19:23:38 UTC
-#  保留统计: Rule 10740 / URL Rewrite 1014 / Map Local 713 / Script 377 / MITM 1158 hosts
+#  生成时间: 2026-11-07 23:33:14 UTC
+#  保留统计: Rule 10743 / URL Rewrite 1014 / Map Local 713 / Script 377 / MITM 1158 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
 #  已剔除 [General] 1 条（SR 不支持）
@@ -68,6 +68,9 @@ IP-CIDR6,2409:8c54:9010::/48,REJECT
 IP-CIDR6,240e:925:2::/48,REJECT
 IP-CIDR6,240e:926:3004::/48,REJECT
 IP-CIDR6,240e:935:a04::/48,REJECT
+IP-CIDR6,240e:93c:1201::/48,REJECT
+IP-CIDR6,240e:93c:1205::/48,REJECT
+IP-CIDR6,240e:946:3000::/48,REJECT
 IP-CIDR6,240e:946:3006::/48,REJECT
 IP-CIDR6,240e:95c:601::/48,REJECT
 IP-CIDR6,240e:95d:1400::/48,REJECT
