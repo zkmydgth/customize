@@ -110,6 +110,10 @@ def build_mitm(lines):  # noqa: C901
             if "?" in h:
                 fixes["MITM 问号通配"] = fixes.get("MITM 问号通配", 0) + 1
                 continue
+            # 纯 IP 既无法按域名解密，也会让 hostname 行更脏
+            if re.fullmatch(r"\d+\.\d+\.\d+\.\d+", h):
+                fixes["MITM 纯 IP"] = fixes.get("MITM 纯 IP", 0) + 1
+                continue
             hosts.append(h)
     seen, uniq = set(), []
     for h in hosts:
@@ -355,24 +359,6 @@ def main():  # noqa: C901
                 pats.append(l)
         hosts = [h for h in hosts if any(re.fullmatch(p, h) for p in pats)]
         report["notes"].append("MITM 已按 mitm-keep.txt 裁剪")
-    # 脚本规则 pattern 里引用的域名必须在 MITM 内，否则脚本永远不会执行。
-    # 上游模块自身漏了 22 个（page-info.zhihu.com、acs-m.taobao.com、gql.reddit.com …），
-    # 这些 App 的净化脚本此前一直没生效。
-    _hset = {h.lower() for h in hosts}
-    _miss = []
-    for _l in sc_clean:
-        _m = re.search(r"pattern=([^,]+)", _l)
-        if not _m:
-            continue
-        for _h in repair.hosts_of_pattern(_m.group(1)):
-            if _h.lower() not in _hset:
-                _hset.add(_h.lower())
-                _miss.append(_h)
-    if _miss:
-        hosts = hosts + sorted(set(_miss), key=str.lower)
-        report["fixes"]["MITM 补全(脚本域名)"] = len(set(_miss))
-        report["notes"].append("脚本规则所需 MITM 域名补全 %d 个" % len(set(_miss)))
-
     report["kept"]["MITM.hostnames"] = len(hosts)
 
     # Host

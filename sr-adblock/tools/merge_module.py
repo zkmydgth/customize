@@ -48,11 +48,16 @@ def split_module(path):
 
 
 def pattern_of(line):
+    """Script 取 pattern= 的值；URL Rewrite 取首个 token。
+
+    旧实现对 URL Rewrite 用 `^(.+?)\\s+\\S+$`，会把 `pattern replacement 302`
+    里的 replacement 也吞进 key，导致"同 pattern 换动作"被误判重复而静默丢弃。
+    """
     m = re.search(r"\bpattern=([^,]+)", line)
     if m:
         return m.group(1).strip()
-    m = re.match(r"^(.+?)\s+\S+$", line)
-    return m.group(1).strip() if m else None
+    m = re.match(r"^(\S+)\s", line)
+    return m.group(1) if m else None
 
 
 def main():  # noqa: C901
@@ -130,8 +135,26 @@ def main():  # noqa: C901
                     if h.strip() and re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I)]
         return out
 
-    h_main, h_add = hosts(ms.get("MITM", [])), hosts(als.get("MITM", []))
-    merged = sorted({h.lower() for h in h_main + h_add if "append" not in h.lower() and "insert" not in h.lower()}, key=str.lower)
+    def _clean(h):
+        """与 convert.build_mitm 同一套清洗：SR 不认的写法一律剔除。"""
+        h = re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I).lower()
+        if not h or "append" in h or "insert" in h:
+            return None
+        if h.startswith("-"):                       # Surge 的排除项，语义相反
+            return None
+        if "?" in h or ".." in h:                   # 非合法通配 / 空标签
+            return None
+        if re.search(r":0$", h):                    # 端口 0
+            return None
+        if re.fullmatch(r"\d+\.\d+\.\d+\.\d+", h):  # 纯 IP
+            return None
+        if re.fullmatch(r"\d+\.\d+\.\d+\.\*", h):   # IP 通配
+            return None
+        return h
+
+    h_main = [x for x in (_clean(h) for h in hosts(ms.get("MITM", []))) if x]
+    h_add = [x for x in (_clean(h) for h in hosts(als.get("MITM", []))) if x]
+    merged = sorted(set(h_main) | set(h_add), key=str.lower)
     stats["mitm_added"] = len(merged) - len({h.lower() for h in h_main})
     stats["mitm_total"] = len(merged)
     # 合并进来的规则引用到的域名也必须进 MITM（dz 的模块自身 MITM 常不全）
@@ -145,7 +168,7 @@ def main():  # noqa: C901
             if re.fullmatch(r"\d+\.\d+\.\d+\.\d+", _h) or len(_h) < 6:
                 continue
             _ref.add(_h)
-    _add = sorted(_ref - {h.lower() for h in merged})
+    _add = sorted({x for x in (_clean(h) for h in (_ref - {h.lower() for h in merged})) if x})
     if _add:
         merged = sorted(set(merged) | set(_add), key=str.lower)
         stats["mitm_coverage_added"] = len(_add)
