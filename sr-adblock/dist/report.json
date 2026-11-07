@@ -26,9 +26,9 @@
       "http-request": 5,
       "http-response": 213
     },
-    "MITM.hostnames": 971,
+    "MITM.hostnames": 972,
     "Host": 0,
-    "final": "Rule 2819 / URL Rewrite 617 / Map Local 712 / Script 218 / MITM 971 hosts"
+    "final": "Rule 2819 / URL Rewrite 617 / Map Local 712 / Script 218 / MITM 972 hosts"
   },
   "dropped": {
     "Header Rewrite": 1,
@@ -43,7 +43,7 @@
     "剔除 URL Rewrite 段中的 hostname 行 1 条",
     "脚本地址 github.com -> raw 直链 13 条",
     "知乎脚本改指向本地修补版 12 条",
-    "本地补充 [MITM] 1 个域名",
+    "本地补充 [MITM] 2 个域名",
     "脚本规则所需 MITM 域名补全 35 个",
     "本地补充 [Rule] 19 条已置顶（避免被父域 DIRECT 抢先）",
     "规则去重 168 条（完全相同 166 / 同域名多动作 2）",
@@ -58,7 +58,7 @@
   "fixes": {
     "脚本地址改直链": 13,
     "知乎脚本重定向": 12,
-    "本地补充(MITM)": 1,
+    "本地补充(MITM)": 2,
     "MITM 补全(脚本域名)": 35,
     "本地补充(Rule)": 19,
     "规则去重": 168,
@@ -69,5 +69,5 @@
     "原子分组转换": 20
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 402332
+  "output_bytes": 402349
 }
