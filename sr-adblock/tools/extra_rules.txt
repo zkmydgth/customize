@@ -103,3 +103,15 @@ frodo.douban.com
 # 现在能看到完整 URL 了）。用 Map Local 返回空对象，比 reject 温和。
 [Map Local]
 ^https?://frodo\.douban\.com/api/v2/home_ads data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+
+# 2026-11-07 知乎开屏复发：知乎 App 拿到 AAAA 后直连 IPv6，SR 只看到 IP、
+# MITM 失效。这里精确拦截知乎使用的 IPv6 段（原来单独出一个模块，现合并进主模块）。
+# 微信用 2408:8756 / 2408:80f1 / 240e:ff / 240e:e1 / 240e:97d:2008:801 等段，
+# 与下列不重叠，不会影响文件下载。
+[Rule]
+IP-CIDR6,2408:875c::/32,REJECT
+IP-CIDR6,240e:97c:39::/48,REJECT
+IP-CIDR6,240e:97c:3a::/48,REJECT
+IP-CIDR6,240e:951:2c10::/48,REJECT
+IP-CIDR6,240e:97d:2008:4::/64,REJECT
+IP-CIDR6,240e:978:d04::/48,REJECT

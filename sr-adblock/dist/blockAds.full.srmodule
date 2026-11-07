@@ -12,7 +12,7 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  保留统计: Rule 10704 / URL Rewrite 1014 / Map Local 713 / Script 377 / MITM 1158 hosts
+#  保留统计: Rule 10710 / URL Rewrite 1014 / Map Local 713 / Script 377 / MITM 1158 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
 #  已剔除 [General] 1 条（SR 不支持）
@@ -39,6 +39,12 @@ DOMAIN,kadmimage.biz.weibo.com,REJECT
 DOMAIN,sdkclick.biz.weibo.com,REJECT
 DOMAIN,sdkaction.biz.weibo.com,REJECT
 DOMAIN,open.kuaishouzt.com,REJECT
+IP-CIDR6,2408:875c::/32,REJECT
+IP-CIDR6,240e:97c:39::/48,REJECT
+IP-CIDR6,240e:97c:3a::/48,REJECT
+IP-CIDR6,240e:951:2c10::/48,REJECT
+IP-CIDR6,240e:97d:2008:4::/64,REJECT
+IP-CIDR6,240e:978:d04::/48,REJECT
 # __LOCAL_EXTRA_END__
 DOMAIN-SUFFIX,kwflvcdn.000dn.com,REJECT
 DOMAIN-SUFFIX,00k456wyh.com,REJECT
