@@ -71,7 +71,7 @@ def main():  # noqa: C901
     hosts = sorted(set(hosts + missing), key=str.lower)
     names = [n for n, _ in secs]
     i = names.index("MITM")
-    secs[i] = ("MITM", ["hostname = " + ",".join(hosts)])
+    secs[i] = ("MITM", ["hostname = %APPEND% " + ",".join(hosts)])
 
     out = list(header)
     for n, ls in secs:

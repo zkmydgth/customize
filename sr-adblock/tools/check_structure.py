@@ -65,8 +65,8 @@ def main():
 
     mitm = " ".join(secs.get("MITM", []))
     need("hostname" in mitm, "MITM 缺 hostname")
-    need("%append%" not in mitm.lower(), "MITM 仍含 Surge 专有 %APPEND%")
-    need("%insert%" not in mitm.lower(), "MITM 仍含 Surge 专有 %INSERT%")
+    # %APPEND% 是模块追加到全局 MITM 的必要语法（SR 的模块需要它才会合并）
+    need("%insert%" not in mitm.lower(), "MITM 仍含 %INSERT%")
     hosts = []
     for l in secs.get("MITM", []):
         if l.lower().startswith("hostname"):

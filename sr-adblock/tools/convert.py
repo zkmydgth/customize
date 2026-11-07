@@ -582,7 +582,7 @@ def main():  # noqa: C901
     if hosts:
         out.append("[MITM]")
         # SR 对多行 hostname 的合并行为不稳定，统一输出为单行（上游也是单行）
-        out.append("hostname = " + ",".join(hosts))
+        out.append("hostname = %APPEND% " + ",".join(hosts))
         out.append("")
 
     # 统计必须用「去重 / 置顶 / 补充之后」的最终列表重算：

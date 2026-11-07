@@ -140,7 +140,7 @@ def main():  # noqa: C901
         merged = sorted(set(merged) | set(_add), key=str.lower)
         stats["mitm_coverage_added"] = len(_add)
     if merged:
-        ms["MITM"] = ["hostname = " + ",".join(merged)]
+        ms["MITM"] = ["hostname = %APPEND% " + ",".join(merged)]
 
     # ---- 输出（段顺序：原有顺序优先） ----
     def counts():
