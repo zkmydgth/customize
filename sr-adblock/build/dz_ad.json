@@ -10,7 +10,7 @@
   "url_rewrite": 543,
   "map_local": 0,
   "script": 68,
-  "mitm": 356,
+  "mitm": 437,
   "dropped_lines": 0,
   "script_without_path": 10,
   "mitm_negated_ignored": 3,
@@ -19,6 +19,7 @@
   "urw_redirect_dropped": 0,
   "legacy_script_converted": 6,
   "mitm_port0_dropped": 1,
+  "mitm_coverage_added": 81,
   "unknown_sections": [],
-  "bytes": 61575
+  "bytes": 63153
 }
