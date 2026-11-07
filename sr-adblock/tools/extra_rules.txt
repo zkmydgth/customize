@@ -89,3 +89,11 @@ open.kuaishouzt.com
 
 [Map Local]
 ^https?:\/\/open\.kuaishouzt\.com\/ data-type=text data="" status-code=404
+
+# 2026-11-07 日志：豆瓣开屏广告仍在。
+# 上游模块的 MITM 只写了 api.douban.com，注释里提到「如开启可自行添加
+# img*.douban.com / frodo.douban.com / erebor.douban.com」——没加。
+# 而 frodo.douban.com 是豆瓣 App 主 API（日志 39 次全 DIRECT），
+# 上游那条 `frodo.douban.com/api/v2/movie/banner` 的改写因此从未生效。
+[MITM]
+frodo.douban.com
