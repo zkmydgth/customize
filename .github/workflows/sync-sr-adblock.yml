@@ -55,9 +55,16 @@ jobs:
         working-directory: sr-adblock
         run: python3 tools/extract_body.py ../.cache/upstream.module /tmp/bodyrewrite.json
 
-      - name: Expire stale IPv6 prefixes（超过 7 天未出现则删除）
+      - name: Track Zhihu IPv6 prefixes（ECS 采样 + 7 天过期清理）
         working-directory: sr-adblock
-        run: python3 tools/track_ipv6.py --build
+        continue-on-error: true
+        run: |
+          # 采样用 EDNS Client Subnet 伪装成国内运营商，才能拿到真实段。
+          # 若 GitHub 到 alidns 的网络异常，本步失败也不影响已有 state（只跳过更新）。
+          python3 tools/track_ipv6.py --sample --build || {
+            echo "::warning::IPv6 采样失败，沿用上次结果"
+            python3 tools/track_ipv6.py --build || true
+          }
 
       - name: Convert (rules / rewrite / map local)
         working-directory: sr-adblock
