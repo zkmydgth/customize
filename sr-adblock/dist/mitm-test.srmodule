@@ -1,0 +1,13 @@
+#!name=MITM 测试（临时，测完删除）
+#!desc=只含 3 个域名，用于判断 Shadowrocket 的 MITM 是否按域名逐个生效。若加上后豆瓣开屏广告消失，说明主模块的 MITM 列表过长导致部分域名失效。
+#!author=sr-adblock
+#!system=ios
+#!category=工具
+#!tag=测试
+
+[MITM]
+hostname = api.douban.com,api.zhihu.com,appcloud2.zhihu.com
+
+[Map Local]
+^https?:\/\/api\.douban\.com\/v\d\/app_ads\/ data-type=text data="" status-code=404
+^https:\/\/api\.zhihu\.com\/commercial_api\/(?:app_float_layer|real_time_pull_refresh_v2|real_time_second_floor_v2|sdk\/prefetch) data-type=text data="{}" status-code=200
