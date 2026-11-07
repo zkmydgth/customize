@@ -342,6 +342,46 @@ def main():  # noqa: C901
     # MITM
     extra_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "extra_rules.txt")
     extra = load_extra(extra_path)
+    # IPv6 自动跟踪规则（tools/track_ipv6.py 生成），与 extra_rules 同等对待。
+    # 加入前先去重：完全相同的、以及已被 extra_rules 里更宽前缀覆盖的都不再重复添加。
+    _ip6 = os.path.join(os.path.dirname(extra_path), "ipv6-auto.txt")
+    if os.path.exists(_ip6):
+        def _net(cidr):
+            """'240e:97c:39::/48' -> (8 组十六进制, 位数)"""
+            body, bits = cidr.rsplit("/", 1)
+            g = (body.rstrip(":").split(":") + ["0"] * 8)[:8]
+            return g, int(bits)
+
+        def _covers(a, b):
+            """a 是否覆盖 b（a 的位数更短且前缀匹配）"""
+            ga, ba = a
+            gb, bb = b
+            if ba > bb:
+                return False
+            n = ba // 16
+            return ga[:n] == gb[:n]
+
+        _have = []
+        for _r in extra.get("Rule", []):
+            if _r.startswith("IP-CIDR6,"):
+                try:
+                    _have.append(_net(_r.split(",")[1]))
+                except (ValueError, IndexError):
+                    continue
+        with open(_ip6, encoding="utf-8") as f:
+            _l6 = [l.strip() for l in f if l.strip() and not l.startswith("#")]
+        _add6 = []
+        for _line in _l6:
+            try:
+                _n6 = _net(_line.split(",")[1])
+            except (ValueError, IndexError):
+                continue
+            if any(_covers(h, _n6) for h in _have):
+                continue        # 已被更宽的前缀覆盖
+            _have.append(_n6)
+            _add6.append(_line)
+        if _add6:
+            extra.setdefault("Rule", []).extend(_add6)
     hosts = build_mitm(kept.get("MITM", []))
     # 补充规则里声明的 MITM 域名（URL-REGEX 规则必须靠它才看得到完整 URL）
     extra_mitm = [h for h in extra.get("MITM", []) if h and h.lower() not in {x.lower() for x in hosts}]
