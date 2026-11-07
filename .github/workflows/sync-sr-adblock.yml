@@ -11,7 +11,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: sync-sr-adblock
+  group: sr-sync
   cancel-in-progress: false
 
 jobs:
@@ -62,8 +62,6 @@ jobs:
         working-directory: sr-adblock
         continue-on-error: true
         run: |
-          # 采样用 EDNS Client Subnet 伪装成国内运营商，才能拿到真实段。
-          # 若 GitHub 到 alidns 的网络异常，本步失败也不影响已有 state（只跳过更新）。
           python3 tools/track_ipv6.py --sample --build || {
             echo "::warning::IPv6 采样失败，沿用上次结果"
             python3 tools/track_ipv6.py --build || true
@@ -109,6 +107,26 @@ jobs:
             echo "::warning::QX 规则源拉取失败，本次跳过"
           fi
 
+          # 合并 deezertidal 的去广告部分（解锁类不并入，见 sync-sr-dz.yml）
+          if curl -fsSL --retry 3 --retry-delay 5 --max-time 180 -o /tmp/dz.zip \
+               "https://github.com/deezertidal/shadowrocket-rules/archive/refs/heads/master.zip" \
+             && unzip -q -o /tmp/dz.zip -d /tmp/dz; then
+            MODS=$(ls -d /tmp/dz/*/modules)
+            python3 tools/dz_convert.py "$MODS" /tmp/dz_ad.srmodule \
+              --filter ad --report build/dz_ad.json
+            python3 tools/merge_module.py --main dist/blockAds.sr.module \
+              --add /tmp/dz_ad.srmodule --report build/merge_dz.json
+            # 同一次拉取顺便生成解锁模块，避免它依赖另一条流水线
+            python3 tools/dz_convert.py "$MODS" dist/unlock.srmodule \
+              --filter unlock --raw-url "$RAW/dist/unlock.srmodule" \
+              --report build/dz_unlock.json
+            python3 tools/dz_check.py --module dist/unlock.srmodule \
+              --min-rule 0 --min-urw 0 --min-script 100 --min-mitm 100
+          else
+            echo "::error::deezertidal 拉取失败——它是核心内容（538 条改写 + 63 脚本），不能静默降级"
+            exit 1
+          fi
+
           # 增强版：再叠加 217heidai 的 Shadowrocket lite（长尾广告域名）
           HURL="https://raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblockshadowrocketlite.sgmodule"
           cp dist/blockAds.sr.module dist/blockAds.full.srmodule
@@ -122,6 +140,26 @@ jobs:
             echo "::warning::增强规则源拉取失败，本次增强版=精简版"
           fi
 
+      - name: Build all-in-one（去广告 + 解锁）
+        working-directory: sr-adblock
+        env:
+          RAW: https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.repository.default_branch }}/sr-adblock
+        run: |
+          set -euo pipefail
+          if [ ! -f dist/unlock.srmodule ]; then
+            echo "::error::dist/unlock.srmodule 未生成（上一步 deezertidal 拉取或转换失败）"
+            exit 1
+          fi
+          python3 tools/make_allinone.py \
+            --ad dist/blockAds.sr.module --unlock dist/unlock.srmodule \
+            --out dist/all-in-one.srmodule \
+            --raw-url "$RAW/dist/all-in-one.srmodule" \
+            --report build/allinone.json
+          # 断言：合并后必须真的包含解锁内容
+          A=$(python3 -c "import json;print(json.load(open('build/allinone.json'))['script'])")
+          B=$(awk '/^\[Script\]/{f=1;next} /^\[/{f=0} f' dist/blockAds.sr.module | grep -vcE '^\s*(#|$)' || echo 0)
+          [ "$A" -gt "$B" ] || { echo "::error::all-in-one 的脚本数($A)没有超过去广告模块($B)，解锁未并入"; exit 1; }
+
       - name: Verify (jq differential + script smoke test + structure)
         working-directory: sr-adblock
         run: |
@@ -131,6 +169,10 @@ jobs:
           node tools/test_script.js
           python3 tools/check_structure.py --module "$F"
           python3 tools/check_extra.py --module "$F"
+          # 产物健康检查：正则编译 / MITM 合法性 / 脚本抽样可达性（404 仅告警）
+          python3 tools/health_check.py --module "$F" --network --sample 5
+          python3 tools/health_check.py --module dist/all-in-one.srmodule
+          python3 tools/health_check.py --module dist/unlock.srmodule
           # 知乎脚本必须指向本仓库的修补版：上游版本有 item 未定义的崩溃 bug，
           # 若重定向没生效（URL 变动 / 忘传 --raw-url），产物会静默退回有 bug 的版本
           UPZ=$(grep -c 'fmz200/wool_scripts/main/Scripts/zhihu/zhihu.js' "$F" || true)
@@ -209,7 +251,6 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add sr-adblock/dist sr-adblock/scripts sr-adblock/build
-          # IPv6 跟踪状态必须一起提交，否则每天从空状态开始 → 全部过期 → 规则清空
           git add -f sr-adblock/tools/ipv6-state.json sr-adblock/tools/ipv6-auto.txt 2>/dev/null || true
           if git diff --staged --quiet; then echo "上游无变化"; exit 0; fi
           git show "HEAD:$MOD" > /tmp/old.module 2>/dev/null || : > /tmp/old.module
@@ -219,4 +260,15 @@ jobs:
           H=$(awk '/^\[MITM\]/{getline; print}' "$MOD" | tr ',' '\n' | wc -l)
           git commit -m "chore: sync upstream $(date -u +%Y-%m-%d)" \
             -m "Rule ${OLD} -> ${NEW} (${SIGN}${DELTA}) ｜ Script ${S} ｜ MITM ${H}"
-          git push
+          # 推送重试：失败必须让整个 job 失败，否则"CI 绿但线上没更新"
+          PUSHED=0
+          for i in 1 2 3; do
+            if git push; then PUSHED=1; break; fi
+            echo "push 失败，尝试 rebase 重试 ($i)"
+            git pull --rebase --autostash || true
+            sleep 8
+          done
+          if [ "$PUSHED" != "1" ]; then
+            echo "::error::推送失败（3 次重试均未成功），线上产物未更新"
+            exit 1
+          fi
