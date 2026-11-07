@@ -28,7 +28,7 @@
     },
     "MITM.hostnames": 1033,
     "Host": 0,
-    "final": "Rule 2824 / URL Rewrite 617 / Map Local 713 / Script 218 / MITM 1033 hosts"
+    "final": "Rule 2854 / URL Rewrite 617 / Map Local 713 / Script 218 / MITM 1033 hosts"
   },
   "dropped": {
     "Header Rewrite": 1,
@@ -44,7 +44,7 @@
     "脚本地址 github.com -> raw 直链 13 条",
     "知乎脚本改指向本地修补版 12 条",
     "本地补充 [MITM] 2 个域名",
-    "本地补充 [Rule] 24 条已置顶（避免被父域 DIRECT 抢先）",
+    "本地补充 [Rule] 54 条已置顶（避免被父域 DIRECT 抢先）",
     "规则去重 168 条（完全相同 166 / 同域名多动作 2）",
     "剔除范围过宽规则 2 条: DOMAIN-KEYWORD,trace.qq.com,REJECT, DOMAIN-SUFFIX,l.qq.com,REJECT",
     "动作后缀错位修正 2 条（xxx-NO-DROP -> REJECT-NO-DROP）",
@@ -59,7 +59,7 @@
     "脚本地址改直链": 13,
     "知乎脚本重定向": 12,
     "本地补充(MITM)": 2,
-    "本地补充(Rule)": 24,
+    "本地补充(Rule)": 54,
     "规则去重": 168,
     "动作后缀错位": 2,
     "协议笔误": 19,
@@ -69,5 +69,5 @@
     "原子分组转换": 20
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 403872
+  "output_bytes": 404920
 }
