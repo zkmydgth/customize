@@ -1,7 +1,7 @@
 {
-  "rule": 2881,
+  "rule": 2911,
   "url_rewrite": 1021,
   "script": 604,
   "mitm": 1331,
-  "bytes": 526610
+  "bytes": 527700
 }
