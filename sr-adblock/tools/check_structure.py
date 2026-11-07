@@ -65,7 +65,13 @@ def main():
 
     mitm = " ".join(secs.get("MITM", []))
     need("hostname" in mitm, "MITM 缺 hostname")
-    # %APPEND% 是模块追加到全局 MITM 的必要语法（SR 的模块需要它才会合并）
+    # %APPEND% 是模块追加到全局 MITM 的必要语法，但必须恰好一次且在最前
+    _app = mitm.lower().count("%append%")
+    need(_app <= 1, "MITM 里 %%APPEND%% 出现 %d 次（应为 1，重复会导致域名解析错乱）" % _app)
+    if _app == 1:
+        need(mitm.lower().index("%append%") < mitm.lower().index("gab.122.gov.cn")
+             if "gab.122.gov.cn" in mitm.lower() else True,
+             "MITM 的 %APPEND% 不在行首")
     need("%insert%" not in mitm.lower(), "MITM 仍含 %INSERT%")
     hosts = []
     for l in secs.get("MITM", []):
