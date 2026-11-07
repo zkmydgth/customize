@@ -142,6 +142,54 @@ def check_rule_order(secs):
     return conflicts
 
 
+def check_mitm_coverage(secs):  # noqa: C901
+    """规则引用的域名是否都在 MITM 里。
+
+    URL Rewrite / Map Local / Script 都必须先解密才能看到完整 URL，
+    域名不在 MITM → 规则永远匹配不到（2026-11-07 豆瓣 frodo.douban.com 即此因）。
+    """
+    import sys as _sys
+    _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import repair
+
+    enabled = set()
+    for l in secs.get("MITM", []):
+        if l.lower().startswith("hostname") and "=" in l:
+            enabled |= {h.strip().lower() for h in l.split("=", 1)[1].split(",") if h.strip()}
+
+    def covered(h):
+        h = h.lower()
+        if h in enabled:
+            return True
+        for e in enabled:
+            if e.startswith("*.") and h.endswith(e[1:]):
+                return True
+            if e.startswith("*") and h.endswith(e[1:]):
+                return True
+        return False
+
+    checks = []
+    for l in secs.get("URL Rewrite", []):
+        m = re.match(r"^(.+?)\s+\S+$", l)
+        if m:
+            checks.append(("URL Rewrite", m.group(1)))
+    for l in secs.get("Map Local", []):
+        m = re.match(r"^(\S+)\s", l)
+        if m:
+            checks.append(("Map Local", m.group(1)))
+    for l in secs.get("Script", []):
+        m = re.search(r"\bpattern=([^,]+)", l)
+        if m:
+            checks.append(("Script", m.group(1)))
+
+    missing = {}
+    for sec, pat in checks:
+        for h in repair.hosts_of_pattern(pat):
+            if not covered(h):
+                missing.setdefault(h.lower(), sec)
+    return missing
+
+
 def check_script_urls(secs, n=10):
     urls = []
     for l in secs.get("Script", []):
@@ -177,6 +225,7 @@ def main():  # noqa: C901
     hard, soft = check_regex(collect_patterns(secs))
     mitm_errs, mitm_n = check_mitm(secs)
     order = check_rule_order(secs)
+    dormant = check_mitm_coverage(secs)
     net_bad, net_n = ([], 0)
     if a.network:
         net_bad, net_n = check_script_urls(secs, a.sample)
@@ -194,6 +243,10 @@ def main():  # noqa: C901
         fail = True
         for e in mitm_errs:
             print("  ✗", e)
+    if dormant:
+        print("  ! 被规则引用但不在 MITM 的域名 %d 个（这些规则匹配不到完整 URL）:" % len(dormant))
+        for h, sec in list(dormant.items())[:6]:
+            print("     %-34s ← [%s]" % (h, sec))
     if soft:
         print("  ! 需 flag 的语法 %d 条（不判失败）:" % len(soft))
         for sec, p, _m in soft[:3]:

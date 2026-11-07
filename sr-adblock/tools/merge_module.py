@@ -14,6 +14,11 @@
       --add /tmp/dz_ad.srmodule --report build/merge_dz.json
 """
 import argparse
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from repair import hosts_of_pattern  # noqa: E402
 import json
 import os
 import re
@@ -119,6 +124,21 @@ def main():  # noqa: C901
     merged = sorted({h.lower() for h in h_main + h_add}, key=str.lower)
     stats["mitm_added"] = len(merged) - len({h.lower() for h in h_main})
     stats["mitm_total"] = len(merged)
+    # 合并进来的规则引用到的域名也必须进 MITM（dz 的模块自身 MITM 常不全）
+    _ref = set()
+    for _l in real(ms.get("URL Rewrite", [])) + real(ms.get("Script", [])) + real(ms.get("Map Local", [])):
+        _m = re.search(r"\bpattern=([^,]+)", _l) or re.match(r"^(\S+)\s", _l)
+        if not _m:
+            continue
+        for _h in hosts_of_pattern(_m.group(1)):
+            _h = _h.lower()
+            if re.fullmatch(r"\d+\.\d+\.\d+\.\d+", _h) or len(_h) < 6:
+                continue
+            _ref.add(_h)
+    _add = sorted(_ref - {h.lower() for h in merged})
+    if _add:
+        merged = sorted(set(merged) | set(_add), key=str.lower)
+        stats["mitm_coverage_added"] = len(_add)
     if merged:
         ms["MITM"] = ["hostname = " + ",".join(merged)]
 

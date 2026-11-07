@@ -534,6 +534,31 @@ def main():  # noqa: C901
         report["notes"].append("URL Rewrite/Map Local/Script 去重 %d 条（%d/%d/%d）"
                                % (extra_dropped, d1, d2, d3))
 
+    # 规则引用的域名必须在 MITM 内：URL Rewrite / Map Local 同样需要解密
+    # 才能看到完整 URL（2026-11-07 发现 82 个域名漏配，规则一直空转）
+    def _valid_host(h):
+        if not re.fullmatch(r"[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)+", h):
+            return False
+        if re.fullmatch(r"\d+\.\d+\.\d+\.\d+", h):   # 纯 IP 不加（SR 不按 IP 解密）
+            return False
+        return len(h) >= 6
+
+    _ref = set()
+    for _l in scripts + url_rewrite + map_local:
+        _m = re.search(r"\bpattern=([^,]+)", _l) or re.match(r"^(\S+)\s", _l)
+        if not _m:
+            continue
+        for _h in repair.hosts_of_pattern(_m.group(1)):
+            if _valid_host(_h):
+                _ref.add(_h.lower())
+    _have = {x.lower() for x in hosts}
+    _add = sorted(_ref - _have)
+    if _add:
+        hosts = hosts + _add
+        report["fixes"]["MITM 补全(改写域名)"] = len(_add)
+        report["notes"].append("为 URL Rewrite/Map Local 补全 MITM 域名 %d 个" % len(_add))
+    report["kept"]["MITM.hostnames"] = len(hosts)
+
     # 原子分组 (?>..) -> (?:..)，提高引擎兼容性（上游 20 条简单枚举）
     _at = _atomic(rule_lines) + _atomic(url_rewrite) + _atomic(map_local) + _atomic(scripts)
     if _at:
