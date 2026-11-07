@@ -20,6 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set build timestamp
+        run: echo "BUILD_TIME=$(date -u '+%Y-%m-%d %H:%M:%S')" >> "$GITHUB_ENV"
+
       - name: Install deps
         run: |
           sudo apt-get update -qq
