@@ -75,8 +75,11 @@ def main():  # noqa: C901
 
     hosts = []
     for l in mitm_lines:
-        if l.lower().startswith("hostname"):
-            hosts = [h.strip() for h in l.split("=", 1)[1].split(",") if h.strip()]
+        if l.lower().startswith("hostname") and "=" in l:
+            for h in l.split("=", 1)[1].split(","):
+                h = re.sub(r"^%(APPEND|INSERT)%\s*", "", h.strip(), flags=re.I)
+                if h:
+                    hosts.append(h)
     if not hosts:
         fails.append("MITM 段没有 hostname")
     else:

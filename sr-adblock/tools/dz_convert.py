@@ -51,8 +51,10 @@ SEC_NAME = {"rule": "Rule", "url rewrite": "URL Rewrite", "map local": "Map Loca
 
 
 def clean_script(line):
-    # 规范「名称=type」为「名称 = type」（上游有 biliad=type=... 这种写法）
-    line = re.sub(r"^([^=\s]+)\s*=\s*", r"\1 = ", line, count=1)
+    # 规范「名称=type」为「名称 = type」
+    # 注意名称可能含空格（如 `AI Remove Background-Collart=type=...`），
+    # 所以不能要求名称无空格，只需匹配到第一个 `=`
+    line = re.sub(r"^([^=]+?)\s*=\s*", r"\1 = ", line, count=1)
     line = re.sub(r",?\s*script-update-interval=[^,]*", "", line)
     line = re.sub(r",?\s*argument=[^,]*", "", line)
     line = re.sub(r"requires-body=(true|1)\b", "requires-body=1", line, flags=re.I)
@@ -226,6 +228,27 @@ def main():  # noqa: C901
     script = dedupe(out["script"])
     mitm = sorted({h for h in out["mitm"]}, key=str.lower)
 
+    # 脚本/改写规则引用的域名必须进 MITM，否则规则匹配不到完整 URL
+    import sys as _sys
+    _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from repair import hosts_of_pattern
+    _ref = set()
+    for _l in script + urw:
+        _m = re.search(r"\bpattern=([^,]+)", _l) or re.match(r"^(\S+)\s", _l)
+        if not _m:
+            continue
+        for _h in hosts_of_pattern(_m.group(1)):
+            _hl = _h.lower()
+            if not re.fullmatch(r"[a-z0-9]([a-z0-9\-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]*[a-z0-9])?)+", _hl):
+                continue
+            if len(_hl.rsplit(".", 1)[-1]) < 2:
+                continue
+            _ref.add(_hl)
+    _add = sorted(_ref - set(mitm))
+    if _add:
+        mitm = sorted(set(mitm) | set(_add), key=str.lower)
+        stats["mitm_coverage_added"] = len(_add)
+
     lines = []
     label = {"unlock": "解锁/破解", "ad": "去广告", "all": "全部"}[a.filter]
     title = "SR 去广告合集（deezertidal）" if a.filter == "ad" else "SR App 解锁合集（deezertidal）"
@@ -276,6 +299,7 @@ def main():  # noqa: C901
            "urw_redirect_dropped": stats["urw_redirect_dropped"],
            "legacy_script_converted": stats["legacy_script_converted"],
            "mitm_port0_dropped": stats["mitm_port0"],
+           "mitm_coverage_added": stats.get("mitm_coverage_added", 0),
            "unknown_sections": sorted(stats["unknown_sections"]),
            "bytes": os.path.getsize(a.dst)}
     print(json.dumps(rep, ensure_ascii=False, indent=1))

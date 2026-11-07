@@ -23,7 +23,7 @@ FAIL=0
 CMP_WARN=0
 
 echo "拉取线上产物..."
-for f in blockAds.sr.module blockAds.full.srmodule; do
+for f in blockAds.sr.module blockAds.full.srmodule unlock.srmodule all-in-one.srmodule; do
   # -f：404/500 时不要保存错误页面当成模块
   curl -fsSL --http1.1 --max-time 60 "$RAW/$f" -o "$TMP/$f" 2>/dev/null
   if [ ! -s "$TMP/$f" ]; then
@@ -39,12 +39,24 @@ for f in blockAds.sr.module blockAds.full.srmodule; do
   printf '%-26s ' "$f:"
   if python3 tools/check_extra.py --module "$TMP/$f"; then :; else FAIL=1; fi
 done
+# 解锁类产物用各自的断言
+if [ -s "$TMP/unlock.srmodule" ]; then
+  printf '%-26s ' "unlock.srmodule:"
+  if python3 tools/dz_check.py --module "$TMP/unlock.srmodule" --min-rule 0 --min-urw 0 \
+       --min-script 100 --min-mitm 100 > /dev/null; then echo "CHECK PASS"; else echo "CHECK FAIL"; FAIL=1; fi
+fi
+if [ -s "$TMP/all-in-one.srmodule" ]; then
+  printf '%-26s ' "all-in-one.srmodule:"
+  if python3 tools/health_check.py --module "$TMP/all-in-one.srmodule" > /dev/null; then echo "HEALTH PASS"; else echo "HEALTH FAIL"; FAIL=1; fi
+fi
 
 if [ "$NO_CMP" = "0" ]; then
   echo
   echo "--- 与本地 dist 字节比对（仅当本地是同一上游构建时有效）---"
   for pair in "dist/blockAds.sr.module:$TMP/blockAds.sr.module" \
-              "dist/blockAds.full.srmodule:$TMP/blockAds.full.srmodule"; do
+              "dist/blockAds.full.srmodule:$TMP/blockAds.full.srmodule" \
+              "dist/unlock.srmodule:$TMP/unlock.srmodule" \
+              "dist/all-in-one.srmodule:$TMP/all-in-one.srmodule"; do
     L=${pair%%:*}; R=${pair##*:}
     [ -f "$L" ] || { echo "  - $L 不存在，跳过"; continue; }
     if cmp -s "$L" "$R"; then

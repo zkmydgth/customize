@@ -349,16 +349,18 @@ def main():  # noqa: C901
         hosts = hosts + extra_mitm
         report["fixes"]["本地补充(MITM)"] = len(extra_mitm)
         report["notes"].append("本地补充 [MITM] %d 个域名" % len(extra_mitm))
+    # mitm-keep 必须放在所有补全之后，否则补全会把它重新加回来
     if args.mitm_keep and os.path.exists(args.mitm_keep):
-        pats = []
         with open(args.mitm_keep, encoding="utf-8-sig") as f:
-            keep_lines = f.read().split("\n")
-        for l in keep_lines:
-            l = l.strip()
-            if l and not l.startswith("#"):
-                pats.append(l)
+            pats = [l.strip() for l in f.read().split("\n")
+                    if l.strip() and not l.strip().startswith("#")]
+        before = len(hosts)
         hosts = [h for h in hosts if any(re.fullmatch(p, h) for p in pats)]
-        report["notes"].append("MITM 已按 mitm-keep.txt 裁剪")
+        report["fixes"]["mitm-keep 裁剪"] = before - len(hosts)
+        report["notes"].append("MITM 已按 mitm-keep.txt 裁剪（%d → %d）" % (before, len(hosts)))
+        if not hosts:
+            raise SystemExit("ERROR: mitm-keep 把 MITM 裁成空，拒绝生成")
+
     report["kept"]["MITM.hostnames"] = len(hosts)
 
     # Host

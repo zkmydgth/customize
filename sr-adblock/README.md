@@ -138,3 +138,26 @@ node tools/test_script.js
 
 规则与脚本版权归 fmz200 及各原作者，本仓库只做格式适配与自动同步，不修改规则语义
 （唯一例外：容忍上游的尾逗号、修正 `^http?:` 正则笔误）。
+
+## ⚠️ 只能装一个模块（重要）
+
+Shadowrocket 同时安装多个模块时，**只会加载其中一个的 MITM 列表**，其余模块的
+Map Local / Script 全部静默失效（规则在、条数对、就是不生效）。
+
+因此本仓库提供 **all-in-one** 单文件版本：
+
+| 文件 | 内容 | 用途 |
+|---|---|---|
+| `dist/all-in-one.srmodule` | 去广告 + App 解锁 | **推荐，只装这个** |
+| `dist/blockAds.sr.module` | 纯去广告（精简） | 不要解锁时用 |
+| `dist/blockAds.full.srmodule` | 纯去广告（增强，1 万条长尾） | 不要解锁、要更大覆盖面 |
+| `dist/unlock.srmodule` | 纯解锁 | 只想要解锁 |
+
+**以上任意两个同时安装都会互相干扰。** 选一个即可。
+
+## 每日自动更新
+
+| 时间（UTC） | 产物 |
+|---|---|
+| 04:00 | blockAds / full / unlock / all-in-one |
+| 04:30 | unlock（独立兜底） |

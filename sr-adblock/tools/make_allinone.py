@@ -52,7 +52,16 @@ def main():  # noqa: C901
         text = fh.read()
     os.unlink(tmp)
 
+    import datetime
+    today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
     text = re.sub(r"^#!name=.*$", "#!name=SR 全家桶（去广告+解锁）", text, count=1, flags=re.M)
+    # desc / tag 要与"含解锁"一致，date 用构建日期（上游日期在头部另有说明）
+    text = re.sub(r"^#!desc=.*$",
+                  "#!desc=由两个上游自动合并：fmz200 去广告（含 deezertidal 去广告部分）+ deezertidal App 解锁。"
+                  "Shadowrocket 同时装多个模块时只加载其中一个的 MITM，因此必须只装这一个。",
+                  text, count=1, flags=re.M)
+    text = re.sub(r"^#!tag=.*$", "#!tag=去广告,解锁", text, count=1, flags=re.M)
+    text = re.sub(r"^#!date=.*$", "#!date=" + today, text, count=1, flags=re.M)
     if a.raw_url:
         if re.search(r"^#!raw-url=", text, flags=re.M):
             text = re.sub(r"^#!raw-url=.*$", "#!raw-url=" + a.raw_url, text, count=1, flags=re.M)

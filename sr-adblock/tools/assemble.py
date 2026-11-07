@@ -75,13 +75,19 @@ def main():  # noqa: C901
     i = names.index("MITM")
     secs[i] = ("MITM", ["hostname = %APPEND% " + ",".join(hosts)])
 
-    out = list(header)
+    def trim_tail(body):
+        while body and not body[-1].strip():
+            body = body[:-1]
+        return body
+
+    out = trim_tail(list(header))
     for n, ls in secs:
-        while ls and not ls[-1].strip():
-            ls = ls[:-1]
+        body = trim_tail(ls)
+        while out and not out[-1].strip():
+            out.pop()
         out.append("")
         out.append("[%s]" % n)
-        out.extend(ls)
+        out.extend(body)
     txt = "\n".join(out).rstrip() + "\n"
     with open(args.module, "w", encoding="utf-8", newline="\n") as f:
         f.write(txt)

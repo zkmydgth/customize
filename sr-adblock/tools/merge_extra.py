@@ -98,6 +98,7 @@ def main():  # noqa: C901
         text = f.read().split("\n")
     sec, rule_idx = None, []
     existing = []
+    reject_suffix = set()
     for i, l in enumerate(text):
         m = re.match(r"^\[([^\]]+)\]$", l.strip())
         if m:
@@ -108,9 +109,15 @@ def main():  # noqa: C901
             r = parse_rule_line(l)
             if r:
                 existing.append(r)
+            # 只有 REJECT 系的 DOMAIN-SUFFIX 才算"已拦截"；
+            # 否则 `DOMAIN-SUFFIX,x.com,DIRECT` 会把其下所有广告子域误判为已覆盖
+            parts = l.strip().split(",")
+            if len(parts) >= 3 and parts[0].strip() == "DOMAIN-SUFFIX" \
+                    and parts[2].strip().upper().startswith("REJECT"):
+                reject_suffix.add(parts[1].strip().lower())
 
     have = set(existing)
-    suffix = {v.lower() for t, v in existing if t == "DOMAIN-SUFFIX"}
+    suffix = reject_suffix
 
     def covered(t, v):
         vl = v.lower()
