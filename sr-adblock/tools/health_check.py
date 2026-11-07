@@ -164,13 +164,15 @@ def check_mitm_coverage(secs):  # noqa: C901
                     enabled.add(h.lower())
 
     def covered(h):
+        """MITM 条目的通配（含中缀、尾部）按 glob 匹配，避免误报。
+
+        上游大量使用 `ap*.intsig.net`、`api.picsart.c*` 这类写法，
+        只认 `*.x` 前缀会把它们全判成"未覆盖"。
+        """
         h = h.lower()
-        if h in enabled:
-            return True
         for e in enabled:
-            if e.startswith("*.") and h.endswith(e[1:]):
-                return True
-            if e.startswith("*") and h.endswith(e[1:]):
+            pat = re.escape(e).replace(r"\*", ".*").replace(r"\?", ".")
+            if re.fullmatch(pat, h):
                 return True
         return False
 
