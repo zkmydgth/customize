@@ -29,6 +29,13 @@ TOO_BROAD = {
     ("DOMAIN-SUFFIX", "l.qq.com"),        # 腾讯短链/日志全集，拦掉影响 QQ 内链接跳转
 }
 
+# 按整行前缀剔除的上游规则（AND 组合规则无法用 (type,value) 表达）
+# 2026-11-08：这两条拦掉了红果短剧的配置服务，导致播放器拿不到配置、不发起拉流
+RULE_DROP_PREFIX = (
+    "AND,((DOMAIN-KEYWORD,ma5-normal-)",
+    "AND,((DOMAIN-KEYWORD,frontier-aweme-)",
+)
+
 KEEP = ["Rule", "Host", "URL Rewrite", "Map Local", "Script", "MITM"]
 DROP = ["Body Rewrite", "Header Rewrite", "General"]
 SEC_RE = re.compile(r"^\[([^\[\]]+)\]\s*$")
@@ -427,6 +434,9 @@ def main():  # noqa: C901
     for l in rule_lines:
         parts = [x.strip() for x in l.split(",")]
         if len(parts) >= 2 and (parts[0], parts[1]) in TOO_BROAD:
+            broad_dropped.append(l)
+            continue
+        if l.strip().startswith(RULE_DROP_PREFIX):
             broad_dropped.append(l)
             continue
         kept_rules.append(l)
