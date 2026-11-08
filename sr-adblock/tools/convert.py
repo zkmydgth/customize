@@ -113,6 +113,13 @@ def build_mitm(lines):  # noqa: C901
             if re.search(r"hostname", h, re.I):
                 fixes["MITM 拼接错误"] = fixes.get("MITM 拼接错误", 0) + 1
                 continue
+            # 字节系过宽通配：这些域名有 SSL Pinning，MITM 后握手失败
+            # （2026-11-08：日志 199 次 handshake error，红果短剧无法播放）
+            if h.lower() in ("snssdk.com", "*.snssdk.com", "*.pstatp.com",
+                             "*.pstatp.com.*", "*.pangolin-sdk-toutiao.*",
+                             "testflight.apple.com"):
+                fixes["MITM 过宽通配"] = fixes.get("MITM 过宽通配", 0) + 1
+                continue
             # SR 的 hostname 不支持 ? 通配
             if "?" in h:
                 fixes["MITM 问号通配"] = fixes.get("MITM 问号通配", 0) + 1

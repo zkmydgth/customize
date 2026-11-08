@@ -58,6 +58,15 @@ KEEP = {"rule", "url rewrite", "map local", "script", "mitm"}
 # 注意 buy.itunes.apple.com / itunes.apple.com **不能**移除——有 19 条 App 解锁脚本依赖它们。
 MITM_BLOCK = {
     "testflight.apple.com",
+    # 2026-11-08：字节 SDK 域名有 SSL Pinning，MITM 后握手失败
+    # （日志 199 次 "mitm ssl handshake i.snssdk.com error => A verify action has failed"）
+    # 导致红果短剧/抖音/头条的播放器无法初始化。这些通配只服务 1 条皮皮虾去广告脚本，
+    # 代价不对等，直接移除。
+    "*.snssdk.com",
+    "snssdk.com",
+    "*.pstatp.com",
+    "*.pstatp.com.*",
+    "*.pangolin-sdk-toutiao.*",
 }
 
 WIDE_BLOCK = {
