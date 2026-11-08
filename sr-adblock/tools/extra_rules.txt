@@ -9,10 +9,50 @@
 # 知乎 commercial_api 的 app_float_layer / real_time_pull_refresh_v2 /
 # real_time_second_floor_v2 / sdk/prefetch 仍是 DIRECT 且未被改写，
 # 其中 sdk/prefetch 会预加载广告素材（缓存后开屏照常显示）
+
 [Map Local]
 ^https:\/\/api\.zhihu\.com\/commercial_api\/(?:app_float_layer|real_time_pull_refresh_v2|real_time_second_floor_v2|sdk\/prefetch) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 # 2026-10-30 从同一份代理日志补的埋点/追踪（父域被判 DIRECT，必须置顶才生效）
+^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|show|event\/list2) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+
+# 2026-10-31 第三次日志（清缓存后）：知乎开屏改用阿里妈妈(tanx)联盟
+# 请求 df.tanx.com 已被拦，但素材仍从下列域名加载（配置 JSON 在本地缓存里）
+#   tanx-creative.taobao.com           广告创意配置
+#   ossgw.alicdn.com/creatives-assets/ 创意素材（feupload 路径）
+^https:\/\/ossgw\.alicdn\.com\/creatives-assets\/ data-type=text data="" status-code=404
+
+# 2026-10-31 第五次日志：微博开屏广告（模块里原本 0 条微博规则，全部 DIRECT）
+# biz.weibo.com 是微博商业化域名，以下为明确的广告链路：
+#   adstrategy  广告策略下发
+#   brandvideo  品牌视频（开屏视频源）
+#   kadmimage   广告图片
+#   sdkclick    广告点击上报
+#   sdkaction   广告行为上报
+^https?:\/\/api\.douban\.com\/v\d\/app_ads\/ data-type=text data="" status-code=404
+
+# 注：知乎信息流不走这里，改由上游 Scripts/zhihu/zhihu.js（12 条规则）处理，
+# 经 tools/patch_zhihu.py 打补丁后托管在本仓库，convert.py 自动重定向。
+
+# 2026-10-31 日志：知乎开屏启动瞬间（17:00:01 / 17:00:08）出现
+# open.kuaishouzt.com（快手联盟）。日志显示它被其他配置判 DIRECT 且未解密，
+# 所以 Rule 层可能被抢先 —— 同时给 MITM + Map Local 双保险。
+# 注意：kuaishouzt.com 是快手「联盟/广告」域，不是快手主 App（kuaishou.com）。
+^https?:\/\/open\.kuaishouzt\.com\/ data-type=text data="" status-code=404
+
+# 2026-11-07 日志：豆瓣开屏广告仍在。
+# 上游模块的 MITM 只写了 api.douban.com，注释里提到「如开启可自行添加
+# img*.douban.com / frodo.douban.com / erebor.douban.com」——没加。
+# 而 frodo.douban.com 是豆瓣 App 主 API（日志 39 次全 DIRECT），
+# 上游那条 `frodo.douban.com/api/v2/movie/banner` 的改写因此从未生效。
+^https?://frodo\.douban\.com/api/v2/home_ads data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+
+# 2026-11-07 知乎开屏复发：知乎 App 拿到 AAAA 后直连 IPv6，SR 只看到 IP、
+# MITM 失效。这里精确拦截知乎使用的 IPv6 段（原来单独出一个模块，现合并进主模块）。
+# 微信用 2408:8756 / 2408:80f1 / 240e:ff / 240e:e1 / 240e:97d:2008:801 等段，
+# 与下列不重叠，不会影响文件下载。
+^https?:\/\/img\d+\.360buyimg\.com\/tgx\/ data-type=text data="" status-code=404
+
 [Rule]
 DOMAIN,sq.bls.mdt.qq.com,REJECT
 DOMAIN,h-adashx4bc.ut.taobao.com,REJECT
@@ -23,7 +63,6 @@ DOMAIN,iosqqdata.ab.qq.com,REJECT
 # 2026-10-30 SDK 覆盖体检：广告 SDK 已覆盖 18/20，以下为缺口
 # 热云 = 广告归因（值得拦）；神策/数数/听云/Sentry = 纯统计（拦了无感）
 # Mintegral/Ogury = 海外广告平台（国内少见，补上无害）
-[Rule]
 DOMAIN-SUFFIX,reyun.com,REJECT
 DOMAIN-SUFFIX,sensorsdata.cn,REJECT
 DOMAIN-SUFFIX,thinkingdata.cn,REJECT
@@ -36,33 +75,9 @@ DOMAIN-SUFFIX,ogury.com,REJECT
 # B 站 app.bilibili.com/x/v2/splash/list 走 DIRECT，且 splash/show 已带 ad_extra
 # （=App 已决定展示广告）。上游 Body Rewrite 只清 data.show/event_list，
 # 结构变化时会静默失效 → 改用 Map Local 直接返回空对象兜底。
-[Map Local]
-^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|show|event\/list2) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
-
-# 2026-10-31 第三次日志（清缓存后）：知乎开屏改用阿里妈妈(tanx)联盟
-# 请求 df.tanx.com 已被拦，但素材仍从下列域名加载（配置 JSON 在本地缓存里）
-#   tanx-creative.taobao.com           广告创意配置
-#   ossgw.alicdn.com/creatives-assets/ 创意素材（feupload 路径）
-[Rule]
 DOMAIN,tanx-creative.taobao.com,REJECT
 
 # URL-REGEX 规则必须依赖 MITM 才能看到完整 URL；域名不在 MITM 列表时规则会静默失效
-[MITM]
-ossgw.alicdn.com
-
-# 阿里妈妈创意素材：URL-REGEX 在 DIRECT 流量上匹配不到（Rule 层看不到 URL），
-# 改用 Map Local 返回 404，素材加载失败 → 开屏无法展示
-[Map Local]
-^https:\/\/ossgw\.alicdn\.com\/creatives-assets\/ data-type=text data="" status-code=404
-
-# 2026-10-31 第五次日志：微博开屏广告（模块里原本 0 条微博规则，全部 DIRECT）
-# biz.weibo.com 是微博商业化域名，以下为明确的广告链路：
-#   adstrategy  广告策略下发
-#   brandvideo  品牌视频（开屏视频源）
-#   kadmimage   广告图片
-#   sdkclick    广告点击上报
-#   sdkaction   广告行为上报
-[Rule]
 DOMAIN,adstrategy.biz.weibo.com,REJECT
 DOMAIN,brandvideo.biz.weibo.com,REJECT
 DOMAIN,kadmimage.biz.weibo.com,REJECT
@@ -71,41 +86,28 @@ DOMAIN,sdkaction.biz.weibo.com,REJECT
 
 # 豆瓣开屏：上游 Map Local 返回 {} status=200，App 视为"服务正常但无数据"→ 走内置兜底。
 # 清缓存后仍有广告，改用 404 让请求真正失败。置于最前（Map Local 顺序匹配）。
-[Map Local]
-^https?:\/\/api\.douban\.com\/v\d\/app_ads\/ data-type=text data="" status-code=404
-
-# 注：知乎信息流不走这里，改由上游 Scripts/zhihu/zhihu.js（12 条规则）处理，
-# 经 tools/patch_zhihu.py 打补丁后托管在本仓库，convert.py 自动重定向。
-
-# 2026-10-31 日志：知乎开屏启动瞬间（17:00:01 / 17:00:08）出现
-# open.kuaishouzt.com（快手联盟）。日志显示它被其他配置判 DIRECT 且未解密，
-# 所以 Rule 层可能被抢先 —— 同时给 MITM + Map Local 双保险。
-# 注意：kuaishouzt.com 是快手「联盟/广告」域，不是快手主 App（kuaishou.com）。
-[Rule]
 DOMAIN,open.kuaishouzt.com,REJECT
 
+
+# 2026-11-08 开屏日志：知乎开屏素材来自京东联盟推广图
+#   https://img2.360buyimg.com/tgx/jfs/t1/550954/.../xxx.jpg
+# /tgx/ 是京东"推广"图专用前缀，不影响商品图，可精确拦截。
+# 同时补几个开屏链路里的广告联盟上报域名（测到有连接但未被拦）。
+DOMAIN-SUFFIX,kwaizt.com,REJECT
+DOMAIN,df.tanx.com,REJECT
+
 [MITM]
+ossgw.alicdn.com
+
+# 阿里妈妈创意素材：URL-REGEX 在 DIRECT 流量上匹配不到（Rule 层看不到 URL），
+# 改用 Map Local 返回 404，素材加载失败 → 开屏无法展示
 open.kuaishouzt.com
 
-[Map Local]
-^https?:\/\/open\.kuaishouzt\.com\/ data-type=text data="" status-code=404
-
-# 2026-11-07 日志：豆瓣开屏广告仍在。
-# 上游模块的 MITM 只写了 api.douban.com，注释里提到「如开启可自行添加
-# img*.douban.com / frodo.douban.com / erebor.douban.com」——没加。
-# 而 frodo.douban.com 是豆瓣 App 主 API（日志 39 次全 DIRECT），
-# 上游那条 `frodo.douban.com/api/v2/movie/banner` 的改写因此从未生效。
-[MITM]
 frodo.douban.com
 
 # 2026-11-07 日志：豆瓣开屏 splash_* 已被 URL Rewrite 拦住，
 # 但首页广告位 `frodo.douban.com/api/v2/home_ads` 没有任何规则（该域名刚加进 MITM，
 # 现在能看到完整 URL 了）。用 Map Local 返回空对象，比 reject 温和。
-[Map Local]
-^https?://frodo\.douban\.com/api/v2/home_ads data-type=text data="{}" status-code=200 header="Content-Type:application/json"
-
-# 2026-11-07 知乎开屏复发：知乎 App 拿到 AAAA 后直连 IPv6，SR 只看到 IP、
-# MITM 失效。这里精确拦截知乎使用的 IPv6 段（原来单独出一个模块，现合并进主模块）。
-# 微信用 2408:8756 / 2408:80f1 / 240e:ff / 240e:e1 / 240e:97d:2008:801 等段，
-# 与下列不重叠，不会影响文件下载。
-[Rule]
+img*.360buyimg.com
+open.kwaizt.com
+df.tanx.com
