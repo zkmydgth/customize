@@ -4,9 +4,9 @@
   "script": 63,
   "script_skipped_same_pattern": 5,
   "map_local": 0,
-  "mitm_added": 121,
-  "mitm_total": 1159,
-  "bytes": 475707,
+  "mitm_added": 120,
+  "mitm_total": 1154,
+  "bytes": 475630,
   "counts": {
     "Rule": 2873,
     "URL Rewrite": 1014,

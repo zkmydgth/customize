@@ -26,9 +26,9 @@
       "http-request": 5,
       "http-response": 213
     },
-    "MITM.hostnames": 1036,
+    "MITM.hostnames": 1032,
     "Host": 0,
-    "final": "Rule 2819 / URL Rewrite 617 / Map Local 714 / Script 218 / MITM 1036 hosts"
+    "final": "Rule 2819 / URL Rewrite 617 / Map Local 714 / Script 218 / MITM 1032 hosts"
   },
   "dropped": {
     "Header Rewrite": 1,
@@ -69,5 +69,5 @@
     "原子分组转换": 20
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 403633
+  "output_bytes": 403569
 }
