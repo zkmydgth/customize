@@ -345,7 +345,7 @@ def main():  # noqa: C901
     # IPv6 自动跟踪规则（tools/track_ipv6.py 生成），与 extra_rules 同等对待。
     # 加入前先去重：完全相同的、以及已被 extra_rules 里更宽前缀覆盖的都不再重复添加。
     _ip6 = os.path.join(os.path.dirname(extra_path), "ipv6-auto.txt")
-    if os.path.exists(_ip6):
+    if os.path.exists(_ip6) and os.environ.get("USE_IPV6_RULES") == "1":
         def _net(cidr):
             """'240e:97c:39::/48' -> (8 组十六进制, 位数)"""
             body, bits = cidr.rsplit("/", 1)
@@ -606,6 +606,15 @@ def main():  # noqa: C901
         out.extend(lines)
         while out and not out[-1].strip():
             out.pop()
+        out.append("")
+
+    # 模块的 [General] 能覆盖主配置（2026-11-08 实测：日志出现
+    # "rule manager user config ipv6 = 0"，IPv6 连接从 13770 条降到 0）。
+    # 这比 IP-CIDR6 拦截更彻底：不解析 AAAA → App 直接走 IPv4，
+    # 不产生连接失败，也不需要维护 IP 段列表。
+    if os.environ.get("NO_DISABLE_IPV6") != "1":
+        out.append("[General]")
+        out.append("ipv6 = false")
         out.append("")
 
     block("Rule", rule_lines)

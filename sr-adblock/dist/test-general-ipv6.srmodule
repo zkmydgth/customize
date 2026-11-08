@@ -1,9 +1,0 @@
-#!name=测试：模块禁用 IPv6
-#!desc=验证 Shadowrocket 模块的 [General] 段能否覆盖主配置。若生效，知乎不再走 IPv6，MITM 全程有效；若不生效，说明模块只能追加规则、不能改配置项。
-#!author=sr-adblock
-#!system=ios
-#!category=工具
-#!tag=IPv6,测试
-
-[General]
-ipv6 = false
