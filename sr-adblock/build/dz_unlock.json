@@ -22,5 +22,6 @@
   "mitm_coverage_added": 12,
   "unknown_sections": [],
   "wide_blocked": 0,
+  "mitm_blocked": 0,
   "bytes": 51832
 }
