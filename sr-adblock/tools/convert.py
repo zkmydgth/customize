@@ -342,8 +342,6 @@ def main():  # noqa: C901
     # MITM
     extra_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "extra_rules.txt")
     extra = load_extra(extra_path)
-    # IPv6 自动跟踪规则（tools/track_ipv6.py 生成），与 extra_rules 同等对待。
-    # 加入前先去重：完全相同的、以及已被 extra_rules 里更宽前缀覆盖的都不再重复添加。
     _ip6 = os.path.join(os.path.dirname(extra_path), "ipv6-auto.txt")
     if os.path.exists(_ip6) and os.environ.get("USE_IPV6_RULES") == "1":
         def _net(cidr):
