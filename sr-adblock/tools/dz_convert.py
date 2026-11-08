@@ -53,6 +53,13 @@ KEEP = {"rule", "url rewrite", "map local", "script", "mitm"}
 #   zijieapi 命中 2225 次（含 gecko5 资源包、polaris 配置）
 #   bytedance 命中 128 次（含 pitaya 配置中心）
 # 上游 fmz200 没有这么写（它用 13 条精确 AND 规则），所以这里过滤掉。
+# MITM 黑名单：Apple 服务对证书链校验极严，解密后必然卡住。
+# 2026-11-08 实测：testflight.apple.com 被 startingad.module MITM 后，TestFlight 一直转菊花。
+# 注意 buy.itunes.apple.com / itunes.apple.com **不能**移除——有 19 条 App 解锁脚本依赖它们。
+MITM_BLOCK = {
+    "testflight.apple.com",
+}
+
 WIDE_BLOCK = {
     "DOMAIN-SUFFIX,bytedance.com",
     "DOMAIN-KEYWORD,zijieapi",
@@ -169,6 +176,9 @@ def parse(path, out, stats):  # noqa: C901
                     continue
                 if re.search(r":0$", h):
                     stats["mitm_port0"] += 1
+                    continue
+                if h.lower() in MITM_BLOCK:
+                    stats["mitm_blocked"] = stats.get("mitm_blocked", 0) + 1
                     continue
                 out["mitm"].append(h)
             stats["modules"] += 1
@@ -322,6 +332,7 @@ def main():  # noqa: C901
            "mitm_coverage_added": stats.get("mitm_coverage_added", 0),
            "unknown_sections": sorted(stats["unknown_sections"]),
         "wide_blocked": stats.get("wide_blocked", 0),
+        "mitm_blocked": stats.get("mitm_blocked", 0),
            "bytes": os.path.getsize(a.dst)}
     print(json.dumps(rep, ensure_ascii=False, indent=1))
     if a.report:
