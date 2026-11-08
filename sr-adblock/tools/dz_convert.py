@@ -46,6 +46,17 @@ def classify(path):
     return "other", name, desc
 DROP_SEC = {"header rewrite", "body rewrite", "general"}
 KEEP = {"rule", "url rewrite", "map local", "script", "mitm"}
+
+# 过宽规则黑名单：某些单 App 模块为保证自身彻底去广告，会拒绝整片域名，
+# 但同一批域名被抖音/红果短剧/今日头条等共用，会连带打死它们的基础服务。
+# 2026-11-08 实测：fanqie.module 的这两条让红果短剧视频无法加载
+#   zijieapi 命中 2225 次（含 gecko5 资源包、polaris 配置）
+#   bytedance 命中 128 次（含 pitaya 配置中心）
+# 上游 fmz200 没有这么写（它用 13 条精确 AND 规则），所以这里过滤掉。
+WIDE_BLOCK = {
+    "DOMAIN-SUFFIX,bytedance.com",
+    "DOMAIN-KEYWORD,zijieapi",
+}
 SEC_NAME = {"rule": "Rule", "url rewrite": "URL Rewrite", "map local": "Map Local",
             "script": "Script", "mitm": "MITM"}
 
@@ -178,6 +189,10 @@ def parse(path, out, stats):  # noqa: C901
             if c:
                 out[cur].append(c)
         elif cur in ("rule", "map local"):
+            key = ",".join(t.split(",")[:2]).strip()
+            if cur == "rule" and key in WIDE_BLOCK:
+                stats["wide_blocked"] = stats.get("wide_blocked", 0) + 1
+                continue
             out[cur].append(t)
 
 
@@ -306,6 +321,7 @@ def main():  # noqa: C901
            "mitm_port0_dropped": stats["mitm_port0"],
            "mitm_coverage_added": stats.get("mitm_coverage_added", 0),
            "unknown_sections": sorted(stats["unknown_sections"]),
+        "wide_blocked": stats.get("wide_blocked", 0),
            "bytes": os.path.getsize(a.dst)}
     print(json.dumps(rep, ensure_ascii=False, indent=1))
     if a.report:

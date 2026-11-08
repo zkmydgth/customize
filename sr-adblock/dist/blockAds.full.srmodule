@@ -12,8 +12,8 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  生成时间: 2026-11-08 03:28:16 UTC
-#  保留统计: Rule 10704 / URL Rewrite 1014 / Map Local 714 / Script 377 / MITM 1160 hosts
+#  生成时间: 2026-11-08 04:00:56 UTC
+#  保留统计: Rule 10706 / URL Rewrite 1014 / Map Local 714 / Script 377 / MITM 1160 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
 #  已剔除 [General] 1 条（SR 不支持）
@@ -1700,6 +1700,10 @@ DOMAIN-SUFFIX,bxwvk2ggv3.com,REJECT
 DOMAIN-SUFFIX,by2lc7429r.com,REJECT
 DOMAIN-SUFFIX,byjhazenf.com,REJECT
 DOMAIN-SUFFIX,byscy.cn,REJECT
+DOMAIN-SUFFIX,mssdk.bytedance.com,REJECT
+DOMAIN-SUFFIX,mssdk-bu.bytedance.com,REJECT
+DOMAIN-SUFFIX,tnc3-aliec2.bytedance.com,REJECT
+DOMAIN-SUFFIX,tnc3-bjlgy.bytedance.com,REJECT
 DOMAIN-SUFFIX,analytics.oceanengine.com.bytedns1.com,REJECT
 DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao-b.com.bytedns1.com,REJECT
 DOMAIN-SUFFIX,api-access.pangolin-sdk-toutiao.com.bytedns1.com,REJECT
@@ -7875,14 +7879,12 @@ DOMAIN,p6-ad-sign.byteimg.com,REJECT
 DOMAIN,p9-ad-sign.byteimg.com,REJECT
 DOMAIN-SUFFIX,byteimg.com,DIRECT
 DOMAIN,i.snssdk.com,REJECT
-DOMAIN-KEYWORD,zijieapi,REJECT
 DOMAIN,is.snssdk.com,REJECT
 DOMAIN,*novelapp.ixigua.com,REJECT
 DOMAIN,*default.ixigua.com,REJECT
 DOMAIN,sf3-ttcdn-tos.pstatp.com,REJECT
 DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
 DOMAIN-SUFFIX,bytegoofy.com,REJECT
-DOMAIN-SUFFIX,bytedance.com,REJECT
 DOMAIN-SUFFIX,ad-delivery.net,REJECT
 DOMAIN-SUFFIX,spot.im,REJECT
 DOMAIN-SUFFIX,revjet.com,REJECT
