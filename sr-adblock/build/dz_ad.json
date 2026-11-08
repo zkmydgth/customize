@@ -6,7 +6,7 @@
     "ad": 17,
     "other": 47
   },
-  "rule": 31,
+  "rule": 29,
   "url_rewrite": 543,
   "map_local": 0,
   "script": 68,
@@ -21,5 +21,6 @@
   "mitm_port0_dropped": 1,
   "mitm_coverage_added": 81,
   "unknown_sections": [],
-  "bytes": 63141
+  "wide_blocked": 2,
+  "bytes": 63075
 }
