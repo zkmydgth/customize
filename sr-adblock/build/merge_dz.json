@@ -6,9 +6,9 @@
   "map_local": 0,
   "mitm_added": 121,
   "mitm_total": 1159,
-  "bytes": 476004,
+  "bytes": 475707,
   "counts": {
-    "Rule": 2875,
+    "Rule": 2873,
     "URL Rewrite": 1014,
     "Map Local": 714,
     "Script": 377,
