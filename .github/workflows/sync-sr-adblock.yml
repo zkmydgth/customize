@@ -58,15 +58,6 @@ jobs:
         working-directory: sr-adblock
         run: python3 tools/extract_body.py ../.cache/upstream.module /tmp/bodyrewrite.json
 
-      - name: Track Zhihu IPv6 prefixes（ECS 采样 + 7 天过期清理）
-        working-directory: sr-adblock
-        continue-on-error: true
-        run: |
-          python3 tools/track_ipv6.py --sample --build || {
-            echo "::warning::IPv6 采样失败，沿用上次结果"
-            python3 tools/track_ipv6.py --build || true
-          }
-
       - name: Convert (rules / rewrite / map local)
         working-directory: sr-adblock
         env:
@@ -251,7 +242,6 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add sr-adblock/dist sr-adblock/scripts sr-adblock/build
-          git add -f sr-adblock/tools/ipv6-state.json sr-adblock/tools/ipv6-auto.txt 2>/dev/null || true
           if git diff --staged --quiet; then echo "上游无变化"; exit 0; fi
           git show "HEAD:$MOD" > /tmp/old.module 2>/dev/null || : > /tmp/old.module
           OLD=$(count /tmp/old.module); NEW=$(count "$MOD")
