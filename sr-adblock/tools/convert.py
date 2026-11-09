@@ -529,10 +529,7 @@ def main():  # noqa: C901
         map_local = extra["Map Local"] + map_local
         report["fixes"]["本地补充(Map Local)"] = len(extra["Map Local"])
         report["notes"].append("并入本地补充 [Map Local] %d 条" % len(extra["Map Local"]))
-        if extra.get("URL Rewrite"):
-            url_rewrite = extra["URL Rewrite"] + url_rewrite
-            report["fixes"]["本地补充(URL Rewrite)"] = len(extra["URL Rewrite"])
-            report["notes"].append("并入本地补充 [URL Rewrite] %d 条（置顶）" % len(extra["URL Rewrite"]))
+
     scripts = [l for l in sc_clean]
     if extra.get("Script"):
         # 置顶：我们的增强脚本要优先于上游同名 pattern 的脚本
