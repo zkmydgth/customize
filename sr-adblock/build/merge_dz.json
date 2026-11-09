@@ -6,12 +6,12 @@
   "map_local": 0,
   "mitm_added": 120,
   "mitm_total": 1154,
-  "bytes": 475557,
+  "bytes": 475831,
   "counts": {
     "Rule": 2873,
     "URL Rewrite": 1011,
     "Map Local": 715,
-    "Script": 377,
+    "Script": 378,
     "MITM": 1
   }
 }

@@ -1,6 +1,7 @@
 {
   "status": "patched",
   "patched_occurrences": 1,
+  "launch_injected": true,
   "upstream_bytes": 7054,
-  "output_bytes": 7487
+  "output_bytes": 7871
 }
