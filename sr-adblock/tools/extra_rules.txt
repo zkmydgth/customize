@@ -45,6 +45,7 @@
 # 而 frodo.douban.com 是豆瓣 App 主 API（日志 39 次全 DIRECT），
 # 上游那条 `frodo.douban.com/api/v2/movie/banner` 的改写因此从未生效。
 ^https?://frodo\.douban\.com/api/v2/home_ads data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https?://frodo\.douban\.com/api/v2/home_banner data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 # 2026-11-08 日志：豆瓣开屏 splash_* 已全部 REJECT，但 movie/ad 和 tv/ad
 # 仍在走 DIRECT（28 + 12 次）。这两个是纯广告接口，返回空对象即可。
 ^https?://frodo\.douban\.com/api/v2/(movie|tv)/ad data-type=text data="{}" status-code=200 header="Content-Type:application/json"
