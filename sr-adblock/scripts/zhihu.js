@@ -6,6 +6,17 @@ if (!$response.body) $done({});
 const url = $request.url;
 let obj = JSON.parse($response.body);
 
+// [sr-adblock] 开屏广告：清空 launch.ads，并保证 launch 是合法 JSON 字符串
+if (url.includes("/commercial_api/real_time_launch_v2") || url.includes("/commercial_api/launch_v2")) {
+  try {
+    const launch = JSON.parse(obj.launch);
+    launch.ads = [];
+    obj.launch = JSON.stringify(launch);
+  } catch (e) {
+    obj = { launch: JSON.stringify({ ads: [] }) };
+  }
+}
+
 if (url.includes("/answers/v2/") || url.includes("/articles/v2/")) {
   // 2024-04-29 新版知乎 回答列表下的相关提问
   if (obj?.third_business?.related_queries?.queries?.length > 0) {

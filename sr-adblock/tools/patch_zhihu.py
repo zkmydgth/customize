@@ -21,6 +21,26 @@ import os
 import sys
 import urllib.request
 
+LAUNCH_ANCHOR = 'let obj = JSON.parse($response.body);'
+
+# 开屏广告：知乎把开屏配置放在 body.launch（一个 JSON 字符串）里，
+# 形如 {"launch":"{\"ads\":[{...}]}"}。
+# 只用 Map Local 返回 {} 会让 App 认为「响应不完整」→ 继续用本地缓存的开屏配置，
+# 广告照弹（2026-11-09 日志实证：commercial_api 全部命中 Map Local，启动时零素材下载，
+# 但开屏广告仍在显示）。所以这里改成 app2smile 的做法：保持结构合法，只把 ads 清空。
+LAUNCH_BLOCK = '''
+// [sr-adblock] 开屏广告：清空 launch.ads，并保证 launch 是合法 JSON 字符串
+if (url.includes("/commercial_api/real_time_launch_v2") || url.includes("/commercial_api/launch_v2")) {
+  try {
+    const launch = JSON.parse(obj.launch);
+    launch.ads = [];
+    obj.launch = JSON.stringify(launch);
+  } catch (e) {
+    obj = { launch: JSON.stringify({ ads: [] }) };
+  }
+}
+'''
+
 BAD = "getUrlParamValue(item.fields.header.url"
 FIXED = "getUrlParamValue(i.fields.header.url"
 
@@ -84,6 +104,16 @@ def main():
         print("PATCH FAIL: 上游结构变化（const item = [...] 不存在），需人工确认", file=sys.stderr)
         return 1
 
+    # 注入开屏广告处理（幂等：已注入则跳过）
+    launch_added = False
+    if "[sr-adblock] 开屏广告" in text:
+        launch_added = False
+    elif LAUNCH_ANCHOR in text:
+        text = text.replace(LAUNCH_ANCHOR, LAUNCH_ANCHOR + "\n" + LAUNCH_BLOCK.rstrip("\n"), 1)
+        launch_added = True
+    else:
+        print("PATCH WARN: 找不到 %s，跳过开屏注入（需人工确认上游结构）" % LAUNCH_ANCHOR, file=sys.stderr)
+
     header = (
         "// [sr-adblock] patched from fmz200/wool_scripts Scripts/zhihu/zhihu.js\n"
         "// patch: getUrlParamValue(item.fields...) -> (i.fields...)\n"
@@ -95,6 +125,7 @@ def main():
     info = {
         "status": status,
         "patched_occurrences": hits,
+        "launch_injected": launch_added,
         "upstream_bytes": original_len,
         "output_bytes": os.path.getsize(args.out),
     }

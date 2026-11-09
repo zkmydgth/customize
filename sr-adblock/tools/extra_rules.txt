@@ -11,7 +11,11 @@
 # 其中 sdk/prefetch 会预加载广告素材（缓存后开屏照常显示）
 
 [Map Local]
-^https:\/\/api\.zhihu\.com\/commercial_api\/ data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+# 2026-11-09：开屏（launch_v2 / real_time_launch_v2）**不能**用 Map Local {}。
+# 知乎把开屏配置放在 body.launch（JSON 字符串）里，App 收到 {} 判定「响应不完整」，
+# 继续用本地缓存的开屏配置 → 广告照弹（日志实证：接口全命中 Map Local，启动零素材下载）。
+# 所以这两个接口交给 [Script] 处理（保持结构合法、ads 清空），Map Local 用负向断言排除。
+^https:\/\/api\.zhihu\.com\/commercial_api\/(?!(?:real_time_)?launch_v2) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 # 2026-10-30 从同一份代理日志补的埋点/追踪（父域被判 DIRECT，必须置顶才生效）
 ^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|show|event\/list2) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
@@ -116,3 +120,7 @@ img*.360buyimg.com
 open.kwaizt.com
 df.tanx.com
 
+[Script]
+# 2026-11-09 知乎开屏去广告：脚本改写 body.launch.ads = []，保持响应结构合法。
+# 置顶生效：同名 pattern 时我们的脚本优先于上游。
+知乎开屏去广告 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/commercial_api\/(?:real_time_launch_v2|launch_v2), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu.js, requires-body=1
