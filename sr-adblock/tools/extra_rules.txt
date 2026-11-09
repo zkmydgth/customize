@@ -123,4 +123,5 @@ df.tanx.com
 [Script]
 # 2026-11-09 知乎开屏去广告：脚本改写 body.launch.ads = []，保持响应结构合法。
 # 置顶生效：同名 pattern 时我们的脚本优先于上游。
-知乎开屏去广告 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/commercial_api\/(?:real_time_launch_v2|launch_v2), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu.js, requires-body=1
+# 用独立文件（scripts/zhihu-launch.js）避开 SR 对同名脚本 URL 的缓存。
+知乎开屏去广告 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/commercial_api\/(?:real_time_launch_v2|launch_v2), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-launch.js, requires-body=1
