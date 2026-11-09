@@ -28,7 +28,7 @@
     },
     "MITM.hostnames": 1032,
     "Host": 0,
-    "final": "Rule 2819 / URL Rewrite 619 / Map Local 713 / Script 218 / MITM 1032 hosts"
+    "final": "Rule 2819 / URL Rewrite 617 / Map Local 715 / Script 218 / MITM 1032 hosts"
   },
   "dropped": {
     "Header Rewrite": 1,
@@ -49,8 +49,7 @@
     "剔除范围过宽规则 4 条: DOMAIN-KEYWORD,trace.qq.com,REJECT, DOMAIN-SUFFIX,l.qq.com,REJECT, AND,((DOMAIN-KEYWORD,frontier-aweme-),(AND,((OR,((DOMAIN-KEYWORD,-ipa.),(DOMAIN-KEYWORD,-ipainner.),(DOMAIN-KEYWORD,-origin.),(DOMAIN-KEYWORD,-ipainner-))),(OR,((DOMAIN-SUFFIX,snssdk.com),(DOMAIN-SUFFIX,amemv.com)))))),REJECT, AND,((DOMAIN-KEYWORD,ma5-normal-),(DOMAIN-SUFFIX,zijieapi.com)),REJECT",
     "动作后缀错位修正 2 条（xxx-NO-DROP -> REJECT-NO-DROP）",
     "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）",
-    "并入本地补充 [Map Local] 6 条",
-    "并入本地补充 [URL Rewrite] 2 条（置顶）",
+    "并入本地补充 [Map Local] 8 条",
     "URL Rewrite/Map Local/Script 去重 3 条（1/2/0）",
     "为 URL Rewrite/Map Local 补全 MITM 域名 111 个",
     "(?>) 原子分组转 (?:) 20 条"
@@ -64,12 +63,11 @@
     "规则去重": 168,
     "动作后缀错位": 2,
     "协议笔误": 19,
-    "本地补充(Map Local)": 6,
-    "本地补充(URL Rewrite)": 2,
+    "本地补充(Map Local)": 8,
     "其它段去重": 3,
     "MITM 补全(改写域名)": 111,
     "原子分组转换": 20
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 403651
+  "output_bytes": 403699
 }
