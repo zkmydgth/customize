@@ -7,7 +7,7 @@
     "other": 47
   },
   "rule": 29,
-  "url_rewrite": 543,
+  "url_rewrite": 540,
   "map_local": 0,
   "script": 68,
   "mitm": 432,
@@ -23,5 +23,5 @@
   "unknown_sections": [],
   "wide_blocked": 2,
   "mitm_blocked": 5,
-  "bytes": 62988
+  "bytes": 62826
 }
