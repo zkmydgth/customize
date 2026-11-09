@@ -20,7 +20,6 @@
 # 请求 df.tanx.com 已被拦，但素材仍从下列域名加载（配置 JSON 在本地缓存里）
 #   tanx-creative.taobao.com           广告创意配置
 #   ossgw.alicdn.com/creatives-assets/ 创意素材（feupload 路径）
-^https:\/\/ossgw\.alicdn\.com\/creatives-assets\/ data-type=text data="" status-code=404
 
 # 2026-10-31 第五次日志：微博开屏广告（模块里原本 0 条微博规则，全部 DIRECT）
 # biz.weibo.com 是微博商业化域名，以下为明确的广告链路：
@@ -54,7 +53,6 @@
 # MITM 失效。这里精确拦截知乎使用的 IPv6 段（原来单独出一个模块，现合并进主模块）。
 # 微信用 2408:8756 / 2408:80f1 / 240e:ff / 240e:e1 / 240e:97d:2008:801 等段，
 # 与下列不重叠，不会影响文件下载。
-^https?:\/\/img\d+\.360buyimg\.com\/tgx\/ data-type=text data="" status-code=404
 
 [Rule]
 DOMAIN,sq.bls.mdt.qq.com,REJECT
@@ -114,3 +112,10 @@ frodo.douban.com
 img*.360buyimg.com
 open.kwaizt.com
 df.tanx.com
+
+# 2026-11-09 日志：知乎用缓存配置拉广告图（开屏接口 0 请求）。
+# Map Local 返回 404 时 App 保留磁盘旧图继续渲染 → 改 reject-tinygif（1x1 透明图+200），
+# App 会用它替换磁盘缓存 → 广告图"隐形"。
+[URL Rewrite]
+^https?:\/\/img\d+\.360buyimg\.com\/tgx\/ reject-tinygif
+^https:\/\/ossgw\.alicdn\.com\/creatives-assets\/ reject-tinygif
