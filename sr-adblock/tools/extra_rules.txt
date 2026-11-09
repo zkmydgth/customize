@@ -50,7 +50,6 @@
 # 上游那条 `frodo.douban.com/api/v2/movie/banner` 的改写因此从未生效。
 ^https?://frodo\.douban\.com/api/v2/home_ads data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 ^https?://frodo\.douban\.com/api/v2/home_banner data-type=text data="{}" status-code=200 header="Content-Type:application/json"
-^https?://frodo\.douban\.com/api/v\d/erebor/feed_ad data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 # 2026-11-08 日志：豆瓣开屏 splash_* 已全部 REJECT，但 movie/ad 和 tv/ad
 # 仍在走 DIRECT（28 + 12 次）。这两个是纯广告接口，返回空对象即可。
 ^https?://frodo\.douban\.com/api/v2/(movie|tv)/ad data-type=text data="{}" status-code=200 header="Content-Type:application/json"
@@ -107,14 +106,6 @@ DOMAIN,df.tanx.com,REJECT
 
 [MITM]
 ossgw.alicdn.com
-
-# 豆瓣广告图在主 CDN 上（img9/img3.doubanio.com/view/dale-online/dale_ad/...）。
-# 上游有 URL Rewrite reject 规则，但 img*.doubanio.com 不在 MITM → SR 只看到域名、
-# 看不到路径 → 规则永远不生效。开屏广告图就是这么漏进来的。
-*.doubanio.com
-
-# 阿里妈妈创意素材：URL-REGEX 在 DIRECT 流量上匹配不到（Rule 层看不到 URL），
-# 改用 Map Local 返回 404，素材加载失败 → 开屏无法展示
 open.kuaishouzt.com
 
 frodo.douban.com
@@ -131,3 +122,4 @@ df.tanx.com
 # 置顶生效：同名 pattern 时我们的脚本优先于上游。
 # 用独立文件（scripts/zhihu-launch.js）避开 SR 对同名脚本 URL 的缓存。
 知乎开屏去广告 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/commercial_api\/(?:real_time_launch_v2|launch_v2), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-launch.js, requires-body=1
+
