@@ -12,7 +12,7 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  生成时间: 2026-11-09 13:22:13 UTC
+#  生成时间: 2026-11-09 13:37:03 UTC
 #  保留统计: Rule 2873 / URL Rewrite 1018 / Map Local 715 / Script 605 / MITM 1327 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
@@ -8321,7 +8321,7 @@ https://.+\.gamersky.com/v1/statisticAd data-type=text data="{}" status-code=200
 # >>>>>>>>>>>>>>> 🟣 <<<<<<<<<<<<<<
 
 [Script]
-知乎开屏去广告 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/commercial_api\/(?:real_time_launch_v2|launch_v2), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu.js, requires-body=1
+知乎开屏去广告 = type=http-response, pattern=^https:\/\/api\.zhihu\.com\/commercial_api\/(?:real_time_launch_v2|launch_v2), script-path=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/scripts/zhihu-launch.js, requires-body=1
 12306 = type=http-request, pattern=^https?:\/\/ad\.12306\.cn\/ad\/ser\/getAdList, script-path=https://raw.githubusercontent.com/kokoryh/Script/master/js/12306.js, requires-body=1, timeout=60
 51信用卡管家 = type=http-response, pattern=^https?:\/\/api\.u51\.com\/liabilitygateway\/api\/v\d\/homepage\/liabilityline, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/51card.js, requires-body=1, timeout=60
 51信用卡管家 = type=http-response, pattern=^https?:\/\/api\.u51\.com\/generic-config-gateway\/api\/v\d\/guanjia\/me-tab2\/config, script-path=https://raw.githubusercontent.com/fmz200/wool_scripts/main/Scripts/51card.js, requires-body=1, timeout=60
