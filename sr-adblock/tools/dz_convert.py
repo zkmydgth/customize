@@ -204,6 +204,13 @@ def parse(path, out, stats):  # noqa: C901
                 continue
             out["script"].append(line)
         elif cur == "url rewrite":
+            # 与主模块 Map Local(空对象) 冲突的 reject：URL Rewrite 优先级更高，
+            # 会掐断连接让 App 回退缓存广告配置。删掉后由 Map Local 返回 {}。
+            if t.strip().endswith("reject") and (
+                    ("zhihu" in t and "commercial_api" in t and "www" not in t)
+                    or ("douban" in t and "app_ads" in t)):
+                stats["urw_conflict_reject_dropped"] = stats.get("urw_conflict_reject_dropped", 0) + 1
+                continue
             c = clean_url_rewrite(t, stats)
             if c:
                 out[cur].append(c)
@@ -230,7 +237,8 @@ def main():  # noqa: C901
 
     stats = {"modules": 0, "dropped": 0, "script_no_path": 0,
              "mitm_negated": [], "unknown_sections": set(),
-             "urw_script_url": 0, "urw_bad": 0, "urw_redirect_dropped": 0,
+             "urw_script_url": 0, "urw_bad": 0,
+             "urw_redirect_dropped": 0,
              "legacy_script_converted": 0, "legacy_idx": 0, "mitm_port0": 0}
 
     if not files:

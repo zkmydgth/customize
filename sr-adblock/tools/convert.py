@@ -294,6 +294,18 @@ def main():  # noqa: C901
     urw = kept.get("URL Rewrite", []) + ml_extra_rw
     # 上游偶有把 MITM 行误写进 URL Rewrite 段（例：`hostname - reject`），
     # SR 会把它当正则匹配任意含 "hostname" 的 URL → 误伤
+    # 与本地 Map Local(空对象) 冲突的 URL Rewrite reject：
+    # SR 里 URL Rewrite 优先级高于 Map Local（2026-11-09 日志实证——
+    # 豆瓣 splash / 知乎 app_float_layer 都命中 REWRITE 而非已存在的 Map Local），
+    # reject 掐断连接会让 App 回退到缓存的广告配置。
+    # 删掉后由 Map Local 返回 {} + 200，App 解析空配置 → 无广告。
+    _conflict = [l for l in urw if l.strip().endswith("reject") and (
+        ("zhihu" in l and "commercial_api" in l and "www" not in l)
+        or ("douban" in l and "app_ads" in l))]
+    if _conflict:
+        report["dropped"]["URL Rewrite 冲突reject"] = len(_conflict)
+        report["notes"].append("剔除与 Map Local 空对象冲突的 reject %d 条（知乎/豆瓣开屏）" % len(_conflict))
+        urw = [l for l in urw if l not in _conflict]
     _junk = [l for l in urw if re.match(r"^\s*hostname\s", l, re.I)]
     if _junk:
         urw = [l for l in urw if l not in _junk]
