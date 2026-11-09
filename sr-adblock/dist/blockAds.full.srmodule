@@ -12,8 +12,8 @@
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-10-30 16:26:43
-#  生成时间: 2026-11-09 11:54:03 UTC
-#  保留统计: Rule 10704 / URL Rewrite 1014 / Map Local 715 / Script 377 / MITM 1154 hosts
+#  生成时间: 2026-11-09 12:09:23 UTC
+#  保留统计: Rule 10704 / URL Rewrite 1011 / Map Local 714 / Script 377 / MITM 1154 hosts
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
 #  已剔除 [Body Rewrite] 96 条（SR 不支持）
 #  已剔除 [General] 1 条（SR 不支持）
@@ -13183,7 +13183,6 @@ https://support.you.163.com/appversync/check.do - reject
 ^https?:\/\/m\.caijing\.com\.cn\/startup_ad_ios\.html$ reject
 ^https?:\/\/m\.ctrip\.com\/restapi\/soa2\/\d+\/json\/getAdsList reject
 ^https?:\/\/app\.poizon\.com\/api\/v\d\/app\/advertisement\/ reject
-^https?:\/\/api\.douban\.com\/v\d\/app_ads\/ reject
 ^https?:\/\/rtbapi\.douyucdn\.cn\/japi\/sign\/app\/getinfo reject
 ^https?:\/\/e\.dangdang\.com\/media\/api\d\.go\?action=getDeviceStartPage reject
 ^https?:\/\/capis(-slb)?\.didapinche\.com\/ad\/ reject
@@ -13308,7 +13307,6 @@ https://support.you.163.com/appversync/check.do - reject
 ^https?:\/\/restapi\.iyunmai\.com\/api\/ios\/ad\/ reject
 ^https?:\/\/api\.yizhibo\.com\/common\/api\/api_pz$ reject
 ^https?:\/\/api\.yizhibo\.com\/common\/api\/pz$ reject
-^https?:\/\/api\.zhihu\.com\/commercial_api\/ reject
 ^https?:\/\/api\.zhihu\.com\/fringe\/ad reject
 ^https?:\/\/api\.zhihu\.com\/ad reject
 ^https?:\/\/api\.zhihu\.com\/appview\/api\/v\d\/answers\/\d+\/recommendations reject
@@ -13370,7 +13368,6 @@ https://support.you.163.com/appversync/check.do - reject
 ^https?:\/\/cn-acs\.m\.cainiao\.com\/gw\/mtop\.cainiao\.guoguo\.nbnetflow\.ads\.(show|mshow)\.cn\/ reject
 ^https?:\/\/m\.creditcard\.ecitic\.com\/citiccard\/mbk\/appspace-getway\/getWay\/dkkj-system-web\/system\/v\d\/init-config reject
 ^https?:\/\/sdk\.alibaba\.com\.ailbaba\.me\/.*?\/v\d\/(version|top_notice\?|advert\?position=[^2]+) reject
-^https?:\/\/api\.douban\.com\/v2\/app_ads\/splash reject
 ^https?:\/\/api\.douban\.com\/b.*\/common_ads\?.* reject
 ^https?:\/\/capis(-?\w*)?\.didapinche\.com\/ad\/cx\/startup\? reject
 https?://res\.xiaojukeji\.com\/resapi\/activity\/mget reject
@@ -13536,9 +13533,9 @@ https?:\/\/m\.sd\.10086\.cn\/zapi\/app_common\/homeWelcome\/welcome.do reject
 ^https?:\/\/.*\.xima.*\.com\/discovery-feed\/focus\/queryF reject
 
 [Map Local]
-^https:\/\/api\.zhihu\.com\/commercial_api\/(?:app_float_layer|real_time_pull_refresh_v2|real_time_second_floor_v2|sdk\/prefetch) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
+^https:\/\/api\.zhihu\.com\/commercial_api\/ data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 ^https:\/\/app\.bilibili\.com\/x\/v2\/splash\/(?:list|show|event\/list2) data-type=text data="{}" status-code=200 header="Content-Type:application/json"
-^https?:\/\/api\.douban\.com\/v\d\/app_ads\/ data-type=text data="" status-code=404
+^https?:\/\/api\.douban\.com\/v\d\/app_ads\/ data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 ^https?:\/\/open\.kuaishouzt\.com\/ data-type=text data="" status-code=404
 ^https?://frodo\.douban\.com/api/v2/home_ads data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 ^https?://frodo\.douban\.com/api/v2/(movie|tv)/ad data-type=text data="{}" status-code=200 header="Content-Type:application/json"
@@ -14043,7 +14040,6 @@ https?:\/\/m\.sd\.10086\.cn\/zapi\/app_common\/homeWelcome\/welcome.do reject
 # > 豆瓣
 # hostname = api.douban.com
 # 如开启可自行添加主机名 img*.douban.com, frodo.douban.com, erebor.douban.com
-^https?:\/\/api\.douban\.com\/v\d\/app_ads\/ data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
 ^https?:\/\/api\.douban\.com\/b.*\/common_ads\?.* data-type=text data="{}" status-code=200 header="Content-Type:application/json"
 
