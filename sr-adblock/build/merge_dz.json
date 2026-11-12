@@ -5,8 +5,8 @@
   "script_skipped_same_pattern": 5,
   "map_local": 0,
   "mitm_added": 120,
-  "mitm_total": 1154,
-  "bytes": 475838,
+  "mitm_total": 1160,
+  "bytes": 476306,
   "counts": {
     "Rule": 2873,
     "URL Rewrite": 1011,

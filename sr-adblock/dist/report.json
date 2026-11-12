@@ -1,6 +1,6 @@
 {
   "source": "upstream.module",
-  "source_date": "2026-10-30 16:26:43",
+  "source_date": "2026-11-11 22:01:46",
   "kept": {
     "Rule": 2970,
     "Rule.types": {
@@ -20,27 +20,25 @@
       "header": 1,
       "reject-tinygif": 101
     },
-    "Map Local": 709,
+    "Map Local": 708,
     "Script": 218,
     "Script.types": {
       "http-request": 5,
       "http-response": 213
     },
-    "MITM.hostnames": 1032,
+    "MITM.hostnames": 1038,
     "Host": 0,
-    "final": "Rule 2819 / URL Rewrite 617 / Map Local 715 / Script 219 / MITM 1032 hosts"
+    "final": "Rule 2819 / URL Rewrite 617 / Map Local 715 / Script 219 / MITM 1038 hosts"
   },
   "dropped": {
+    "General": 1,
     "Header Rewrite": 1,
     "Body Rewrite": 96,
-    "General": 1,
-    "URL Rewrite 垃圾行": 1,
     "过宽规则": 4
   },
   "notes": [
     "Map Local data-type=tiny-gif -> URL Rewrite reject-tinygif: 101 条",
     "Map Local data-type=file 丢弃: 2 条",
-    "剔除 URL Rewrite 段中的 hostname 行 1 条",
     "脚本地址 github.com -> raw 直链 13 条",
     "知乎脚本改指向本地修补版 12 条",
     "本地补充 [MITM] 5 个域名",
@@ -51,8 +49,8 @@
     "URL 协议笔误修正 19 条（http:// 或 http?: -> https?://）",
     "并入本地补充 [Map Local] 9 条",
     "本地补充 [Script] 1 条（置顶）",
-    "URL Rewrite/Map Local/Script 去重 4 条（1/3/0）",
-    "为 URL Rewrite/Map Local 补全 MITM 域名 111 个",
+    "URL Rewrite/Map Local/Script 去重 3 条（1/2/0）",
+    "为 URL Rewrite/Map Local 补全 MITM 域名 89 个",
     "(?>) 原子分组转 (?:) 20 条"
   ],
   "unknown_sections": {},
@@ -66,10 +64,10 @@
     "协议笔误": 19,
     "本地补充(Map Local)": 9,
     "本地补充(Script)": 1,
-    "其它段去重": 4,
-    "MITM 补全(改写域名)": 111,
+    "其它段去重": 3,
+    "MITM 补全(改写域名)": 89,
     "原子分组转换": 20
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 403939
+  "output_bytes": 404407
 }
