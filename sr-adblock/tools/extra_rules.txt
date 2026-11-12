@@ -104,6 +104,20 @@ DOMAIN,open.kuaishouzt.com,REJECT
 DOMAIN-SUFFIX,kwaizt.com,REJECT
 DOMAIN,df.tanx.com,REJECT
 
+# 2026-11-12 知乎开屏修复（关键：App 换了流量路径，我们的规则整体失效）
+# 现象：2026-11-12 日志里 api.zhihu.com 完全查不到 —— 只有一个裸 IP 43.242.197.211。
+# 链路：
+#   ① App 用自带 HTTPDNS（182.61.194.7）解析 api.zhihu.com → 拿到真实 IP
+#   ② 连接走 QUIC/HTTP3（UDP/443），SR 的 TLS 嗅探失败（tls sniffer => -1）
+#      → 只按 IP 匹配 → GEOIP,CN,DIRECT
+#   ③ TCP 连接同样是裸 IP（domain => <null>）→ SR 不知道域名 → 不解密
+#   ⇒ MITM / Map Local / Script / URL Rewrite 全部失效 → 开屏广告拦不住
+# 修法：
+#   1) 拦掉腾讯 HTTPDNS → App 回落到系统 DNS → SR 的 fake-IP 接管域名
+#   2) 拦知乎的 QUIC → App 回落到 TCP → SR 才能解密 → 知乎开屏脚本重新生效
+IP-CIDR,182.61.194.0/24,REJECT,no-resolve
+AND,((PROTOCOL,QUIC),(DOMAIN-SUFFIX,zhihu.com)),REJECT
+
 [MITM]
 ossgw.alicdn.com
 open.kuaishouzt.com
