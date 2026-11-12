@@ -28,7 +28,7 @@
     },
     "MITM.hostnames": 1038,
     "Host": 0,
-    "final": "Rule 2819 / URL Rewrite 617 / Map Local 715 / Script 219 / MITM 1038 hosts"
+    "final": "Rule 2821 / URL Rewrite 617 / Map Local 715 / Script 219 / MITM 1038 hosts"
   },
   "dropped": {
     "General": 1,
@@ -42,7 +42,7 @@
     "脚本地址 github.com -> raw 直链 13 条",
     "知乎脚本改指向本地修补版 12 条",
     "本地补充 [MITM] 5 个域名",
-    "本地补充 [Rule] 21 条已置顶（避免被父域 DIRECT 抢先）",
+    "本地补充 [Rule] 23 条已置顶（避免被父域 DIRECT 抢先）",
     "规则去重 168 条（完全相同 166 / 同域名多动作 2）",
     "剔除范围过宽规则 4 条: DOMAIN-KEYWORD,trace.qq.com,REJECT, DOMAIN-SUFFIX,l.qq.com,REJECT, AND,((DOMAIN-KEYWORD,frontier-aweme-),(AND,((OR,((DOMAIN-KEYWORD,-ipa.),(DOMAIN-KEYWORD,-ipainner.),(DOMAIN-KEYWORD,-origin.),(DOMAIN-KEYWORD,-ipainner-))),(OR,((DOMAIN-SUFFIX,snssdk.com),(DOMAIN-SUFFIX,amemv.com)))))),REJECT, AND,((DOMAIN-KEYWORD,ma5-normal-),(DOMAIN-SUFFIX,zijieapi.com)),REJECT",
     "动作后缀错位修正 2 条（xxx-NO-DROP -> REJECT-NO-DROP）",
@@ -58,7 +58,7 @@
     "脚本地址改直链": 13,
     "知乎脚本重定向": 12,
     "本地补充(MITM)": 5,
-    "本地补充(Rule)": 21,
+    "本地补充(Rule)": 23,
     "规则去重": 168,
     "动作后缀错位": 2,
     "协议笔误": 19,
@@ -69,5 +69,5 @@
     "原子分组转换": 20
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 404407
+  "output_bytes": 404504
 }
