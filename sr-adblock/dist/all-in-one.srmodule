@@ -7,12 +7,12 @@
 #!category=去广告
 #!tag=去广告,解锁
 #!raw-url=https://raw.githubusercontent.com/zkmydgth/customize/main/sr-adblock/dist/all-in-one.srmodule
-#!date=2026-11-12
+#!date=2026-11-13
 
 # ============================================================
 #  Shadowrocket 适配版 · 自动生成，请勿手工修改
 #  上游日期: 2026-11-11 22:01:46
-#  生成时间: 2026-11-12 11:59:27 UTC
+#  生成时间: 2026-11-13 00:58:30 UTC
 #  保留统计: Rule 2875 / URL Rewrite 1018 / Map Local 715 / Script 605 / MITM 1331 hosts
 #  已剔除 [General] 1 条（SR 不支持）
 #  已剔除 [Header Rewrite] 1 条（SR 不支持）
