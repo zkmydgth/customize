@@ -2,12 +2,12 @@
   "source": "upstream.module",
   "source_date": "2026-11-11 22:01:46",
   "kept": {
-    "Rule": 2970,
+    "Rule": 2968,
     "Rule.types": {
       "DOMAIN-SUFFIX": 2257,
       "DOMAIN-KEYWORD": 113,
       "AND": 59,
-      "DOMAIN": 487,
+      "DOMAIN": 485,
       "IP-CIDR": 35,
       "IP-CIDR6": 3,
       "URL-REGEX": 15,
@@ -28,7 +28,7 @@
     },
     "MITM.hostnames": 1038,
     "Host": 0,
-    "final": "Rule 2821 / URL Rewrite 617 / Map Local 715 / Script 219 / MITM 1038 hosts"
+    "final": "Rule 2819 / URL Rewrite 617 / Map Local 715 / Script 219 / MITM 1038 hosts"
   },
   "dropped": {
     "General": 1,
@@ -69,5 +69,5 @@
     "原子分组转换": 20
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 404504
+  "output_bytes": 404447
 }
