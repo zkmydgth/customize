@@ -1,6 +1,6 @@
 {
   "source": "upstream.module",
-  "source_date": "2026-11-11 22:01:46",
+  "source_date": "2026-11-25 21:36:48",
   "kept": {
     "Rule": 2968,
     "Rule.types": {
@@ -20,15 +20,15 @@
       "header": 1,
       "reject-tinygif": 101
     },
-    "Map Local": 708,
-    "Script": 218,
+    "Map Local": 707,
+    "Script": 220,
     "Script.types": {
-      "http-request": 5,
+      "http-request": 7,
       "http-response": 213
     },
     "MITM.hostnames": 1038,
     "Host": 0,
-    "final": "Rule 2819 / URL Rewrite 617 / Map Local 715 / Script 219 / MITM 1038 hosts"
+    "final": "Rule 2819 / URL Rewrite 617 / Map Local 714 / Script 221 / MITM 1038 hosts"
   },
   "dropped": {
     "General": 1,
@@ -69,5 +69,5 @@
     "原子分组转换": 20
   },
   "output": "dist/blockAds.sr.module",
-  "output_bytes": 404447
+  "output_bytes": 404789
 }
